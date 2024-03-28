@@ -1,0 +1,26 @@
+{
+  "typescript.preferences.importModuleSpecifier": "shortest",
+  "typescript.preferences.quoteStyle": "single",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  },
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.insertSpaces": true,
+  "files.trimTrailingWhitespace": true,
+  "prettier.singleQuote": true,
+  "files.associations": {
+    "*.ejs": "html"
+  },
+  "search.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/public/AdminLTE": true,
+    "**/public/js/jquery*": true,
+    "**/dist": true
+  },
+  "editor.fontFamily": "D2Coding, Consolas, 'Courier New', monospace",
+  "jestrunner.jestCommand": "npm run test --"
+}

@@ -1,0 +1,8 @@
+{
+  "dev": true,
+  "db": {
+    "mongo": {},
+    "redis": {},
+    "mysql": {}
+  }
+}
