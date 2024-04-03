@@ -5,7 +5,7 @@ const generator = new PluginMetadataGenerator();
 generator.generate({
   visitors: [
     new ReadonlyVisitor({
-      dtoFileNameSuffix: ['game.req.bean.ts', 'game.req.cheat.bean'],
+      dtoFileNameSuffix: ['.dto.ts'],
       classValidatorShim: true,
       pathToSource: __dirname,
     }),
