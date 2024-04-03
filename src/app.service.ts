@@ -6,15 +6,19 @@ export class AppService implements BeforeApplicationShutdown, OnApplicationShutd
   onModuleInit() {
     ServerLogger.log(`onModuleInit`);
   }
+
   onApplicationBootstrap() {
     ServerLogger.log(`onApplicationBootstrap`);
   }
+
   onModuleDestroy() {
     ServerLogger.log(`onModuleDestroy`);
   }
+
   beforeApplicationShutdown() {
     ServerLogger.log(`beforeApplicationShutdown`);
   }
+
   onApplicationShutdown(signal: string) {
     ServerLogger.log(`onApplicationShutdown`);
   }

@@ -1,10 +1,10 @@
-import { INestApplication } from '@nestjs/common';
+import { Type, type INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 /**
  * Swagger 세팅
  */
-export async function setupSwagger(app: INestApplication, module: Function, endPoint: string) {
+export async function setupSwagger(app: INestApplication, module: Type, endPoint: string) {
   let metadata: () => Promise<Record<string, any>>;
   const path = './metadata';
 
@@ -14,7 +14,10 @@ export async function setupSwagger(app: INestApplication, module: Function, endP
   } catch (error) {
     return;
   }
-  const options = new DocumentBuilder().setTitle('Nest API Docs').setDescription('The last successful data is saved.').setVersion('0.0.1').build();
+  const options = new DocumentBuilder().setTitle('Nest API Docs')
+    .setDescription('last successful data is saved.')
+    .setVersion('0.0.1')
+    .build();
   await SwaggerModule.loadPluginMetadata(metadata);
   const document = SwaggerModule.createDocument(app, options, {
     include: [module],
@@ -32,20 +35,23 @@ export async function setupSwagger(app: INestApplication, module: Function, endP
       defaultModelExpandDepth: 100,
       responseInterceptor: (res) => {
         if (res.ok) {
-          var req = JSON.parse(sessionStorage.getItem('currentRequest'));
+          const req = JSON.parse(sessionStorage.getItem('currentRequest'));
           const url = new URL(res.url);
           const pathname = `${url.pathname}_${req.method}`;
-          //data save
-          var requestData = JSON.parse(localStorage.getItem('requestData')) || {};
+          // data save
+          const requestData = JSON.parse(localStorage.getItem('requestData')) || {};
           if (requestData[pathname]) {
             requestData[pathname].body = req.body;
             requestData[pathname].parameters = req.parameters;
           } else {
-            requestData[pathname] = { body: req.body, parameters: req.parameters };
+            requestData[pathname] = {
+              body: req.body,
+              parameters: req.parameters,
+            };
           }
           localStorage.setItem('requestData', JSON.stringify(requestData));
 
-          var responseData = JSON.parse(localStorage.getItem('responseData')) || {};
+          const responseData = JSON.parse(localStorage.getItem('responseData')) || {};
           if (responseData[pathname]) {
             responseData[pathname].body = res.body;
             responseData[pathname].status = res.status;
@@ -54,7 +60,7 @@ export async function setupSwagger(app: INestApplication, module: Function, endP
           }
           localStorage.setItem('responseData', JSON.stringify(responseData));
 
-          if (pathname.indexOf('account/login') > -1) {
+          if (pathname.includes('account/login')) {
             sessionStorage.setItem('userToken', res.body.content.login_result.token);
           }
           console.log(res);
@@ -69,7 +75,7 @@ export async function setupSwagger(app: INestApplication, module: Function, endP
         for (const [key, value] of url.searchParams.entries()) {
           parameters[key] = value;
         }
-        sessionStorage.setItem('currentRequest', JSON.stringify({ method: method, body: body, parameters: parameters }));
+        sessionStorage.setItem('currentRequest', JSON.stringify({ method, body, parameters }));
         const token = sessionStorage.getItem('userToken');
         req.headers.Authorization = `Bearer ${token}`;
         return req;
@@ -84,32 +90,32 @@ async function onLoadSwagger() {
     const requestData = JSON.parse(localStorage.getItem('requestData')) || {};
     const spec = JSON.parse(window['ui'].specSelectors.specStr());
     for (const [pathname, methods] of Object.entries(spec.paths)) {
-      for (const [method, info] of Object.entries(methods)) {
+      for (const [method] of Object.entries(methods)) {
         const storgeName = `${pathname}_${method}`;
-        //data load
+        // data load
         if (responseData[storgeName]) {
-          var res = responseData[storgeName];
+          const res = responseData[storgeName];
           spec.paths[pathname][method].responses[res.status] = spec.paths[pathname][method].responses[res.status] || {};
           spec.paths[pathname][method].responses[res.status].content = spec.paths[pathname][method].responses[res.status].content || {};
           spec.paths[pathname][method].responses[res.status].content['application/json'] = { example: res.body };
         }
         if (requestData[storgeName]) {
-          var req = requestData[storgeName];
-          var schemaName = spec?.paths[pathname]?.[method]?.requestBody?.content['application/json']?.schema?.$ref;
+          const req = requestData[storgeName];
+          let schemaName = spec?.paths[pathname]?.[method]?.requestBody?.content['application/json']?.schema?.$ref;
           if (schemaName) {
             schemaName = schemaName.substring(schemaName.lastIndexOf('/') + 1);
-            var data = req.body ? JSON.parse(req.body) : {};
-            for (const [properties, info] of Object.entries(spec.components.schemas[schemaName].properties)) {
+            const data = req.body ? JSON.parse(req.body) : {};
+            for (const [properties, value] of Object.entries(spec.components.schemas[schemaName].properties)) {
               if (data[properties]) {
-                info['example'] = data[properties];
+                value['example'] = data[properties];
               }
             }
           }
-          var parameters = spec?.paths[pathname]?.[method]?.parameters;
-          for (var data of parameters) {
-            var parm = req.parameters[data.name];
+          const parameters = spec?.paths[pathname]?.[method]?.parameters;
+          for (const data of parameters) {
+            const parm = req.parameters[data.name];
             if (parm) {
-              data.schema['example'] = parm;
+              data.schema.example = parm;
             }
           }
         }
@@ -164,7 +170,9 @@ async function onLoadSwagger() {
     if (element) {
       callback(element);
     } else {
-      setTimeout(() => waitForElement(selector, callback), 100);
+      setTimeout(() => {
+        waitForElement(selector, callback);
+      }, 100);
     }
   }
 
