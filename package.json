@@ -5,6 +5,8 @@
   "description": "Nest TypeScript starter repository",
   "license": "MIT",
   "scripts": {
+    "swagger": " npx ts-node ./src/generate-metadata.ts",
+    "prebuild": "rimraf dist && npm install -g cross-env && npm run swagger",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

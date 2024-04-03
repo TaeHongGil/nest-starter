@@ -11,15 +11,6 @@
         "outDir": "./dist"
       }
     ],
-    "watchAssets": true,
-    "plugins": [
-      {
-        "name": "@nestjs/swagger",
-        "options": {
-          "dtoFileNameSuffix": [".dto.ts"],
-          "classValidatorShim": true
-        }
-      }
-    ]
+    "watchAssets": true
   }
 }
