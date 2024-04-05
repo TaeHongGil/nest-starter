@@ -1,14 +1,31 @@
+import { ClassSerializerInterceptor } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppModule } from './app.module';
+import { getAsync } from './core/utils/test.utils';
 
 describe('AppController', () => {
-  let app: TestingModule;
+  let app: NestExpressApplication;
+  let module: TestingModule;
+  let server: any;
 
   beforeAll(async () => {
-    app = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
+    module = await Test.createTestingModule({
+      imports: [AppModule],
     }).compile();
+
+    await module.init();
+    app = module.createNestApplication();
+    app.enableCors();
+    app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector))); // json to class
+
+    await app.init();
+    server = app.getHttpServer();
+  });
+
+  it('/', async () => {
+    const result = await getAsync(server, '/');
+    expect(result.status).toBe(200);
   });
 });

@@ -1,17 +1,17 @@
 {
   "typescript.preferences.importModuleSpecifier": "shortest",
   "typescript.preferences.quoteStyle": "single",
-  "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-  "editor.formatOnSave": true, // optional
-  "vs-code-prettier-eslint.prettierLast": false, // set as "true" to run 'prettier' last not first
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always"
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always"
   },
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
   "editor.insertSpaces": true,
   "files.trimTrailingWhitespace": true,
-  "prettier.singleQuote": true,
+  "editor.rulers": [200],
   "files.associations": {
     "*.ejs": "html"
   },
@@ -23,5 +23,7 @@
     "**/dist": true
   },
   "editor.fontFamily": "D2Coding, Consolas, 'Courier New', monospace",
-  "jestrunner.jestCommand": "npm run test --"
+  "jestrunner.jestCommand": "npm run test --",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.debug": true,
 }

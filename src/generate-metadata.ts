@@ -6,6 +6,7 @@ generator.generate({
   visitors: [
     new ReadonlyVisitor({
       dtoFileNameSuffix: ['.dto.ts'],
+      controllerFileNameSuffix: ['.controller.ts'],
       classValidatorShim: true,
       pathToSource: __dirname,
     }),

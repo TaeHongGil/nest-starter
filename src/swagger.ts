@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 /**
  * Swagger 세팅
  */
-export async function setupSwagger(app: INestApplication, module: Type, endPoint: string) {
+export async function setupSwagger(app: INestApplication, module: Type[], endPoint: string): Promise<void> {
   let metadata: () => Promise<Record<string, any>>;
   const path = './metadata';
 
@@ -14,13 +14,10 @@ export async function setupSwagger(app: INestApplication, module: Type, endPoint
   } catch (error) {
     return;
   }
-  const options = new DocumentBuilder().setTitle('Nest API Docs')
-    .setDescription('last successful data is saved.')
-    .setVersion('0.0.1')
-    .build();
+  const options = new DocumentBuilder().setTitle('Nest API Docs').setDescription('last successful data is saved.').setVersion('0.0.1').build();
   await SwaggerModule.loadPluginMetadata(metadata);
   const document = SwaggerModule.createDocument(app, options, {
-    include: [module],
+    include: module,
   });
   const initFuncString = onLoadSwagger.toString();
 
@@ -59,10 +56,6 @@ export async function setupSwagger(app: INestApplication, module: Type, endPoint
             responseData[pathname] = { body: res.body, status: res.status };
           }
           localStorage.setItem('responseData', JSON.stringify(responseData));
-
-          if (pathname.includes('account/login')) {
-            sessionStorage.setItem('userToken', res.body.content.login_result.token);
-          }
           console.log(res);
         }
         sessionStorage.removeItem('currentRequest');
@@ -84,8 +77,8 @@ export async function setupSwagger(app: INestApplication, module: Type, endPoint
   });
 }
 
-async function onLoadSwagger() {
-  window.addEventListener('load', async function () {
+async function onLoadSwagger(): Promise<void> {
+  window.addEventListener('load', function () {
     const responseData = JSON.parse(localStorage.getItem('responseData')) || {};
     const requestData = JSON.parse(localStorage.getItem('requestData')) || {};
     const spec = JSON.parse(window['ui'].specSelectors.specStr());
@@ -121,10 +114,10 @@ async function onLoadSwagger() {
         }
       }
     }
-    await window['ui'].specActions.updateJsonSpec(spec);
+    window['ui'].specActions.updateJsonSpec(spec);
   });
 
-  function handleDOMChanges(mutations) {
+  function handleDOMChanges(mutations): void {
     mutations.forEach((mutation) => {
       if (mutation.type === 'childList') {
         mutation.addedNodes.forEach((node) => {
@@ -138,11 +131,8 @@ async function onLoadSwagger() {
               const newDiv = document.createElement('div');
               newDiv.className = 'copy-to-clipboard swagger-ui';
               const newButton = document.createElement('button');
-              newButton.onclick = function () {
-                navigator.clipboard.writeText(childNode.parentNode.textContent).then(
-                  () => {},
-                  () => {},
-                );
+              newButton.onclick = async function (): Promise<void> {
+                await navigator.clipboard.writeText(childNode.parentNode.textContent);
               };
               newDiv.appendChild(newButton);
               childNode.appendChild(newDiv);
@@ -157,7 +147,7 @@ async function onLoadSwagger() {
       }
     });
   }
-  function initializeObserver() {
+  function initializeObserver(): void {
     const observer = new MutationObserver(handleDOMChanges);
     observer.observe(document.body, {
       childList: true,
@@ -165,7 +155,7 @@ async function onLoadSwagger() {
     });
   }
 
-  function waitForElement(selector, callback) {
+  function waitForElement(selector, callback): void {
     const element = document.querySelector(selector);
     if (element) {
       callback(element);
@@ -179,7 +169,7 @@ async function onLoadSwagger() {
   waitForElement('.info', function (element) {
     const customButton = document.createElement('button');
     customButton.innerText = 'Data Reset';
-    customButton.onclick = function () {
+    customButton.onclick = function (): void {
       localStorage.clear();
       location.reload();
     };

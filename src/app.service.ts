@@ -3,23 +3,23 @@ import { ServerLogger } from './core/server-log/server.log.service';
 
 @Injectable()
 export class AppService implements BeforeApplicationShutdown, OnApplicationShutdown, OnModuleInit, OnModuleDestroy {
-  onModuleInit() {
+  async onModuleInit(): Promise<void> {
     ServerLogger.log(`onModuleInit`);
   }
 
-  onApplicationBootstrap() {
+  async onApplicationBootstrap(): Promise<void> {
     ServerLogger.log(`onApplicationBootstrap`);
   }
 
-  onModuleDestroy() {
+  async onModuleDestroy(): Promise<void> {
     ServerLogger.log(`onModuleDestroy`);
   }
 
-  beforeApplicationShutdown() {
+  async beforeApplicationShutdown(): Promise<void> {
     ServerLogger.log(`beforeApplicationShutdown`);
   }
 
-  onApplicationShutdown(signal: string) {
+  async onApplicationShutdown(signal: string): Promise<void> {
     ServerLogger.log(`onApplicationShutdown`);
   }
 }

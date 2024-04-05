@@ -1,16 +1,35 @@
 {
   "root": true,
-  "plugins": ["@typescript-eslint"],
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "plugins": ["@typescript-eslint", "prettier", "promise"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended", "plugin:promise/recommended"],
   "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "tsconfigRootDir": "./",
+    "sourceType": "module"
+  },
   "rules": {
+    //prettier사용
+    "prettier/prettier": [
+      "error",
+      {
+        "printWidth": 200,
+        "singleQuote": true,
+        "endOfLine": "auto",
+        "trailingComma": "all",
+        "tabWidth": 2
+      }
+    ],
     "no-var": "error", // var 사용
+    "@typescript-eslint/explicit-function-return-type":"error", //리턴 타입 설정
+    "@typescript-eslint/explicit-module-boundary-types":"error", //리턴 타입 설정
     "@typescript-eslint/no-unused-vars": "off", //사용하지 않는 변수
     "@typescript-eslint/no-explicit-any": "off", // any 사용
-    "newline-per-chained-call": ["error", { "ignoreChainWithDepth": 2 }], //연쇄 메소드 줄바꿈
+    "no-multiple-empty-lines": ["error", { "max": 1 }], //개행 제한,
     "lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }], //메소드,변수끼리 줄바꿈
-    "no-multiple-empty-lines": ["error", { "max": 1 }], //개행 여러개
-    "semi": ["error", "always"], //세미콜론
-    "@typescript-eslint/semi": ["error", "always"]
+    //promise
+    "@typescript-eslint/no-floating-promises": ["error", { "ignoreVoid": false, "ignoreIIFE": false }],
+    "@typescript-eslint/no-misused-promises": "error",
+    "@typescript-eslint/promise-function-async": "error"
   }
 }

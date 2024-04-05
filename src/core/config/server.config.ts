@@ -1,22 +1,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { ServerLogger } from '../server-log/server.log.service';
 
 export class ServerConfig {
   serverType: string;
   dev: boolean;
-  db = {
-    mongo: {},
-    redis: {},
-    mysql: {},
-  };
+  db: DBConfig;
   constructor() {
     this.serverType = process.env.server_type;
     this.dev = false;
+    this.db = new DBConfig();
     this._load();
   }
 
-  private _load() {
+  private _load(): void {
     const dir = path.join(__dirname, '../../env/', `${this.serverType}-config.json`);
     const text = fs.readFileSync(dir, 'utf8');
     const config = JSON.parse(text);
@@ -24,14 +20,30 @@ export class ServerConfig {
       if (key == 'serverType') {
         continue;
       }
-      if (!config[key]) {
-        ServerLogger.error(`Configuration missing for key: ${key}`);
-        process.exit(1);
-      }
       this[key] = config[key];
     }
   }
 }
 
+export class DBConfig {
+  mongo: MongoConfig[];
+  redis: RedisConfig[];
+  mysql: MysqlConfig[];
+}
+
+export class MongoConfig {
+  host: string;
+  auth_source: string;
+  db_name: string;
+  port: number;
+  user_name: string;
+  password: string;
+  min_pool_size: number;
+  max_pool_size: number;
+  use_tls: false;
+}
+
+export class RedisConfig {}
+export class MysqlConfig {}
 const serverConfig = new ServerConfig();
 export default serverConfig;

@@ -13,12 +13,11 @@
       "runtimeArgs": ["run", "start:debug"],
       "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
-      "envFile": "${workspaceFolder}/.env",
+      "envFile": "${workspaceFolder}/.env/.env",
       "cwd": "${workspaceRoot}",
       "console": "integratedTerminal",
       "env": {
-        "server_type": "local",
-        "slack_notice_server_on_off": "false"
+        "server_type": "local"
       }
     }
   ],
