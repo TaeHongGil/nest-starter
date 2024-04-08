@@ -15,21 +15,19 @@ export class CoreModule implements OnModuleInit {
     ServerLogger.log(`CoreModule.onModuleInit`);
   }
 
-  static async registerControllerAsync(t: Type<any>, controller_path: string, end_with_file_name: string): Promise<DynamicModule> {
+  static registerController(t: Type<any>, controller_path: string, end_with_file_name: string): DynamicModule {
     const controllersPath = controller_path;
     const controllerFiles = readdirSync(controllersPath).filter((file) => file.endsWith(`${end_with_file_name}.js`) || file.endsWith(`${end_with_file_name}.ts`));
-
-    const controllers = await Promise.all(
-      controllerFiles.map(async (file) => {
-        const controllerModule = await import(path.join(controllersPath, file));
-        const controllerClass = Object.values(controllerModule).find((item) => typeof item === 'function') as Type<any>;
-        return controllerClass;
-      }),
-    );
-
-    controllers.forEach((ct) => {
-      ServerLogger.log(`Added ${t.name} Controller = ${ct.name}`);
+    const controllers: any[] = controllerFiles.map((file) => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const controllerModule = require(path.join(controllersPath, file));
+      const controllerClass = Object.values(controllerModule).find((item) => typeof item === 'function');
+      return controllerClass;
     });
+
+    for (const ct of controllers) {
+      ServerLogger.log(`Added ${t.name} Controller = ${ct.name}`);
+    }
 
     return {
       module: t,
