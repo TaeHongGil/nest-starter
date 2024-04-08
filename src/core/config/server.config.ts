@@ -44,6 +44,13 @@ export class MongoConfig {
 }
 
 export class RedisConfig {}
-export class MysqlConfig {}
+export class MysqlConfig {
+  host: string;
+  db_name: string;
+  port: number;
+  user_name: string;
+  password: string;
+  poolSize: number;
+}
 const serverConfig = new ServerConfig();
 export default serverConfig;

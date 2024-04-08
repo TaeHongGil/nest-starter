@@ -2,11 +2,12 @@ import { DynamicModule, Global, Module, Type, type OnModuleInit } from '@nestjs/
 import { readdirSync } from 'fs';
 import path from 'path';
 import { MongoModule } from './mongo/mongo.modules';
+import { MysqlModule } from './mysql/mysql.modules';
 import { ServerLogger } from './server-log/server.log.service';
 
 @Global()
 @Module({
-  imports: [MongoModule],
+  imports: [MongoModule, MysqlModule],
   providers: [],
   exports: [],
 })

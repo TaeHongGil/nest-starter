@@ -1,7 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
+/**
+ * Mongo
+ */
 @Schema({
-  collection: 'account',
+  collection: 'user_account',
   versionKey: false,
   _id: false,
 })

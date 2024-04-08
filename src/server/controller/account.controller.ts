@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ReqCreateUser } from '../common/server.dto';
+import { ReqCreateUser, ReqUseridx } from '../common/server.dto';
 import { AccountService } from '../service/account/account.service';
 
 /**
@@ -13,19 +13,37 @@ export class AccountController {
 
   @Post('/create')
   async createAccount(@Body() req: ReqCreateUser): Promise<any> {
-    const result = await this.accountService.upsertAccountAsync(req);
+    const result = await this.accountService.createAccountAsync(req);
     return result;
   }
 
   @Post('/login')
-  async login(): Promise<any> {
-    const result = await this.accountService.getAccountAsync(0);
+  async login(@Body() req: ReqUseridx): Promise<any> {
+    const result = await this.accountService.getAccountAsync(req.useridx);
     return result;
   }
 
   @Post('/delete')
-  async delete(): Promise<any> {
-    const result = await this.accountService.deleteAccountAsync(0);
+  async delete(@Body() req: ReqUseridx): Promise<any> {
+    const result = await this.accountService.deleteAccountAsync(req.useridx);
+    return result;
+  }
+
+  @Post('/mysql/create')
+  async createAccountMysql(@Body() req: ReqCreateUser): Promise<any> {
+    const result = await this.accountService.createAccountMysqlAsync(req);
+    return result;
+  }
+
+  @Post('/mysql/login')
+  async loginMysql(@Body() req: ReqUseridx): Promise<any> {
+    const result = await this.accountService.getAccountMysqlAsync(req.useridx);
+    return result;
+  }
+
+  @Post('/mysql/delete')
+  async deleteMysql(@Body() req: ReqUseridx): Promise<any> {
+    const result = await this.accountService.deleteAccountMysqlAsync(req.useridx);
     return result;
   }
 }

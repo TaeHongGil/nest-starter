@@ -15,6 +15,15 @@
       }
     ],
     "redis": [],
-    "mysql": []
+    "mysql": [
+      {
+        "host": "localhost",
+        "db_name": "nest_local_global",
+        "port": 3306,
+        "user_name": "root",
+        "password": "123123",
+        "poolSize": "1"
+      }
+    ]
   }
 }

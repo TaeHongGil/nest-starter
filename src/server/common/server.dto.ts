@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class ReqCreateUser {
   @IsString()
@@ -12,4 +12,10 @@ export class ReqCreateUser {
   @IsString()
   @IsNotEmpty()
   readonly nickname: string;
+}
+
+export class ReqUseridx {
+  @IsNumber()
+  @IsNotEmpty()
+  readonly useridx: number;
 }

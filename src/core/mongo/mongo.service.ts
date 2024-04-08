@@ -1,4 +1,4 @@
-import { type OnModuleDestroy } from '@nestjs/common';
+import { OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
 import mongoose, { type Connection } from 'mongoose';
 import serverConfig from '../config/server.config';
 import { ServerLogger } from '../server-log/server.log.service';
@@ -8,10 +8,10 @@ import mongo_keys from './mongo.key';
  * Mongo Service
  */
 
-export class MongoService implements OnModuleDestroy {
+export class MongoService implements OnModuleDestroy, OnModuleInit {
   _connectionMap = new Map<string, Connection>();
 
-  constructor() {
+  async onModuleInit(): Promise<void> {
     const dbs = serverConfig.db.mongo;
     for (const db of dbs) {
       const host = `mongodb://${db.host}:${db.port}`;

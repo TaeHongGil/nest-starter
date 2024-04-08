@@ -69,8 +69,6 @@ export async function setupSwagger(app: INestApplication, module: Type[], endPoi
           parameters[key] = value;
         }
         sessionStorage.setItem('currentRequest', JSON.stringify({ method, body, parameters }));
-        const token = sessionStorage.getItem('userToken');
-        req.headers.Authorization = `Bearer ${token}`;
         return req;
       },
     },
