@@ -7,7 +7,7 @@
         "port": 27017,
         "auth_source": "admin",
         "db_name": "nest_local_global",
-        "user_name": "nestadmin",
+        "user_name": "user",
         "password": "123123",
         "min_pool_size": 0,
         "max_pool_size": 1,
@@ -20,7 +20,7 @@
         "host": "localhost",
         "db_name": "nest_local_global",
         "port": 3306,
-        "user_name": "root",
+        "user_name": "user",
         "password": "123123",
         "poolSize": "1"
       }

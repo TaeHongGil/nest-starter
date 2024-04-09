@@ -19,7 +19,31 @@
       "env": {
         "server_type": "local"
       }
-    }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "=================================="
+    },
+    {
+      "name": "Run Docker",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "docker-compose-up",
+      "program": "${workspaceFolder}/.vscode/empty.js"
+    },
+    {
+      "name": "Stop Docker",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "docker-compose-down",
+      "program": "${workspaceFolder}/.vscode/empty.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "=================================="
+    },
   ],
   "inputs": []
 }

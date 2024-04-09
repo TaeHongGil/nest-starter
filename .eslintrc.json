@@ -31,5 +31,6 @@
     "@typescript-eslint/no-floating-promises": ["error", { "ignoreVoid": false, "ignoreIIFE": false }],
     "@typescript-eslint/no-misused-promises": "error",
     "@typescript-eslint/promise-function-async": "error"
-  }
+  },
+  "ignorePatterns": ["dist", "node_modules", "docker-local-db"]
 }

@@ -23,7 +23,7 @@ export class MysqlService implements OnModuleDestroy, OnModuleInit {
         password: db.password,
         database: db.db_name,
         poolSize: db.poolSize,
-        entities: [__dirname + '/../../**/**/*.entity.ts', __dirname + '/../../**/**/*.entity.js'],
+        entities: [__dirname + '/../../**/**/*.schema.ts', __dirname + '/../../**/**/*.schema.js'],
         synchronize: dev,
         bigNumberStrings: false,
         timezone: 'Z',
