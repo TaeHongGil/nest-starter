@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ReqCreateUser } from '@root/server/common/server.dto';
 import { DeleteResult, InsertResult } from 'typeorm';
-import { DBAccountMysql } from './account.entity';
 import { AccountRepository } from './account.repository';
-import { DBAccount } from './account.schema';
+import { DBAccount, DBAccountMysql } from './account.schema';
 
 @Injectable()
 export class AccountService {
@@ -18,12 +17,10 @@ export class AccountService {
   }
 
   async createAccountAsync(req: ReqCreateUser): Promise<DBAccount> {
-    const account: DBAccount = {
-      useridx: 0,
-      id: req.id,
-      password: req.password,
-      nickname: req.nickname,
-    };
+    const account = new DBAccount();
+    account.id = req.id;
+    account.password = req.password;
+    account.nickname = req.nickname;
     const db = await this.repository.createAccountAsync(account);
     return db;
   }

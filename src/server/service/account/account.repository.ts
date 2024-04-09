@@ -1,16 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { MongoService } from '@root/core/mongo/mongo.service';
 import { MysqlService } from '@root/core/mysql/mysql.service';
+import AutoIncrement from 'mongoose-sequence';
 import { DeleteResult, InsertResult } from 'typeorm';
-import { DBAccountMysql } from './account.entity';
-import { DBAccount, DBAccountSchema } from './account.schema';
-
+import { DBAccount, DBAccountMysql, DBAccountSchema } from './account.schema';
 @Injectable()
-export class AccountRepository {
+export class AccountRepository implements OnApplicationBootstrap {
   constructor(
-    private readonly mongo: MongoService,
-    private readonly mysql: MysqlService,
+    readonly mongo: MongoService,
+    readonly mysql: MysqlService,
   ) {}
+
+  async onApplicationBootstrap(): Promise<void> {
+    const con = this.mongo.getGlobalClient();
+    const plugin = AutoIncrement(con);
+    DBAccountSchema.plugin(plugin, { inc_field: 'useridx', id: 'account_useridx' });
+  }
 
   /**
    * Mongo
@@ -38,7 +43,7 @@ export class AccountRepository {
   async createAccountAsync(account: DBAccount): Promise<DBAccount> {
     const con = this.mongo.getGlobalClient();
     const model = con.model(DBAccount.name, DBAccountSchema);
-    const resultDoc = await model.insertMany(account);
+    await model.create(account);
     if (!account) {
       return account;
     }
