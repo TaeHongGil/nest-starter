@@ -29,3 +29,5 @@ services:
       - "6379:6379"
     volumes:
       - ./data/redis:/data
+      - ./config/redis:/usr/local/etc/redis
+    command: redis-server /usr/local/etc/redis/redis.conf

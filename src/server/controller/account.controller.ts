@@ -20,6 +20,7 @@ export class AccountController {
   @Post('/login')
   async login(@Body() req: ReqUseridx): Promise<any> {
     const result = await this.accountService.getAccountAsync(req.useridx);
+    await this.accountService.setLoginStateAsync(result);
     return result;
   }
 
@@ -38,6 +39,7 @@ export class AccountController {
   @Post('/mysql/login')
   async loginMysql(@Body() req: ReqUseridx): Promise<any> {
     const result = await this.accountService.getAccountMysqlAsync(req.useridx);
+    await this.accountService.setLoginStateAsync(result);
     return result;
   }
 

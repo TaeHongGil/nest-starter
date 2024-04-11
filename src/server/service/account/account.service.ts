@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ReqCreateUser } from '@root/server/common/server.dto';
 import { DeleteResult, InsertResult } from 'typeorm';
 import { AccountRepository } from './account.repository';
-import { DBAccount, DBAccountMysql } from './account.schema';
+import { Account, DBAccount, DBAccountMysql } from './account.schema';
 
 @Injectable()
 export class AccountService {
@@ -50,5 +50,9 @@ export class AccountService {
   async deleteAccountMysqlAsync(useridx: number): Promise<DeleteResult> {
     const db = await this.repository.deleteAccountMysqlAsync(useridx);
     return db;
+  }
+
+  async setLoginStateAsync(account: Account): Promise<boolean> {
+    return await this.repository.setLoginStateAsync(account);
   }
 }

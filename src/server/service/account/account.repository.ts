@@ -1,14 +1,18 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { MongoService } from '@root/core/mongo/mongo.service';
 import { MysqlService } from '@root/core/mysql/mysql.service';
+import { RedisService } from '@root/core/redis/redis.service';
+import { RedisKeys } from '@root/server/define/redis.key';
+import { plainToInstance } from 'class-transformer';
 import AutoIncrement from 'mongoose-sequence';
 import { DeleteResult, InsertResult } from 'typeorm';
-import { DBAccount, DBAccountMysql, DBAccountSchema } from './account.schema';
+import { Account, DBAccount, DBAccountMysql, DBAccountSchema } from './account.schema';
 @Injectable()
 export class AccountRepository implements OnApplicationBootstrap {
   constructor(
     readonly mongo: MongoService,
     readonly mysql: MysqlService,
+    readonly redis: RedisService,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -27,7 +31,7 @@ export class AccountRepository implements OnApplicationBootstrap {
     if (!resultDoc) {
       return undefined;
     }
-    return resultDoc;
+    return plainToInstance(DBAccount, resultDoc);
   }
 
   async deleteAccountAsync(useridx: number): Promise<boolean> {
@@ -75,5 +79,15 @@ export class AccountRepository implements OnApplicationBootstrap {
     const repo = this.mysql.getGlobalClient().getRepository(DBAccountMysql);
     const result = await repo.insert(account);
     return result;
+  }
+
+  async setLoginStateAsync(account: Account): Promise<boolean> {
+    const client = this.redis.getGlobalClient();
+    const accountWithLoginDate = {
+      ...account,
+      login_date: new Date().toISOString(),
+    };
+    await client.hSet(RedisKeys.getUserStateKey(), account.useridx.toString(), JSON.stringify(accountWithLoginDate));
+    return true;
   }
 }

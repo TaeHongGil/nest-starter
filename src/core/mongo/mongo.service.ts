@@ -1,8 +1,8 @@
 import { OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
 import mongoose, { type Connection } from 'mongoose';
 import serverConfig from '../config/server.config';
+import { ConnectKeys } from '../define/connect.key';
 import { ServerLogger } from '../server-log/server.log.service';
-import mongo_keys from './mongo.key';
 
 /**
  * Mongo Service
@@ -39,12 +39,12 @@ export class MongoService implements OnModuleDestroy, OnModuleInit {
   }
 
   getGlobalClient(): Connection {
-    const con = this._connectionMap.get(mongo_keys.getGlobalKey());
+    const con = this._connectionMap.get(ConnectKeys.getGlobalKey());
     return con;
   }
 
   getClient(key: string): Connection {
-    const con = this._connectionMap.get(mongo_keys.getKey(key));
+    const con = this._connectionMap.get(ConnectKeys.getKey(key));
     return con;
   }
 }

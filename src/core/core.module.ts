@@ -3,11 +3,12 @@ import { readdirSync } from 'fs';
 import path from 'path';
 import { MongoModule } from './mongo/mongo.modules';
 import { MysqlModule } from './mysql/mysql.modules';
+import { RedisModule } from './redis/redis.modules';
 import { ServerLogger } from './server-log/server.log.service';
 
 @Global()
 @Module({
-  imports: [MongoModule, MysqlModule],
+  imports: [MongoModule, MysqlModule, RedisModule],
   providers: [],
   exports: [],
 })

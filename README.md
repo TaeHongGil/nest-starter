@@ -1,21 +1,22 @@
 # Nest Starter
 
+## Install
 - npm install
+- Run Docker (If You Want Local DB)
+- Set Config (default docker db)
+  - `./src/env`
 
 ## Environment
-
 - VS Code
+  - [EsLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
-```
-EsLint
-https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
-```
+## Docker
+- Local DB (Mysql, Mongo, Redis) For Test
+- Start docker daemon and Run Docker (Run And Debug)
+  - `.vscode/launch.json`
+  - `.vscode/tasks.json`
 
 ## Swagger
+- Change `src/generate-metadata.ts` options (dtoFileNameSuffix, controllerFileNameSuffix)
 
-- change src/generate-metadata.ts options (dtoFileNameSuffix, controllerFileNameSuffix)
-- make **src/.metadata**
-
-```
-npm run swagger | build
-```
+- If you don't want it, you can exclude 'npm run swagger' from `package.json`.

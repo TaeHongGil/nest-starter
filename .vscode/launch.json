@@ -29,7 +29,7 @@
       "name": "Run Docker",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "docker-compose-up",
+      "preLaunchTask": "stop-and-start-docker",
       "program": "${workspaceFolder}/.vscode/empty.js"
     },
     {
@@ -43,7 +43,7 @@
       "type": "node",
       "request": "launch",
       "name": "=================================="
-    },
+    }
   ],
   "inputs": []
 }

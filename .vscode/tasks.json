@@ -16,6 +16,11 @@
       "options": {
         "cwd": "${workspaceFolder}/docker-local-db"
       }
+    },
+    {
+      "label": "stop-and-start-docker",
+      "dependsOn": ["docker-compose-down", "docker-compose-up"],
+      "dependsOrder": "sequence"
     }
   ]
 }

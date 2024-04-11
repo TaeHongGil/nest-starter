@@ -1,8 +1,8 @@
 import { OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import serverConfig from '../config/server.config';
+import { ConnectKeys } from '../define/connect.key';
 import { ServerLogger } from '../server-log/server.log.service';
-import mysql_keys from './mysql.key';
 
 /**
  * Mysql Service
@@ -46,7 +46,12 @@ export class MysqlService implements OnModuleDestroy, OnModuleInit {
   }
 
   getGlobalClient(): DataSource {
-    const con = this._connectionMap.get(mysql_keys.getGlobalKey());
+    const con = this._connectionMap.get(ConnectKeys.getGlobalKey());
+    return con;
+  }
+
+  getClient(key: string): DataSource {
+    const con = this._connectionMap.get(ConnectKeys.getKey(key));
     return con;
   }
 }

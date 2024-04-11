@@ -43,7 +43,15 @@ export class MongoConfig {
   use_tls: false;
 }
 
-export class RedisConfig {}
+export class RedisConfig {
+  host: string;
+  port: number;
+  db_name: string;
+  user_name: string;
+  password: string;
+  tls: boolean;
+  db: number;
+}
 export class MysqlConfig {
   host: string;
   db_name: string;

@@ -1,6 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+export interface Account {
+  useridx: number;
+  id: string;
+  nickname: string;
+  password: string;
+}
+
 /**
  * Mongo
  */
@@ -8,8 +15,8 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
   collection: 'user_account',
   versionKey: false,
 })
-export class DBAccount {
-  @Prop()
+export class DBAccount implements Account {
+  @Prop({ unique: true })
   useridx: number;
 
   @Prop({ unique: true })
@@ -27,7 +34,7 @@ export const DBAccountSchema = SchemaFactory.createForClass<DBAccount>(DBAccount
  * Mysql
  */
 @Entity({ name: 'user_account' })
-export class DBAccountMysql {
+export class DBAccountMysql implements Account {
   @PrimaryGeneratedColumn()
   useridx: number;
 
