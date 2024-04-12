@@ -2,7 +2,7 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { MongoService } from '@root/core/mongo/mongo.service';
 import { MysqlService } from '@root/core/mysql/mysql.service';
 import { RedisService } from '@root/core/redis/redis.service';
-import { RedisKeys } from '@root/server/define/redis.key';
+import { ServerRedisKeys } from '@root/server/define/server.redis.key';
 import { plainToInstance } from 'class-transformer';
 import AutoIncrement from 'mongoose-sequence';
 import { DeleteResult, InsertResult } from 'typeorm';
@@ -87,7 +87,7 @@ export class AccountRepository implements OnApplicationBootstrap {
       ...account,
       login_date: new Date().toISOString(),
     };
-    await client.hSet(RedisKeys.getUserStateKey(), account.useridx.toString(), JSON.stringify(accountWithLoginDate));
+    await client.hSet(ServerRedisKeys.getUserStateKey(), account.useridx.toString(), JSON.stringify(accountWithLoginDate));
     return true;
   }
 }

@@ -1,5 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@root/core/auth/auth.guard';
+import { SessionUser } from '@root/core/auth/auth.schema';
+import { Request } from 'express';
 import { ReqCreateUser, ReqUseridx } from '../common/server.dto';
 import { AccountService } from '../service/account/account.service';
 
@@ -18,34 +21,32 @@ export class AccountController {
   }
 
   @Post('/login')
-  async login(@Body() req: ReqUseridx): Promise<any> {
-    const result = await this.accountService.getAccountAsync(req.useridx);
+  async login(@Req() req: Request, @Body() body: ReqUseridx): Promise<any> {
+    const result = await this.accountService.getAccountAsync(body.useridx);
     await this.accountService.setLoginStateAsync(result);
+    req.session.user = new SessionUser(result.useridx, result.nickname);
     return result;
+  }
+
+  @Post('/get')
+  @UseGuards(AuthGuard)
+  async getAccount(@Req() req: Request): Promise<any> {
+    const result = await this.accountService.getAccountAsync(req.session.user.useridx);
+    return result;
+  }
+
+  @Post('/logout')
+  @UseGuards(AuthGuard)
+  async logout(@Req() req: Request): Promise<any> {
+    req.session.destroy(() => {});
+    return true;
   }
 
   @Post('/delete')
-  async delete(@Body() req: ReqUseridx): Promise<any> {
-    const result = await this.accountService.deleteAccountAsync(req.useridx);
-    return result;
-  }
-
-  @Post('/mysql/create')
-  async createAccountMysql(@Body() req: ReqCreateUser): Promise<any> {
-    const result = await this.accountService.createAccountMysqlAsync(req);
-    return result;
-  }
-
-  @Post('/mysql/login')
-  async loginMysql(@Body() req: ReqUseridx): Promise<any> {
-    const result = await this.accountService.getAccountMysqlAsync(req.useridx);
-    await this.accountService.setLoginStateAsync(result);
-    return result;
-  }
-
-  @Post('/mysql/delete')
-  async deleteMysql(@Body() req: ReqUseridx): Promise<any> {
-    const result = await this.accountService.deleteAccountMysqlAsync(req.useridx);
+  @UseGuards(AuthGuard)
+  async delete(@Req() req: Request): Promise<any> {
+    const result = await this.accountService.deleteAccountAsync(req.session.user.useridx);
+    req.session.destroy(() => {});
     return result;
   }
 }

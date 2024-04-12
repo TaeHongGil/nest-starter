@@ -1,5 +1,23 @@
 {
   "dev": true,
+  "swagger": {
+    "active": true
+  },
+  "session": {
+    "active": true,
+    "key": "Insert Session Key",
+    "secure": false,
+    "redis": {
+      "host": "localhost",
+      "port": 6379,
+      "db_name": "session",
+      "user_name": "user",
+      "password": "123123",
+      "tls": false,
+      "db": 0
+    },
+    "ttl": 1200000
+  },
   "db": {
     "mongo": [
       {

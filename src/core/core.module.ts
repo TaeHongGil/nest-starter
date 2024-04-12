@@ -1,6 +1,7 @@
 import { DynamicModule, Global, Module, Type, type OnModuleInit } from '@nestjs/common';
 import { readdirSync } from 'fs';
 import path from 'path';
+import { AuthModule } from './auth/auth.module';
 import { MongoModule } from './mongo/mongo.modules';
 import { MysqlModule } from './mysql/mysql.modules';
 import { RedisModule } from './redis/redis.modules';
@@ -8,7 +9,7 @@ import { ServerLogger } from './server-log/server.log.service';
 
 @Global()
 @Module({
-  imports: [MongoModule, MysqlModule, RedisModule],
+  imports: [MongoModule, MysqlModule, RedisModule, AuthModule],
   providers: [],
   exports: [],
 })

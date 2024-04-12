@@ -1,22 +1,42 @@
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import serverConfig from '@root/core/config/server.config';
+import RedisStore from 'connect-redis';
+import * as express from 'express';
+import session from 'express-session';
+import helmet from 'helmet';
+import { createClient } from 'redis';
 import { AppModule } from './app.module';
+import { CoreRedisKeys } from './core/define/core.redis.key';
 import { CoreDefine } from './core/define/define';
 import { ServerModule } from './server/server.module';
 import { setupSwagger } from './swagger';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+  setHelmet(app);
   setAplication(app);
+  await setSessionAsync(app);
+  await setupSwagger(app, [AppModule, ServerModule], 'api');
 
-  if (serverConfig.serverType && serverConfig.serverType != CoreDefine.SERVER_TYPE.LIVE) {
-    await setupSwagger(app, [AppModule, ServerModule], 'api');
-  }
   await app.listen(3000);
 }
 
+function setHelmet(app: INestApplication): void {
+  app.use(helmet());
+  if (serverConfig.dev === false) {
+    app.use(
+      helmet.hsts({
+        maxAge: CoreDefine.ONE_DAY_SECS * 180, // 180일
+        includeSubDomains: true, // 모든 하위 도메인이 HSTS 정책을 따르도록 설정
+        preload: true, // 브라우저의 사전 로드 목록에 사이트를 등록
+      }),
+    );
+  }
+}
+
 function setAplication(app: INestApplication): void {
+  app.use(express.static('public'));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalPipes(
     new ValidationPipe({
@@ -26,20 +46,44 @@ function setAplication(app: INestApplication): void {
       enableDebugMessages: true,
     }),
   );
+}
 
-  //종료 이벤트 시 app.close()
-  process.on('SIGINT', () => {
-    app.close().catch((err) => {
-      console.error('close failed:', err);
-      process.exit(1);
+async function setSessionAsync(app: INestApplication): Promise<void> {
+  if (!serverConfig.session.active) {
+    return;
+  }
+  const db = serverConfig.session.redis;
+  const ttl = serverConfig.session.ttl;
+  let redisStore = undefined;
+
+  if (db) {
+    const protocol = db.tls === true ? 'rediss' : 'redis';
+    const redisClientOptions = {
+      url: `${protocol}://${db.host}:${db.port}`,
+      username: db.user_name,
+      password: db.password,
+      database: db.db,
+    };
+    const redisClient = createClient(redisClientOptions);
+    await redisClient.connect();
+    redisStore = new RedisStore({
+      client: redisClient,
+      prefix: CoreRedisKeys.getSessionDefaultKey(),
+      ttl: ttl,
     });
-  });
-  process.on('SIGTERM', () => {
-    app.close().catch((err) => {
-      console.error('close failed:', err);
-      process.exit(1);
-    });
-  });
+  }
+  app.use(
+    session({
+      store: redisStore,
+      secret: serverConfig.session.key,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: serverConfig.session.secure,
+        maxAge: ttl,
+      },
+    }),
+  );
 }
 
 bootstrap().catch((err) => {
