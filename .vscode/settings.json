@@ -26,4 +26,10 @@
   "jestrunner.jestCommand": "npm run test --",
   "typescript.tsdk": "node_modules/typescript/lib",
   "eslint.debug": true,
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
