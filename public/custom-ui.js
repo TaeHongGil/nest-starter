@@ -3,18 +3,18 @@ window.addEventListener('load', function () {
   const requestData = JSON.parse(localStorage.getItem('requestData')) || {};
   const spec = JSON.parse(window['ui'].specSelectors.specStr());
   for (const [pathname, methods] of Object.entries(spec.paths)) {
-    for (const [method] of Object.entries(methods)) {
+    for (const [method, result] of Object.entries(methods)) {
       const storgeName = `${pathname}_${method}`;
       // data load
       if (responseData[storgeName]) {
         const res = responseData[storgeName];
-        spec.paths[pathname][method].responses[res.status] = spec.paths[pathname][method].responses[res.status] || {};
-        spec.paths[pathname][method].responses[res.status].content = spec.paths[pathname][method].responses[res.status].content || {};
-        spec.paths[pathname][method].responses[res.status].content['application/json'] = { example: res.body };
+        result.responses[res.status] = result.responses[res.status] || {};
+        result.responses[res.status].content = result.responses[res.status].content || {};
+        result.responses[res.status].content['application/json'] = { example: res.body };
       }
       if (requestData[storgeName]) {
         const req = requestData[storgeName];
-        let schemaName = spec?.paths[pathname]?.[method]?.requestBody?.content['application/json']?.schema?.$ref;
+        let schemaName = result.requestBody?.content['application/json']?.schema?.$ref;
         if (schemaName) {
           schemaName = schemaName.substring(schemaName.lastIndexOf('/') + 1);
           const data = req.body ? JSON.parse(req.body) : {};
@@ -24,7 +24,7 @@ window.addEventListener('load', function () {
             }
           }
         }
-        const parameters = spec?.paths[pathname]?.[method]?.parameters;
+        const parameters = result.parameters;
         for (const data of parameters) {
           const parm = req.parameters[data.name];
           if (parm) {
@@ -67,6 +67,7 @@ function handleDOMChanges(mutations) {
     }
   });
 }
+
 function initializeObserver() {
   const observer = new MutationObserver(handleDOMChanges);
   observer.observe(document.body, {
