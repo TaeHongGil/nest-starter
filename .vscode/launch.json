@@ -29,14 +29,14 @@
       "name": "Run Docker",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "stop-and-start-docker",
+      "preLaunchTask": "db-compose-up",
       "program": "${workspaceFolder}/.vscode/empty.js"
     },
     {
       "name": "Stop Docker",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "docker-compose-down",
+      "preLaunchTask": "db-compose-down",
       "program": "${workspaceFolder}/.vscode/empty.js"
     },
     {

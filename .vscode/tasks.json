@@ -2,25 +2,20 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "docker-compose-up",
+      "label": "db-compose-up",
       "type": "shell",
-      "command": "docker compose up -d",
+      "command": "docker compose down && docker compose up -d",
       "options": {
         "cwd": "${workspaceFolder}/docker-local-db"
       }
     },
     {
-      "label": "docker-compose-down",
+      "label": "db-compose-down",
       "type": "shell",
       "command": "docker compose down",
       "options": {
         "cwd": "${workspaceFolder}/docker-local-db"
       }
-    },
-    {
-      "label": "stop-and-start-docker",
-      "dependsOn": ["docker-compose-down", "docker-compose-up"],
-      "dependsOrder": "sequence"
     }
   ]
 }
