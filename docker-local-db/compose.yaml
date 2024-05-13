@@ -5,13 +5,13 @@ services:
       - "3306:3306"
     volumes:
       - ./config/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
+      - ./config/mysql/initdb.d:/docker-entrypoint-initdb.d
       - ./data/mysql:/var/lib/mysql
-      - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
-      MYSQL_ROOT_PASSWORD: "123123"
-      MYSQL_USER: "user"
-      MYSQL_PASSWORD: "123123"
-      TZ: 'Z'
+      PROJECT_NAME: "${PROJECT_NAME:-project}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-admin}"
+      USER_NAME: "${USER_NAME:-admin}"
+      USER_PASSWORD: "${USER_PASSWORD:-admin}"
 
   mongo:
     image: mongo
@@ -20,14 +20,18 @@ services:
     volumes:
       - ./data/mongo:/data/db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: "user"
-      MONGO_INITDB_ROOT_PASSWORD: "123123"
+      MONGO_INITDB_ROOT_USERNAME: ${USER_NAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${USER_PASSWORD:-admin}
 
   redis:
     image: redis
     ports:
       - "6379:6379"
+    environment:
+      USER_NAME: ${USER_NAME:-admin}
+      USER_PASSWORD: ${USER_PASSWORD:-admin}
+
     volumes:
       - ./data/redis:/data
       - ./config/redis:/usr/local/etc/redis
-    command: redis-server /usr/local/etc/redis/redis.conf
+    command: ["sh", "/usr/local/etc/redis/start.sh"]
