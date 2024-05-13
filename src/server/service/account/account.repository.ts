@@ -17,8 +17,10 @@ export class AccountRepository implements OnApplicationBootstrap {
 
   async onApplicationBootstrap(): Promise<void> {
     const con = this.mongo.getGlobalClient();
-    const plugin = AutoIncrement(con);
-    DBAccountSchema.plugin(plugin, { inc_field: 'useridx', id: 'account_useridx' });
+    if (con) {
+      const plugin = AutoIncrement(con);
+      DBAccountSchema.plugin(plugin, { inc_field: 'useridx', id: 'account_useridx' });
+    }
   }
 
   /**

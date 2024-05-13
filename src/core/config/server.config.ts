@@ -47,6 +47,7 @@ export class DBConfig {
   mysql: MysqlConfig[];
 }
 export class MongoConfig {
+  active: boolean;
   host: string;
   auth_source: string;
   db_name: string;
@@ -58,6 +59,7 @@ export class MongoConfig {
   use_tls: false;
 }
 export class RedisConfig {
+  active: boolean;
   host: string;
   port: number;
   db_name: string;
@@ -67,6 +69,7 @@ export class RedisConfig {
   db: number;
 }
 export class MysqlConfig {
+  active: boolean;
   host: string;
   db_name: string;
   port: number;

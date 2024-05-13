@@ -15,6 +15,9 @@ export class MysqlService implements OnModuleDestroy, OnModuleInit {
     const dbs = serverConfig.db.mysql;
     const dev = serverConfig.dev;
     for (const db of dbs) {
+      if (db.active == false) {
+        continue;
+      }
       const ucon = new DataSource({
         type: 'mysql',
         host: db.host,

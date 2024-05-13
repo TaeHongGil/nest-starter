@@ -14,6 +14,9 @@ export class RedisService implements OnModuleDestroy, OnModuleInit {
   async onModuleInit(): Promise<void> {
     const dbs = serverConfig.db.redis;
     for (const db of dbs) {
+      if (db.active == false) {
+        continue;
+      }
       const protocol = db.tls === true ? 'rediss' : 'redis';
       const redisClientOptions = {
         url: `${protocol}://${db.host}:${db.port}`,

@@ -14,6 +14,9 @@ export class MongoService implements OnModuleDestroy, OnModuleInit {
   async onModuleInit(): Promise<void> {
     const dbs = serverConfig.db.mongo;
     for (const db of dbs) {
+      if (db.active == false) {
+        continue;
+      }
       const host = `mongodb://${db.host}:${db.port}`;
       const ucon = mongoose.createConnection(host, {
         dbName: db.db_name,

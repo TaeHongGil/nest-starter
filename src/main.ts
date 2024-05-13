@@ -56,7 +56,7 @@ async function setSessionAsync(app: INestApplication): Promise<void> {
   const ttl = serverConfig.session.ttl;
   let redisStore = undefined;
 
-  if (db) {
+  if (db && db.active) {
     const protocol = db.tls === true ? 'rediss' : 'redis';
     const redisClientOptions = {
       url: `${protocol}://${db.host}:${db.port}`,
