@@ -1,0 +1,103 @@
+/* Custom Otion */
+.swagger-ui .opblock-body {
+  display: flex;
+  justify-content: center;
+}
+
+.swagger-ui .opblock-section {
+  width: 70%;
+}
+
+.swagger-ui .responses-wrapper {
+  width: 100%;
+}
+
+.swagger-ui .opblock .opblock-section-header {
+  width: 100%;
+}
+
+.swagger-ui .opblock-section .opblock-section-request-body {
+  width: 100%;
+}
+
+.swagger-ui .model-box {
+  width: 100%;
+}
+
+.swagger-ui .response-col_links {
+  display: none;
+}
+
+.request-snippets {
+  display: none;
+}
+
+.hljs-punctuation {
+  color: #fff;
+}
+
+.hljs-number {
+  color: rgb(211, 99, 99);
+}
+
+.hljs-string {
+  color: rgb(162, 252, 162);
+}
+
+.hljs-comment {
+  color: #b6c1fa;
+}
+
+.hljs-literal {
+  color: rgb(252, 194, 140);
+}
+
+.language-json.hljs {
+  white-space: pre;
+  display: block;
+  overflow: auto;
+  padding: 0.5em;
+  background: rgb(51, 51, 51);
+  color: white;
+}
+
+.server-save-checkbox {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.swagger-ui .btn-group {
+  position: relative;
+  padding: 20px;
+}
+
+.swagger-ui .execute-wrapper {
+  position: relative;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.swagger-ui .btn.edit {
+  background-color: #4990e2;
+  border-color: #4990e2;
+  color: #fff;
+}
+
+.swagger-ui .btn.save {
+  background-color: #3dd478;
+  border-color: #3dd478;
+  color: #fff;
+}
+
+.swagger-ui .btn.cancel {
+  background-color: #ff6060;
+  border-color: #ff6060;
+  color: #fff;
+}
+
+/*# sourceMappingURL=swagger-ui.css.map*/

@@ -1,8 +1,8 @@
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import serverConfig from '@root/core/config/server.config';
 import RedisStore from 'connect-redis';
-import * as express from 'express';
 import session from 'express-session';
 import helmet from 'helmet';
 import { createClient } from 'redis';
@@ -10,33 +10,44 @@ import { AppModule } from './app.module';
 import { CoreRedisKeys } from './core/define/core.redis.key';
 import { CoreDefine } from './core/define/define';
 import { ServerModule } from './server/server.module';
-import { setupSwagger } from './swagger';
+import { SwaggerOptions, setupSwagger } from './swagger/swagger';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   setHelmet(app);
   setAplication(app);
   await setSessionAsync(app);
-  await setupSwagger(app, [AppModule, ServerModule], 'api');
+  await setSwagger(app);
 
   await app.listen(3000);
 }
 
-function setHelmet(app: INestApplication): void {
-  app.use(helmet());
+async function setSwagger(app: NestExpressApplication): Promise<void> {
   if (serverConfig.dev === false) {
+    return;
+  }
+
+  const options: SwaggerOptions = {
+    includeModules: [AppModule, ServerModule],
+    config: {},
+  };
+  await setupSwagger(app, options);
+}
+
+function setHelmet(app: INestApplication): void {
+  if (serverConfig.dev === false) {
+    app.use(helmet());
     app.use(
       helmet.hsts({
         maxAge: CoreDefine.ONE_DAY_SECS * 180, // 180일
         includeSubDomains: true, // 모든 하위 도메인이 HSTS 정책을 따르도록 설정
-        preload: true, // 브라우저의 사전 로드 목록에 사이트를 등록
+        preload: true, // 브라우저의 사전 로드 목록에 사이트를 등록,
       }),
     );
   }
 }
 
 function setAplication(app: INestApplication): void {
-  app.use(express.static('public'));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalPipes(
     new ValidationPipe({
