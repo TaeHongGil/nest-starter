@@ -3,12 +3,14 @@ import * as path from 'path';
 
 export class ServerConfig {
   serverType: string;
+  port: number;
   dev: boolean;
   session: SessionConfig;
   db: DBConfig;
   swagger: SwaggerConfig;
   constructor() {
     this.serverType = process.env.server_type;
+    this.port = 8080;
     this.dev = false;
     this.db = new DBConfig();
     this.session = new SessionConfig();

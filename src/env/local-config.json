@@ -1,4 +1,5 @@
 {
+  "port": 8080,
   "dev": true,
   "swagger": {
     "active": true
@@ -8,12 +9,12 @@
     "key": "Insert Session Key",
     "secure": false,
     "redis": {
-      "active": false,
+      "active": true,
       "host": "localhost",
       "port": 6379,
       "db_name": "session",
-      "user_name": "user",
-      "password": "123123",
+      "user_name": "test_user",
+      "password": "asdfqwerzxcvqwer1234",
       "tls": false,
       "db": 0
     },
@@ -22,13 +23,13 @@
   "db": {
     "mongo": [
       {
-        "active": false,
+        "active": true,
         "host": "localhost",
         "port": 27017,
         "auth_source": "admin",
         "db_name": "nest_local_global",
-        "user_name": "user",
-        "password": "123123",
+        "user_name": "test_user",
+        "password": "asdfqwerzxcvqwer1234",
         "min_pool_size": 0,
         "max_pool_size": 1,
         "use_tls": false
@@ -36,24 +37,24 @@
     ],
     "redis": [
       {
-        "active": false,
+        "active": true,
         "host": "localhost",
         "port": 6379,
         "db_name": "nest_local_global",
-        "user_name": "user",
-        "password": "123123",
+        "user_name": "test_user",
+        "password": "asdfqwerzxcvqwer1234",
         "tls": false,
         "db": 0
       }
     ],
     "mysql": [
       {
-        "active": false,
+        "active": true,
         "host": "localhost",
         "db_name": "nest_local_global",
         "port": 3306,
-        "user_name": "user",
-        "password": "123123",
+        "user_name": "test_user",
+        "password": "asdfqwerzxcvqwer1234",
         "poolSize": "1"
       }
     ]

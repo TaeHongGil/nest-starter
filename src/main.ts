@@ -19,7 +19,7 @@ async function bootstrap(): Promise<void> {
   await setSessionAsync(app);
   await setSwagger(app);
 
-  await app.listen(3000);
+  await app.listen(serverConfig.port);
 }
 
 async function setSwagger(app: NestExpressApplication): Promise<void> {
