@@ -3,7 +3,6 @@ import { MongoService } from '@root/core/mongo/mongo.service';
 import { MysqlService } from '@root/core/mysql/mysql.service';
 import { RedisService } from '@root/core/redis/redis.service';
 import { ServerRedisKeys } from '@root/server/define/server.redis.key';
-import { plainToInstance } from 'class-transformer';
 import AutoIncrement from 'mongoose-sequence';
 import { DeleteResult, InsertResult } from 'typeorm';
 import { Account, DBAccount, DBAccountMysql, DBAccountSchema } from './account.schema';
@@ -29,11 +28,11 @@ export class AccountRepository implements OnApplicationBootstrap {
   async findAccountAsync(useridx: number): Promise<DBAccount> {
     const con = this.mongo.getGlobalClient();
     const model = con.model(DBAccount.name, DBAccountSchema);
-    const resultDoc = await model.findOne({ useridx: useridx }).lean();
+    const resultDoc = await model.findOne({ useridx: useridx }).select('-_id').lean();
     if (!resultDoc) {
       return undefined;
     }
-    return plainToInstance(DBAccount, resultDoc);
+    return resultDoc;
   }
 
   async deleteAccountAsync(useridx: number): Promise<boolean> {
@@ -90,6 +89,12 @@ export class AccountRepository implements OnApplicationBootstrap {
       login_date: new Date().toISOString(),
     };
     await client.hSet(ServerRedisKeys.getUserStateKey(), account.useridx.toString(), JSON.stringify(accountWithLoginDate));
+    return true;
+  }
+
+  async deleteLoginStateAsync(useridx: number): Promise<boolean> {
+    const client = this.redis.getGlobalClient();
+    await client.hDel(ServerRedisKeys.getUserStateKey(), `${useridx}`);
     return true;
   }
 }

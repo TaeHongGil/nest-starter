@@ -5,7 +5,7 @@
     "active": true
   },
   "session": {
-    "active": true,
+    "active": false,
     "key": "Insert Session Key",
     "secure": false,
     "redis": {
@@ -19,6 +19,12 @@
       "db": 0
     },
     "ttl": 1200000
+  },
+  "jwt": {
+    "active": true,
+    "key": "Insert Session Key",
+    "ttl_access": 1,
+    "ttl_refresh": 1200000
   },
   "db": {
     "mongo": [

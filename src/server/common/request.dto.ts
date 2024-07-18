@@ -14,8 +14,14 @@ export class ReqCreateUser {
   readonly nickname: string;
 }
 
-export class ReqUseridx {
+export class ReqLogin {
   @IsNumber()
   @IsNotEmpty()
   readonly useridx: number;
+}
+
+export class ReqTokenRefresh {
+  @IsString()
+  @IsNotEmpty()
+  readonly token: string;
 }

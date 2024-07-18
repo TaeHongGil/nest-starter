@@ -6,6 +6,7 @@ export class ServerConfig {
   port: number;
   dev: boolean;
   session: SessionConfig;
+  jwt: JwtConfig;
   db: DBConfig;
   swagger: SwaggerConfig;
   constructor() {
@@ -14,6 +15,7 @@ export class ServerConfig {
     this.dev = false;
     this.db = new DBConfig();
     this.session = new SessionConfig();
+    this.jwt = new JwtConfig();
     this.swagger = new SwaggerConfig();
     this._load();
   }
@@ -41,6 +43,13 @@ export class SessionConfig {
   secure: boolean;
   redis: RedisConfig;
   ttl: number;
+}
+
+export class JwtConfig {
+  active: boolean;
+  key: string;
+  ttl_access: number;
+  ttl_refresh: number;
 }
 
 export class DBConfig {

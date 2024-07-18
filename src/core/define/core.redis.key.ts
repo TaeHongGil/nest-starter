@@ -10,7 +10,15 @@ export class CoreRedisKeys {
     return CoreRedisKeys.getPrefix() + ':user:session:';
   }
 
-  static getSessionKey(id: string): string {
-    return this.getSessionDefaultKey() + id;
+  static getSessionKey(sessionId: string): string {
+    return this.getSessionDefaultKey() + sessionId;
+  }
+
+  static getTokenDefaultKey(): string {
+    return CoreRedisKeys.getPrefix() + ':user:token:';
+  }
+
+  static getTokenKey(useridx: number): string {
+    return this.getSessionDefaultKey() + useridx;
   }
 }
