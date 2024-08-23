@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import serverConfig from '@root/core/config/server.config';
+import ServerConfig from '@root/core/config/server.config';
 import { AppService } from './app.service';
 
 @Controller('')
@@ -16,7 +16,7 @@ export class AppController {
   @Get('/info')
   getInfo(): any {
     return {
-      serverType: serverConfig.serverType,
+      serverType: ServerConfig.serverType,
     };
   }
 }

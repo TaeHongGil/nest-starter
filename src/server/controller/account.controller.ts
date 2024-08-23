@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
-import serverConfig from '@root/core/config/server.config';
+import ServerConfig from '@root/core/config/server.config';
 import { jwtVerify } from '@root/core/utils/crypt.utils';
 import { Request } from 'express';
 import { SessionData } from 'express-session';
@@ -23,6 +23,9 @@ export class AccountController {
     private readonly authService: AuthService,
   ) {}
 
+  /**
+   * 계정을 생성한다.
+   */
   @Post('/create')
   @UseGuards(NoAuthGuard)
   async createAccount(@Session() session: SessionData, @Body() param: ReqCreateUser): Promise<any> {
@@ -30,6 +33,9 @@ export class AccountController {
     return result;
   }
 
+  /**
+   * 로그인
+   */
   @Post('/login')
   @UseGuards(NoAuthGuard)
   async login(@Session() session: SessionData, @Body() param: ReqLogin): Promise<any> {
@@ -38,7 +44,7 @@ export class AccountController {
       accessToken: '',
       refreshToken: '',
     };
-    if (serverConfig.jwt.active) {
+    if (ServerConfig.jwt.active) {
       const token = await this.authService.setTokenAsync(user);
       res.accessToken = token.accessToken;
       res.refreshToken = token.refreshToken;
@@ -46,13 +52,16 @@ export class AccountController {
     return res;
   }
 
+  /**
+   * JWT 토큰 Refresh
+   */
   @Post('/token/refresh')
   @UseGuards(NoAuthGuard)
   async tokenRefresh(@Session() session: SessionData, @Body() param: ReqTokenRefresh): Promise<any> {
-    if (!serverConfig.jwt.active) {
+    if (!ServerConfig.jwt.active) {
       throw Error('jwt is not activated');
     }
-    const jwtInfo = jwtVerify(param.token, serverConfig.jwt.key) as JwtPayload;
+    const jwtInfo = jwtVerify(param.token, ServerConfig.jwt.key) as JwtPayload;
     const user: SessionUser = {
       useridx: jwtInfo['useridx'],
       nickname: jwtInfo['nickname'],
@@ -66,6 +75,9 @@ export class AccountController {
     return result;
   }
 
+  /**
+   * 계정 정보
+   */
   @Post('/get')
   @UseGuards(AuthGuard)
   async getAccount(@Session() session: SessionData): Promise<any> {
@@ -73,6 +85,9 @@ export class AccountController {
     return result;
   }
 
+  /**
+   * 로그아웃
+   */
   @Post('/logout')
   @UseGuards(AuthGuard)
   async logout(@Req() req: Request): Promise<any> {
@@ -81,6 +96,9 @@ export class AccountController {
     return true;
   }
 
+  /**
+   * 계정삭제
+   */
   @Post('/delete')
   @UseGuards(AuthGuard)
   async delete(@Req() req: Request): Promise<any> {

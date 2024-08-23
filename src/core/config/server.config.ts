@@ -2,25 +2,27 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export class ServerConfig {
-  serverType: string;
-  port: number;
-  dev: boolean;
-  session: SessionConfig;
-  jwt: JwtConfig;
-  db: DBConfig;
-  swagger: SwaggerConfig;
-  constructor() {
-    this.serverType = process.env.server_type;
-    this.port = 8080;
-    this.dev = false;
-    this.db = new DBConfig();
-    this.session = new SessionConfig();
-    this.jwt = new JwtConfig();
-    this.swagger = new SwaggerConfig();
-    this._load();
+  static serverType: string;
+  static serverAdress: string[];
+  static port: number;
+  static dev: boolean;
+  static session: SessionConfig;
+  static jwt: JwtConfig;
+  static db: DBConfig;
+  static swagger: SwaggerConfig;
+
+  static async init(): Promise<void> {
+    ServerConfig.serverType = process.env.server_type;
+    ServerConfig.port = 8080;
+    ServerConfig.dev = false;
+    ServerConfig.db = new DBConfig();
+    ServerConfig.session = new SessionConfig();
+    ServerConfig.jwt = new JwtConfig();
+    ServerConfig.swagger = new SwaggerConfig();
+    await ServerConfig._load();
   }
 
-  private _load(): void {
+  static async _load(): Promise<void> {
     const dir = path.join(__dirname, '../../env/', `${this.serverType}-config.json`);
     const text = fs.readFileSync(dir, 'utf8');
     const config = JSON.parse(text);
@@ -88,5 +90,5 @@ export class MysqlConfig {
   password: string;
   poolSize: number;
 }
-const serverConfig = new ServerConfig();
-export default serverConfig;
+
+export default ServerConfig;

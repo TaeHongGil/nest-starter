@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtPayload } from 'jsonwebtoken';
-import serverConfig from '../config/server.config';
+import ServerConfig from '../config/server.config';
 import { ServerLogger } from '../server-log/server.log.service';
 import { jwtVerify } from '../utils/crypt.utils';
 import { SessionUser } from './auth.schema';
@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-    if (serverConfig.session.active) {
+    if (ServerConfig.session.active) {
       const sessionId = request.session.id;
       if (!sessionId) {
         ServerLogger.error('Session ID is missing');
@@ -28,8 +28,8 @@ export class AuthGuard implements CanActivate {
         ServerLogger.warn(`Login session exists but no user data for ID: ${sessionId}`);
         throw new UnauthorizedException('Login error');
       }
-    } else if (serverConfig.jwt.active) {
-      const jwtInfo = jwtVerify(this.authService.getAuthToken(request), serverConfig.jwt.key) as JwtPayload;
+    } else if (ServerConfig.jwt.active) {
+      const jwtInfo = jwtVerify(this.authService.getAuthToken(request), ServerConfig.jwt.key) as JwtPayload;
       const user: SessionUser = {
         useridx: jwtInfo['useridx'],
         nickname: jwtInfo['nickname'],
@@ -51,7 +51,7 @@ export class NoAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-    if (serverConfig.jwt.active) {
+    if (ServerConfig.jwt.active) {
       request.session = {
         cookie: undefined,
         user: undefined,

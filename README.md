@@ -24,5 +24,5 @@
 ## Swagger Documentation
 
 - **Configuration**:
-  - Modify the `src/generate-metadata.ts` script to adjust options like `dtoFileNameSuffix` and `controllerFileNameSuffix` based on your needs.
-  - If Swagger is not needed, remove the `npm run swagger` command in the `package.json`.
+  - Modify the `src/feature/swagger/generate-metadata.ts` script to adjust options like `dtoFileNameSuffix` and `controllerFileNameSuffix` based on your needs.
+  - `npm run swagger or npm run swagger:watch`

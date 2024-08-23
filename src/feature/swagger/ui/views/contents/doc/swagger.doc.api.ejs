@@ -1,0 +1,90 @@
+<div id="api-section"></div>
+
+<script type="module">
+  //@ sourceURL=api.view
+  import utils from '/js/swagger.util.js';
+  import components from '/js/swagger.components.js';
+  class ApiView {
+    constructor() {}
+
+    async initAsync() {
+      this.schemas = window.spec.components.schemas;
+      this.renderApiContainer();
+    }
+
+    renderApiContainer() {
+      const $apiContainer = $('#api-section');
+
+      $.each(spec.tags, (_, tag) => {
+        const $tagSection = $('<div>').addClass('card mb-4');
+        const $tagHeader = $('<div>')
+          .addClass('card-header tag-toggle')
+          .on('click', () => toggleHidden(tag.name));
+        const $title = $('<h2>').text(tag.name);
+        $tagHeader.append($title);
+
+        const $tagBody = $('<div>').addClass('card-body toggle-component hidden').attr('id', tag.name);
+        const $ul = $('<ul>').addClass('list-unstyled');
+
+        $.each(spec.paths, (path, methods) => {
+          $.each(methods, (method, info) => {
+            if (info.tags.includes(tag.name)) {
+              const $tagContainer = this.createApiContainer(tag, method, path, info);
+              $ul.append($tagContainer);
+            }
+          });
+        });
+
+        $tagBody.append($ul);
+        $tagSection.append($tagHeader, $tagBody);
+        $apiContainer.append($tagSection);
+      });
+    }
+
+    createApiContainer(tag, method, path, info) {
+      const $tagContainer = $('<div>').addClass('tag-container');
+      const $apiPathContainer = $('<div>')
+        .addClass('api-path-container')
+        .on('click', () => toggleHidden(`${tag.name}-${method}-${path}`));
+
+      const $apiPathSummary = $('<div>').addClass('api-path-summary');
+      const $methodBadge = $('<span>').addClass(`method-badge text-uppercase ${method.toUpperCase()}`).text(method);
+      const $apiPath = $('<span>').addClass('api-path').text(path);
+      $apiPathSummary.append($methodBadge, $apiPath);
+
+      const $summaryContainer = $('<div>').addClass('summary-container');
+      if (info.security) {
+        info.security.forEach((interceptor) => {
+          const $span = $('<span>').addClass('interceptors').text(interceptor);
+          $summaryContainer.append($span);
+        });
+      }
+      if (info.summary) {
+        const $contentSpan = $('<span>').addClass('summary').text(info.summary);
+        $summaryContainer.append($contentSpan);
+      }
+      $apiPathSummary.append($summaryContainer);
+      $apiPathContainer.append($apiPathSummary);
+      $tagContainer.append($apiPathContainer);
+
+      const $li = $('<li>').addClass('api-container toggle-component hidden').attr('id', `${tag.name}-${method}-${path}`);
+
+      if (info.description) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const $descriptionContainer = $('<div>').addClass('description-container').html(info.description.replace(urlRegex, '<a class="description-link" href="$1">$1</a>').replace(/\n/g, '<br>'));
+        $li.append($descriptionContainer);
+      }
+
+      const $httpConatiner = new components.HttpContainer(method, path);
+      $li.append($httpConatiner.getComponent());
+      $tagContainer.append($li);
+
+      return $tagContainer;
+    }
+  }
+
+  $(document).ready(async function () {
+    const view = new ApiView();
+    await view.initAsync();
+  });
+</script>

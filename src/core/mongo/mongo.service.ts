@@ -1,6 +1,6 @@
 import { OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
 import mongoose, { type Connection } from 'mongoose';
-import serverConfig from '../config/server.config';
+import ServerConfig from '../config/server.config';
 import { ConnectKeys } from '../define/connect.key';
 import { ServerLogger } from '../server-log/server.log.service';
 
@@ -12,7 +12,7 @@ export class MongoService implements OnModuleDestroy, OnModuleInit {
   _connectionMap = new Map<string, Connection>();
 
   async onModuleInit(): Promise<void> {
-    const dbs = serverConfig.db.mongo;
+    const dbs = ServerConfig.db.mongo;
     for (const db of dbs) {
       if (db.active == false) {
         continue;

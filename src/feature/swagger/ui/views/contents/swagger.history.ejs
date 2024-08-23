@@ -1,0 +1,156 @@
+<div class="history-container mt-4">
+  <div class="container-fluid content-container">
+    <div class="dropdown mb-3">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="response-list-button" data-bs-toggle="dropdown" aria-expanded="false">Response List</button>
+      <ul class="dropdown-menu dropdown-menu-dark dropbox-list" aria-labelledby="response-list-button" id="response-list"></ul>
+    </div>
+    <div class="row">
+      <div class="col-6" id="request-section">
+        <div class="mr-elements" style="display: flex; align-items: center">
+          <h2>Request</h2>
+          <button class="btn btn-success btn-copy" id="request-copy-btn">Copy</button>
+        </div>
+        <ul class="nav nav-tabs" id="requestTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="request-url-tab" data-bs-toggle="tab" data-bs-target="#request-url" type="button" role="tab" aria-controls="request-url" aria-selected="false">Url</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="request-header-tab" data-bs-toggle="tab" data-bs-target="#request-header" type="button" role="tab" aria-controls="request-header" aria-selected="false">
+              Header
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="request-params-tab" data-bs-toggle="tab" data-bs-target="#request-params" type="button" role="tab" aria-controls="request-params" aria-selected="false">
+              Params
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="request-body-tab" data-bs-toggle="tab" data-bs-target="#request-body" type="button" role="tab" aria-controls="request-body" aria-selected="true">
+              Body
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content" id="requestTabsContent">
+          <div class="tab-pane fade" id="request-url" role="tabpanel" aria-labelledby="request-url-tab">
+            <div class="response-url response-status"><code class="text" id="requestUrlDisplay"></code></div>
+          </div>
+          <div class="tab-pane fade" id="request-header" role="tabpanel" aria-labelledby="request-header-tab">
+            <pre><code class="json" id="requestHeaderDisplay"></code></pre>
+          </div>
+          <div class="tab-pane fade" id="request-params" role="tabpanel" aria-labelledby="request-params-tab">
+            <pre><code class="json" id="requestParamsDisplay"></code></pre>
+          </div>
+          <div class="tab-pane fade show active" id="request-body" role="tabpanel" aria-labelledby="request-body-tab">
+            <pre><code class="json" id="requestBodyDisplay"></code></pre>
+          </div>
+        </div>
+      </div>
+      <div class="col-6" id="response-section">
+        <div class="mr-elements" style="display: flex; align-items: center">
+          <h2>Response</h2>
+          <button class="btn btn-success" id="response-copy-btn">Copy</button>
+        </div>
+        <ul class="nav nav-tabs" id="responseTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="response-header-tab" data-bs-toggle="tab" data-bs-target="#response-header" type="button" role="tab" aria-controls="response-header" aria-selected="false">
+              Header
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="response-body-tab" data-bs-toggle="tab" data-bs-target="#response-body" type="button" role="tab" aria-controls="response-body" aria-selected="true">
+              Body
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content" id="responseTabsContent">
+          <div class="tab-pane fade" id="response-header" role="tabpanel" aria-labelledby="response-header-tab">
+            <div class="response-url response-status"><code class="text" id="responseHeaderDisplay"></code></div>
+          </div>
+          <div class="tab-pane fade show active" id="response-body" role="tabpanel" aria-labelledby="response-body-tab">
+            <pre><code class="json" id="responseBodyDisplay"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module">
+  //@ sourceURL=history.view
+  class HistoryView {
+    constructor() {}
+    async initAsync() {
+      this.initCopyButtons();
+      const $responseList = $('#response-list');
+      if (!swaggerStorge.history) {
+        swaggerStorge.history = [];
+      }
+      swaggerStorge.history.forEach((item, index) => {
+        const statusCode = item.response.status;
+        const path = item.request.path;
+        const method = item.request.method.toUpperCase();
+        const date = this.formatDate(item.request.date);
+        const statusIcon = this.getStatusIcon(statusCode);
+
+        const $listItem = $('<li>');
+        const $link = $('<div>').addClass('dropdown-item d-flex align-items-center');
+
+        const $methodBadge = $('<span>').addClass(`method-badge me-2 ${method}`).text(method);
+
+        const $contentDiv = $('<div>').addClass('flex-grow-1');
+
+        const $pathDiv = $('<div>').addClass('fw-bold').text(path);
+
+        const $statusDiv = $('<div>').addClass('small').text(`${statusIcon} ${statusCode} - ${date}`);
+
+        $contentDiv.append($pathDiv, $statusDiv);
+        $link.append($methodBadge, $contentDiv);
+        $listItem.append($link);
+        $listItem.on('click', () => this.displayData(index));
+        $responseList.append($listItem);
+      });
+    }
+
+    initCopyButtons() {
+      $('#request-copy-btn').on('click', () => this.copyActiveTabContent('request-section'));
+      $('#response-copy-btn').on('click', () => this.copyActiveTabContent('response-section'));
+    }
+
+    copyActiveTabContent(sectionID) {
+      const $activeContent = $(`#${sectionID} .active.show code`);
+      if ($activeContent.length > 0) {
+        copyCode($activeContent);
+      }
+    }
+
+    formatDate(dateString) {
+      return new Date(dateString).toLocaleString();
+    }
+
+    getStatusIcon(status) {
+      const statusCode = parseInt(status);
+      return statusCode >= 200 && statusCode < 300 ? '🟢' : '🔴';
+    }
+
+    displayData(index) {
+      const item = swaggerStorge.history[index];
+      $('#requestUrlDisplay').text(item.request.url);
+      $('#requestHeaderDisplay').text(JSON.stringify(item.request.headers, null, 2));
+      $('#requestParamsDisplay').text(JSON.stringify(item.request.parameters, null, 2));
+      $('#requestBodyDisplay').text(item.request.body || '{}');
+      $('#responseHeaderDisplay').text(item.response.header);
+      $('#responseBodyDisplay').text(item.response.body);
+      $('code.json').each(function (_, code) {
+        if (code.dataset.highlighted) {
+          $(code).removeClass('highlighted');
+          delete code.dataset.highlighted;
+        }
+        hljs.highlightElement(code);
+      });
+    }
+  }
+
+  $(document).ready(async function () {
+    const view = new HistoryView();
+    await view.initAsync();
+  });
+</script>

@@ -1,7 +1,7 @@
 import { BadRequestException, ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import serverConfig from '@root/core/config/server.config';
+import ServerConfig from '@root/core/config/server.config';
 import { ValidationError } from 'class-validator';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
@@ -11,47 +11,41 @@ import { AppModule } from './app.module';
 import { CoreRedisKeys } from './core/define/core.redis.key';
 import { CoreDefine } from './core/define/define';
 import { GlobalExceptionsFilter } from './core/error/GlobalExceptionsFilter';
-import { ServerModule } from './server/server.module';
-import { SwaggerOptions, setupSwagger } from './swagger/swagger';
+import { SwaggerService } from './feature/swagger/swagger.service';
 
 async function bootstrap(): Promise<void> {
+  await ServerConfig.init();
+  global.ServerConfig = ServerConfig;
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   setHelmet(app);
   setAplication(app);
   await setSessionAsync(app);
   await setSwagger(app);
 
-  await app.listen(serverConfig.port);
+  await app.listen(ServerConfig.port);
 }
 
 async function setSwagger(app: NestExpressApplication): Promise<void> {
-  if (serverConfig.dev === false) {
+  if (ServerConfig.dev === false) {
     return;
   }
-
-  const options: SwaggerOptions = {
-    includeModules: [AppModule, ServerModule],
-    config: {
-      token: {
-        api: 'account/login',
-        body: 'accessToken',
-      },
-    },
-  };
-  await setupSwagger(app, options);
+  const swagger = app.get(SwaggerService);
+  await swagger.setupSwagger(app);
 }
 
 function setHelmet(app: INestApplication): void {
-  if (serverConfig.dev === false) {
-    app.use(helmet());
-    app.use(
-      helmet.hsts({
-        maxAge: CoreDefine.ONE_DAY_SECS * 180, // 180일
-        includeSubDomains: true, // 모든 하위 도메인이 HSTS 정책을 따르도록 설정
-        preload: true, // 브라우저의 사전 로드 목록에 사이트를 등록,
-      }),
-    );
+  if (ServerConfig.dev === true) {
+    return;
   }
+  app.use(helmet());
+  app.use(
+    helmet.hsts({
+      maxAge: CoreDefine.ONE_DAY_SECS * 180, // 180일
+      includeSubDomains: true, // 모든 하위 도메인이 HSTS 정책을 따르도록 설정
+      preload: true, // 브라우저의 사전 로드 목록에 사이트를 등록,
+    }),
+  );
 }
 
 function setAplication(app: INestApplication): void {
@@ -77,11 +71,11 @@ function setAplication(app: INestApplication): void {
 }
 
 async function setSessionAsync(app: INestApplication): Promise<void> {
-  if (!serverConfig.session.active) {
+  if (!ServerConfig.session.active) {
     return;
   }
-  const db = serverConfig.session.redis;
-  const ttl = serverConfig.session.ttl;
+  const db = ServerConfig.session.redis;
+  const ttl = ServerConfig.session.ttl;
   let redisStore = undefined;
 
   if (db && db.active) {
@@ -103,11 +97,11 @@ async function setSessionAsync(app: INestApplication): Promise<void> {
   app.use(
     session({
       store: redisStore,
-      secret: serverConfig.session.key,
+      secret: ServerConfig.session.key,
       resave: false,
       saveUninitialized: false,
       cookie: {
-        secure: serverConfig.session.secure,
+        secure: ServerConfig.session.secure,
         maxAge: ttl,
       },
     }),

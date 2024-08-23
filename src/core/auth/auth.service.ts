@@ -5,7 +5,7 @@
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { SessionData } from 'express-session';
-import serverConfig from '../config/server.config';
+import ServerConfig from '../config/server.config';
 import { jwtSignWithExpireSec } from '../utils/crypt.utils';
 import { AuthRepository } from './auth.repository';
 import { NestToken, SessionUser } from './auth.schema';
@@ -24,8 +24,8 @@ export class AuthService {
 
   async setTokenAsync(user: SessionUser): Promise<NestToken> {
     const token: NestToken = {
-      accessToken: jwtSignWithExpireSec(user, serverConfig.jwt.key, serverConfig.jwt.ttl_access),
-      refreshToken: jwtSignWithExpireSec(user, serverConfig.jwt.key, serverConfig.jwt.ttl_refresh),
+      accessToken: jwtSignWithExpireSec(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_access),
+      refreshToken: jwtSignWithExpireSec(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_refresh),
     };
     await this.authRepository.setTokenAsync(user.useridx, token);
     return token;

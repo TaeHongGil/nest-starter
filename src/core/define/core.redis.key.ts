@@ -1,9 +1,9 @@
-import serverConfig from '@root/core/config/server.config';
+import ServerConfig from '@root/core/config/server.config';
 import { CoreDefine } from '@root/core/define/define';
 
 export class CoreRedisKeys {
   static getPrefix(): string {
-    return CoreDefine.SERVER_NAME + `:${serverConfig.serverType}`;
+    return CoreDefine.SERVER_NAME + `:${ServerConfig.serverType}`;
   }
 
   static getSessionDefaultKey(): string {

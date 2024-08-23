@@ -1,9 +1,9 @@
-import serverConfig from '../config/server.config';
+import ServerConfig from '../config/server.config';
 import { CoreDefine } from './define';
 
 export class ConnectKeys {
   static getPrefix(): string {
-    return CoreDefine.SERVER_NAME + `_${serverConfig.serverType}`;
+    return CoreDefine.SERVER_NAME + `_${ServerConfig.serverType}`;
   }
 
   static getGlobalKey(): string {

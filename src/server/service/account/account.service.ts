@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SessionUser } from '@root/core/auth/auth.schema';
-import serverConfig from '@root/core/config/server.config';
+import ServerConfig from '@root/core/config/server.config';
 import { ReqCreateUser, ReqLogin } from '@root/server/common/request.dto';
 import { SessionData } from 'express-session';
 import { AccountRepository } from './account.repository';
@@ -68,7 +68,7 @@ export class AccountService {
       useridx: account.useridx,
       nickname: account.nickname,
     };
-    if (serverConfig.session.active) {
+    if (ServerConfig.session.active) {
       session.user = user;
     }
     await this.setLoginStateAsync(account);

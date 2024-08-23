@@ -1,0 +1,22 @@
+<div class="info-section">
+  <div id="header-section"></div>
+</div>
+
+<script type="module">
+  //@ sourceURL=info.view
+  import util from '/js/swagger.util.js';
+  import components from '/js/swagger.components.js';
+  class InfoView {
+    constructor() {}
+
+    async initAsync() {
+      this.$header = new components.Header();
+      $('#header-section').append(this.$header.getComponent());
+    }
+  }
+
+  $(document).ready(async function () {
+    const view = new InfoView();
+    await view.initAsync();
+  });
+</script>

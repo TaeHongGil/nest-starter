@@ -23,7 +23,7 @@
   "jwt": {
     "active": true,
     "key": "Insert Session Key",
-    "ttl_access": 1,
+    "ttl_access": 30000,
     "ttl_refresh": 1200000
   },
   "db": {
