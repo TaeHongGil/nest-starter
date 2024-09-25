@@ -27,10 +27,4 @@ export class SwaggerController {
   historyRender(): any {
     return;
   }
-
-  @Get('/generate_test')
-  @Render('./contents/generate-test/swagger.generate.test.ejs')
-  generateTest(): any {
-    return;
-  }
 }
