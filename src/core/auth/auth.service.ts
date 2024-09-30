@@ -6,9 +6,9 @@ import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { SessionData } from 'express-session';
 import ServerConfig from '../config/server.config';
-import { jwtSignWithExpireSec } from '../utils/crypt.utils';
+import CryptUtil from '../utils/crypt.utils';
 import { AuthRepository } from './auth.repository';
-import { NestToken, SessionUser } from './auth.schema';
+import { SessionUser } from './auth.schema';
 
 @Injectable()
 export class AuthService {
@@ -18,24 +18,27 @@ export class AuthService {
     return await this.authRepository.getSessionAsync(id);
   }
 
-  async getTokenAsync(useridx: number): Promise<NestToken> {
-    return await this.authRepository.getTokenAsync(useridx);
+  async getRefreshTokenAsync(useridx: number): Promise<string> {
+    return await this.authRepository.getRefreshTokenAsync(useridx);
   }
 
-  async setTokenAsync(user: SessionUser): Promise<NestToken> {
-    const token: NestToken = {
-      accessToken: jwtSignWithExpireSec(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_access),
-      refreshToken: jwtSignWithExpireSec(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_refresh),
-    };
-    await this.authRepository.setTokenAsync(user.useridx, token);
+  async createAccessTokenAsync(user: SessionUser): Promise<string> {
+    return CryptUtil.jwtSignWithExpireSec(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_access);
+  }
+
+  async createRefreshTokenAsync(user: SessionUser): Promise<string> {
+    const token = CryptUtil.jwtSignWithExpireSec(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_refresh);
+    await this.authRepository.setRefreshTokenAsync(user.useridx, token);
+
     return token;
   }
 
   async refreshTokenVerifyAsync(useridx: number, token: string): Promise<boolean> {
-    const dbToken = await this.getTokenAsync(useridx);
-    if (token != dbToken.refreshToken) {
+    const dbToken = await this.getRefreshTokenAsync(useridx);
+    if (token != dbToken) {
       throw Error('not found token');
     }
+
     return true;
   }
 

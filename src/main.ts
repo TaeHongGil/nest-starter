@@ -6,32 +6,41 @@ import { ValidationError } from 'class-validator';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
 import helmet from 'helmet';
-import { createClient } from 'redis';
 import { AppModule } from './app.module';
 import { CoreRedisKeys } from './core/define/core.redis.key';
 import { CoreDefine } from './core/define/define';
 import { GlobalExceptionsFilter } from './core/error/GlobalExceptionsFilter';
+import { MongoService } from './core/mongo/mongo.service';
+import { MysqlService } from './core/mysql/mysql.service';
+import { RedisService } from './core/redis/redis.service';
 import { SwaggerService } from './feature/swagger/swagger.service';
 
 async function bootstrap(): Promise<void> {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
   await ServerConfig.init();
   global.ServerConfig = ServerConfig;
-
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const { redisService, mongoService, mysqlService } = await onBeforeModuleInit(app);
   setHelmet(app);
   setAplication(app);
-  await setSessionAsync(app);
-  await setSwagger(app);
-
+  await setSessionAsync(app, redisService);
   await app.listen(ServerConfig.port);
 }
 
-async function setSwagger(app: NestExpressApplication): Promise<void> {
-  if (ServerConfig.dev === false) {
-    return;
+async function onBeforeModuleInit(app: NestExpressApplication): Promise<{ redisService: RedisService; mongoService: MongoService; mysqlService: MysqlService }> {
+  const redisService = app.get(RedisService);
+  const mongoService = app.get(MongoService);
+  const mysqlService = app.get(MysqlService);
+  await redisService.onBeforeModuleInit();
+  await mongoService.onBeforeModuleInit();
+  await mysqlService.onBeforeModuleInit();
+
+  if (ServerConfig.dev) {
+    const swagger = app.get(SwaggerService);
+    await swagger.onBeforeModuleInit(app);
   }
-  const swagger = app.get(SwaggerService);
-  await swagger.setupSwagger(app);
+
+  return { redisService, mongoService, mysqlService };
 }
 
 function setHelmet(app: INestApplication): void {
@@ -55,6 +64,7 @@ function setAplication(app: INestApplication): void {
       msg = JSON.stringify(error.constraints);
       break;
     }
+
     return new BadRequestException(msg);
   };
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
@@ -70,24 +80,17 @@ function setAplication(app: INestApplication): void {
   );
 }
 
-async function setSessionAsync(app: INestApplication): Promise<void> {
+async function setSessionAsync(app: INestApplication, redisService: RedisService): Promise<void> {
   if (!ServerConfig.session.active) {
     return;
   }
-  const db = ServerConfig.session.redis;
+  const clustering = ServerConfig.session.clustering;
+  const db = ServerConfig.db.redis;
   const ttl = ServerConfig.session.ttl;
   let redisStore = undefined;
 
-  if (db && db.active) {
-    const protocol = db.tls === true ? 'rediss' : 'redis';
-    const redisClientOptions = {
-      url: `${protocol}://${db.host}:${db.port}`,
-      username: db.user_name,
-      password: db.password,
-      database: db.db,
-    };
-    const redisClient = createClient(redisClientOptions);
-    await redisClient.connect();
+  if (clustering && db) {
+    const redisClient = redisService.getGlobalClient();
     redisStore = new RedisStore({
       client: redisClient,
       prefix: CoreRedisKeys.getSessionDefaultKey(),

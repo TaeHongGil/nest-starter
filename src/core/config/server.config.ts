@@ -43,7 +43,7 @@ export class SessionConfig {
   active: boolean;
   key: string;
   secure: boolean;
-  redis: RedisConfig;
+  clustering: boolean;
   ttl: number;
 }
 
@@ -59,6 +59,7 @@ export class DBConfig {
   redis: RedisConfig[];
   mysql: MysqlConfig[];
 }
+
 export class MongoConfig {
   active: boolean;
   host: string;
@@ -71,6 +72,7 @@ export class MongoConfig {
   max_pool_size: number;
   use_tls: false;
 }
+
 export class RedisConfig {
   active: boolean;
   host: string;
@@ -81,6 +83,7 @@ export class RedisConfig {
   tls: boolean;
   db: number;
 }
+
 export class MysqlConfig {
   active: boolean;
   host: string;

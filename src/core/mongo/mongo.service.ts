@@ -1,4 +1,4 @@
-import { OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
+import { type OnModuleDestroy } from '@nestjs/common';
 import mongoose, { type Connection } from 'mongoose';
 import ServerConfig from '../config/server.config';
 import { ConnectKeys } from '../define/connect.key';
@@ -7,11 +7,10 @@ import { ServerLogger } from '../server-log/server.log.service';
 /**
  * Mongo Service
  */
-
-export class MongoService implements OnModuleDestroy, OnModuleInit {
+export class MongoService implements OnModuleDestroy {
   _connectionMap = new Map<string, Connection>();
 
-  async onModuleInit(): Promise<void> {
+  async onBeforeModuleInit(): Promise<void> {
     const dbs = ServerConfig.db.mongo;
     for (const db of dbs) {
       if (db.active == false) {
@@ -43,11 +42,13 @@ export class MongoService implements OnModuleDestroy, OnModuleInit {
 
   getGlobalClient(): Connection {
     const con = this._connectionMap.get(ConnectKeys.getGlobalKey());
+
     return con;
   }
 
   getClient(key: string): Connection {
     const con = this._connectionMap.get(ConnectKeys.getKey(key));
+
     return con;
   }
 }

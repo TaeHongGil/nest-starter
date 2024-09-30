@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { JwtPayload } from 'jsonwebtoken';
 import ServerConfig from '../config/server.config';
 import { ServerLogger } from '../server-log/server.log.service';
-import { jwtVerify } from '../utils/crypt.utils';
+import CryptUtil from '../utils/crypt.utils';
 import { SessionUser } from './auth.schema';
 import { AuthService } from './auth.service';
 
@@ -29,10 +29,9 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedException('Login error');
       }
     } else if (ServerConfig.jwt.active) {
-      const jwtInfo = jwtVerify(this.authService.getAuthToken(request), ServerConfig.jwt.key) as JwtPayload;
+      const jwtInfo = CryptUtil.jwtVerify(this.authService.getAuthToken(request), ServerConfig.jwt.key) as JwtPayload;
       const user: SessionUser = {
         useridx: jwtInfo['useridx'],
-        nickname: jwtInfo['nickname'],
       };
       request.session = {
         cookie: undefined,
@@ -41,6 +40,7 @@ export class AuthGuard implements CanActivate {
         response: response,
       };
     }
+
     return true;
   }
 }
@@ -59,6 +59,7 @@ export class NoAuthGuard implements CanActivate {
         response: response,
       };
     }
+
     return true;
   }
 }

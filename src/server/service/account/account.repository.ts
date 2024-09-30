@@ -1,37 +1,49 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { CoreRedisKeys } from '@root/core/define/core.redis.key';
+import { CoreDefine } from '@root/core/define/define';
 import { MongoService } from '@root/core/mongo/mongo.service';
 import { MysqlService } from '@root/core/mysql/mysql.service';
 import { RedisService } from '@root/core/redis/redis.service';
 import { ServerRedisKeys } from '@root/server/define/server.redis.key';
-import AutoIncrement from 'mongoose-sequence';
-import { DeleteResult, InsertResult } from 'typeorm';
-import { Account, DBAccount, DBAccountMysql, DBAccountSchema } from './account.schema';
+import { DBAccount, DBAccountSchema } from './account.schema';
 @Injectable()
-export class AccountRepository implements OnApplicationBootstrap {
+export class AccountRepository {
   constructor(
     readonly mongo: MongoService,
     readonly mysql: MysqlService,
     readonly redis: RedisService,
   ) {}
 
-  async onApplicationBootstrap(): Promise<void> {
-    const con = this.mongo.getGlobalClient();
-    if (con) {
-      const plugin = AutoIncrement(con);
-      DBAccountSchema.plugin(plugin, { inc_field: 'useridx', id: 'account_useridx' });
-    }
-  }
-
-  /**
-   * Mongo
-   */
-  async findAccountAsync(useridx: number): Promise<DBAccount> {
+  async findAccountByUseridxAsync(useridx: number): Promise<DBAccount> {
     const con = this.mongo.getGlobalClient();
     const model = con.model(DBAccount.name, DBAccountSchema);
     const resultDoc = await model.findOne({ useridx: useridx }).select('-_id').lean();
     if (!resultDoc) {
       return undefined;
     }
+
+    return resultDoc;
+  }
+
+  async findAccountByEmailAsync(email: string): Promise<DBAccount> {
+    const con = this.mongo.getGlobalClient();
+    const model = con.model(DBAccount.name, DBAccountSchema);
+    const resultDoc = await model.findOne({ email: email }).select('-_id').lean();
+    if (!resultDoc) {
+      return undefined;
+    }
+
+    return resultDoc;
+  }
+
+  async findAccountByNicknameAsync(nickname: string): Promise<DBAccount> {
+    const con = this.mongo.getGlobalClient();
+    const model = con.model(DBAccount.name, DBAccountSchema);
+    const resultDoc = await model.findOne({ nickname: nickname }).select('-_id').lean();
+    if (!resultDoc) {
+      return undefined;
+    }
+
     return resultDoc;
   }
 
@@ -42,6 +54,7 @@ export class AccountRepository implements OnApplicationBootstrap {
     if (!resultDoc) {
       return false;
     }
+
     return true;
   }
 
@@ -52,49 +65,39 @@ export class AccountRepository implements OnApplicationBootstrap {
     if (!account) {
       return account;
     }
+
     return account;
   }
 
-  /**
-   * Mysql
-   */
-  async findAccountMysqlAsync(useridx: number): Promise<DBAccountMysql> {
-    const repo = this.mysql.getGlobalClient().getRepository(DBAccountMysql);
-    const options = {
-      where: { useridx: useridx },
-      skip: 0,
-      order: {},
-    };
-    const result = await repo.findOne(options);
-    return result;
+  async increaseUseridx(): Promise<number> {
+    const client = this.redis.getGlobalClient();
+    const useridx = await client.hIncrBy(CoreRedisKeys.getGlobalNumberKey(), 'useridx', 1);
+
+    return useridx;
   }
 
-  async deleteAccountMysqlAsync(useridx: number): Promise<DeleteResult> {
-    const repo = this.mysql.getGlobalClient().getRepository(DBAccountMysql);
-    const result = await repo.delete({ useridx: useridx });
-
-    return result;
-  }
-
-  async createAccountMysqlAsync(account: DBAccountMysql): Promise<InsertResult> {
-    const repo = this.mysql.getGlobalClient().getRepository(DBAccountMysql);
-    const result = await repo.insert(account);
-    return result;
-  }
-
-  async setLoginStateAsync(account: Account): Promise<boolean> {
+  async setLoginStateAsync(account: DBAccount): Promise<boolean> {
     const client = this.redis.getGlobalClient();
     const accountWithLoginDate = {
-      ...account,
+      useridx: account.useridx,
+      nickname: account.nickname,
       login_date: new Date().toISOString(),
     };
-    await client.hSet(ServerRedisKeys.getUserStateKey(), account.useridx.toString(), JSON.stringify(accountWithLoginDate));
+    await client.set(ServerRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: CoreDefine.LOGIN_STATE_EXPIRE_SECS });
+
     return true;
   }
 
   async deleteLoginStateAsync(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
-    await client.hDel(ServerRedisKeys.getUserStateKey(), `${useridx}`);
+    await client.del(ServerRedisKeys.getUserStateKey(useridx));
+
     return true;
+  }
+
+  async refreshLoginStateAsync(useridx: number): Promise<boolean> {
+    const client = this.redis.getGlobalClient();
+
+    return await client.expire(ServerRedisKeys.getUserStateKey(useridx), CoreDefine.LOGIN_STATE_EXPIRE_SECS);
   }
 }

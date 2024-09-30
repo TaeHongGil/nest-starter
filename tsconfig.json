@@ -24,5 +24,8 @@
       "@server/*": ["./src/server/*"]
     },
     "typeRoots": ["./node_modules/@types", "./src/types"]
-  }
+  },
+  "exclude": [
+    "./src/feature/swagger/metadata.ts"
+  ]
 }

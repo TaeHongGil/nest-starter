@@ -22,6 +22,7 @@ export class SwaggerUtilService {
         if (includeModules.includes(module.metatype?.name)) {
           return [...module.controllers.values()];
         }
+
         return [];
       })
       .filter((wrapper) => wrapper.instance);
@@ -64,6 +65,7 @@ export class SwaggerUtilService {
         }
       });
     });
+
     return tags;
   }
 
@@ -75,6 +77,7 @@ export class SwaggerUtilService {
     const interceptors = interceptorsMetadata.reduce((acc, interceptor) => {
       return interceptor.name;
     }, new Set<string>());
+
     return Array.from(interceptors);
   }
 }

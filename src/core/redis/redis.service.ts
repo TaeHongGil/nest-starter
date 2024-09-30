@@ -1,4 +1,4 @@
-import { OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
+import { type OnModuleDestroy } from '@nestjs/common';
 import { RedisClientType, createClient } from 'redis';
 import ServerConfig from '../config/server.config';
 import { ConnectKeys } from '../define/connect.key';
@@ -7,11 +7,10 @@ import { ServerLogger } from '../server-log/server.log.service';
 /**
  * Redis Service
  */
-
-export class RedisService implements OnModuleDestroy, OnModuleInit {
+export class RedisService implements OnModuleDestroy {
   _connectionMap = new Map<string, RedisClientType>();
 
-  async onModuleInit(): Promise<void> {
+  async onBeforeModuleInit(): Promise<void> {
     const dbs = ServerConfig.db.redis;
     for (const db of dbs) {
       if (db.active == false) {
@@ -55,11 +54,13 @@ export class RedisService implements OnModuleDestroy, OnModuleInit {
 
   getGlobalClient(): RedisClientType {
     const con = this._connectionMap.get(ConnectKeys.getGlobalKey());
+
     return con;
   }
 
   getClient(key: string): RedisClientType {
     const con = this._connectionMap.get(ConnectKeys.getKey(key));
+
     return con;
   }
 }

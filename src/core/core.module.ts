@@ -25,6 +25,7 @@ export class CoreModule implements OnModuleInit {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const controllerModule = require(path.join(controllersPath, file));
       const controllerClass = Object.values(controllerModule).find((item) => typeof item === 'function');
+
       return controllerClass;
     });
 

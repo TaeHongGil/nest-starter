@@ -5,5 +5,4 @@ export class ResLogin {
 
 export class ResTokenRefresh {
   accessToken: string;
-  refreshToken: string;
 }

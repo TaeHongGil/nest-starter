@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from './app.module';
-import { getAsync } from './core/utils/test.utils';
+import TestUtil from './core/utils/test.utils';
 
 describe('AppController', () => {
   let app: NestExpressApplication;
@@ -25,7 +25,7 @@ describe('AppController', () => {
   });
 
   it('/', async () => {
-    const result = await getAsync(server, '/');
+    const result = await TestUtil.getAsync(server, '/');
     expect(result.status).toBe(200);
   });
 });

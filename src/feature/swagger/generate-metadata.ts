@@ -45,18 +45,16 @@ model_class.ModelClassVisitor.prototype.createDecoratorObjectLiteralExpr = funct
   const isRequired = plugin_utils.getDecoratorOrUndefinedByNames(['IsOptional'], decorators, factory) ? false : !node.questionToken;
   const properties = [
     ...existingProperties,
-    !plugin_utils.hasPropertyKey('required', existingProperties) &&
-        factory.createPropertyAssignment('required', ast_utils.createBooleanLiteral(factory, isRequired)),
+    !plugin_utils.hasPropertyKey('required', existingProperties) && factory.createPropertyAssignment('required', ast_utils.createBooleanLiteral(factory, isRequired)),
     ...this.createTypePropertyAssignments(factory, node.type, typeChecker, existingProperties, hostFilename, options),
     ...this.createDescriptionAndTsDocTagPropertyAssignments(factory, node, typeChecker, existingProperties, options, sourceFile),
     this.createDefaultPropertyAssignment(factory, node, existingProperties, options),
-    this.createEnumPropertyAssignment(factory, node, typeChecker, existingProperties, hostFilename, options)
-];
-if ((ts.isPropertyDeclaration(node) || ts.isPropertySignature(node)) &&
-    options.classValidatorShim) {
+    this.createEnumPropertyAssignment(factory, node, typeChecker, existingProperties, hostFilename, options),
+  ];
+  if ((ts.isPropertyDeclaration(node) || ts.isPropertySignature(node)) && options.classValidatorShim) {
     properties.push(this.createValidationPropertyAssignments(factory, node, options));
-}
-return factory.createObjectLiteralExpression(lodash.compact(lodash.flatten(properties)));
+  }
+  return factory.createObjectLiteralExpression(lodash.compact(lodash.flatten(properties)));
 };
 
 /**

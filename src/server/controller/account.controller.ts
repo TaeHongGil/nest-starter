@@ -1,13 +1,12 @@
-import { Body, Controller, Post, Req, Session, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Session, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
-import { jwtVerify } from '@root/core/utils/crypt.utils';
-import { Request } from 'express';
 import { SessionData } from 'express-session';
 import { JwtPayload } from 'jsonwebtoken';
+import CryptUtil from '../../core/utils/crypt.utils';
 import { ResLogin, ResTokenRefresh } from '../common/reponse.dto';
 import { ReqCreateUser, ReqLogin, ReqTokenRefresh } from '../common/request.dto';
 import { AccountService } from '../service/account/account.service';
@@ -30,6 +29,7 @@ export class AccountController {
   @UseGuards(NoAuthGuard)
   async createAccount(@Session() session: SessionData, @Body() param: ReqCreateUser): Promise<any> {
     const result = await this.accountService.createAccountAsync(param);
+
     return result;
   }
 
@@ -39,17 +39,17 @@ export class AccountController {
   @Post('/login')
   @UseGuards(NoAuthGuard)
   async login(@Session() session: SessionData, @Body() param: ReqLogin): Promise<any> {
-    const user = await this.accountService.login(session, param);
-    const res: ResLogin = {
-      accessToken: '',
-      refreshToken: '',
-    };
+    const user = await this.accountService.loginAsync(session, param);
     if (ServerConfig.jwt.active) {
-      const token = await this.authService.setTokenAsync(user);
-      res.accessToken = token.accessToken;
-      res.refreshToken = token.refreshToken;
+      const res: ResLogin = {
+        accessToken: await this.authService.createAccessTokenAsync(user),
+        refreshToken: await this.authService.createRefreshTokenAsync(user),
+      };
+
+      return res;
     }
-    return res;
+
+    return {};
   }
 
   /**
@@ -61,17 +61,15 @@ export class AccountController {
     if (!ServerConfig.jwt.active) {
       throw Error('jwt is not activated');
     }
-    const jwtInfo = jwtVerify(param.token, ServerConfig.jwt.key) as JwtPayload;
+    const jwtInfo = CryptUtil.jwtVerify(param.token, ServerConfig.jwt.key) as JwtPayload;
     const user: SessionUser = {
       useridx: jwtInfo['useridx'],
-      nickname: jwtInfo['nickname'],
     };
     await this.authService.refreshTokenVerifyAsync(user.useridx, param.token);
-    const token = await this.authService.setTokenAsync(user);
     const result: ResTokenRefresh = {
-      accessToken: token.accessToken,
-      refreshToken: token.refreshToken,
+      accessToken: await this.authService.createAccessTokenAsync(user),
     };
+
     return result;
   }
 
@@ -81,7 +79,8 @@ export class AccountController {
   @Post('/get')
   @UseGuards(AuthGuard)
   async getAccount(@Session() session: SessionData): Promise<any> {
-    const result = await this.accountService.getAccountAsync(session.user.useridx);
+    const result = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
+
     return result;
   }
 
@@ -90,9 +89,10 @@ export class AccountController {
    */
   @Post('/logout')
   @UseGuards(AuthGuard)
-  async logout(@Req() req: Request): Promise<any> {
-    await this.accountService.deleteLoginStateAsync(req.session.user.useridx);
-    req.session.destroy(() => {});
+  async logout(@Session() session: SessionData): Promise<any> {
+    await this.accountService.deleteLoginStateAsync(session.user.useridx);
+    session.request.session.destroy(() => {});
+
     return true;
   }
 
@@ -101,9 +101,22 @@ export class AccountController {
    */
   @Post('/delete')
   @UseGuards(AuthGuard)
-  async delete(@Req() req: Request): Promise<any> {
-    const result = await this.accountService.deleteAccountAsync(req.session.user.useridx);
-    req.session.destroy(() => {});
-    return result;
+  async delete(@Session() session: SessionData): Promise<any> {
+    const result = await this.accountService.deleteAccountAsync(session.user.useridx);
+    session.request.session.destroy(() => {});
+
+    return { result: result };
+  }
+
+  /**
+   * 계정이 현재 접속중인지 확인
+   * 15분 동안 유지 된다.
+   */
+  @Post('/ping')
+  @UseGuards(AuthGuard)
+  async ping(@Session() session: SessionData): Promise<any> {
+    const result = await this.accountService.refreshLoginStateAsync(session.user.useridx);
+
+    return { result: result };
   }
 }

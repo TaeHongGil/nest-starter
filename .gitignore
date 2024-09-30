@@ -391,5 +391,3 @@ Temporary Items
 dist
 .webpack
 .serverless/**/*.zip
-
-src/metadata.ts

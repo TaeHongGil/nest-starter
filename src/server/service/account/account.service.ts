@@ -1,60 +1,71 @@
 import { Injectable } from '@nestjs/common';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import ServerConfig from '@root/core/config/server.config';
+import { CoreDefine } from '@root/core/define/define';
 import { ReqCreateUser, ReqLogin } from '@root/server/common/request.dto';
 import { SessionData } from 'express-session';
+import CryptUtil from '../../../core/utils/crypt.utils';
 import { AccountRepository } from './account.repository';
-import { Account, DBAccount } from './account.schema';
+import { DBAccount } from './account.schema';
 
 @Injectable()
 export class AccountService {
   constructor(private readonly repository: AccountRepository) {}
 
-  /**
-   * Mongo
-   */
-  async getAccountAsync(useridx: number): Promise<DBAccount> {
-    const db = await this.repository.findAccountAsync(useridx);
+  async getAccountNyUseridxAsync(useridx: number): Promise<DBAccount> {
+    const db = await this.repository.findAccountByUseridxAsync(useridx);
+
+    return db;
+  }
+
+  async getAccountByEmailAsync(email: string): Promise<DBAccount> {
+    const db = await this.repository.findAccountByEmailAsync(email);
+
+    return db;
+  }
+
+  async getAccountByNicknameAsync(nickname: string): Promise<DBAccount> {
+    const db = await this.repository.findAccountByNicknameAsync(nickname);
+
     return db;
   }
 
   async createAccountAsync(req: ReqCreateUser): Promise<DBAccount> {
-    const account = new DBAccount();
-    account.id = req.id;
-    account.password = req.password;
-    account.nickname = req.nickname;
+    const useridx = await this.repository.increaseUseridx();
+    const account: DBAccount = {
+      useridx: useridx,
+      email: req.email,
+      nickname: `${CoreDefine.SERVER_NAME}${useridx}`,
+      password: await CryptUtil.hash(req.password),
+    };
     const db = await this.repository.createAccountAsync(account);
+
     return db;
   }
 
   async deleteAccountAsync(useridx: number): Promise<boolean> {
     const db = await this.repository.deleteAccountAsync(useridx);
+
     return db;
   }
 
-  // /**
-  //  * Mysql
-  //  */
-  // async getAccountMysqlAsync(useridx: number): Promise<DBAccount> {
-  //   const db = await this.repository.findAccountMysqlAsync(useridx);
-  //   return db;
-  // }
+  async loginAsync(session: SessionData, param: ReqLogin): Promise<SessionUser> {
+    const account = await this.getAccountByEmailAsync(param.email);
+    if (!(await CryptUtil.compareHash(param.password, account.password))) {
+      throw new Error('password error');
+    }
+    const user: SessionUser = {
+      useridx: account.useridx,
+    };
+    if (ServerConfig.session.active) {
+      session.user = user;
+    }
+    await this.setLoginStateAsync(account);
 
-  // async createAccountMysqlAsync(req: ReqCreateUser): Promise<InsertResult> {
-  //   const account = new DBAccountMysql();
-  //   account.id = req.id;
-  //   account.password = req.password;
-  //   account.nickname = req.nickname;
-  //   const db = await this.repository.createAccountMysqlAsync(account);
-  //   return db;
-  // }
+    return user;
+  }
 
-  // async deleteAccountMysqlAsync(useridx: number): Promise<DeleteResult> {
-  //   const db = await this.repository.deleteAccountMysqlAsync(useridx);
-  //   return db;
-  // }
-
-  async setLoginStateAsync(account: Account): Promise<boolean> {
+  async setLoginStateAsync(account: DBAccount): Promise<boolean> {
     return await this.repository.setLoginStateAsync(account);
   }
 
@@ -62,16 +73,7 @@ export class AccountService {
     return await this.repository.deleteLoginStateAsync(useridx);
   }
 
-  async login(session: SessionData, param: ReqLogin): Promise<SessionUser> {
-    const account = await this.getAccountAsync(param.useridx);
-    const user: SessionUser = {
-      useridx: account.useridx,
-      nickname: account.nickname,
-    };
-    if (ServerConfig.session.active) {
-      session.user = user;
-    }
-    await this.setLoginStateAsync(account);
-    return user;
+  async refreshLoginStateAsync(useridx: number): Promise<boolean> {
+    return await this.repository.refreshLoginStateAsync(useridx);
   }
 }

@@ -3,22 +3,26 @@ import { CoreDefine } from '@root/core/define/define';
 
 export class CoreRedisKeys {
   static getPrefix(): string {
-    return CoreDefine.SERVER_NAME + `:${ServerConfig.serverType}`;
+    return `${CoreDefine.SERVER_NAME}:${ServerConfig.serverType}`;
   }
 
   static getSessionDefaultKey(): string {
-    return CoreRedisKeys.getPrefix() + ':user:session:';
+    return `${CoreRedisKeys.getPrefix()}:user:session`;
   }
 
   static getSessionKey(sessionId: string): string {
-    return this.getSessionDefaultKey() + sessionId;
+    return `${this.getSessionDefaultKey()}:${sessionId}`;
   }
 
   static getTokenDefaultKey(): string {
-    return CoreRedisKeys.getPrefix() + ':user:token:';
+    return `${CoreRedisKeys.getPrefix()}:user:token:`;
   }
 
   static getTokenKey(useridx: number): string {
-    return this.getSessionDefaultKey() + useridx;
+    return `${this.getSessionDefaultKey()}:${useridx}`;
+  }
+
+  static getGlobalNumberKey(): string {
+    return `${CoreRedisKeys.getPrefix()}:global:number`;
   }
 }

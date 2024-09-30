@@ -1,4 +1,4 @@
-import { OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
+import { type OnModuleDestroy } from '@nestjs/common';
 import mysql from 'mysql2/promise';
 import { DataSource } from 'typeorm';
 import ServerConfig from '../config/server.config';
@@ -8,10 +8,10 @@ import { ServerLogger } from '../server-log/server.log.service';
 /**
  * Mysql Service
  */
-export class MysqlService implements OnModuleDestroy, OnModuleInit {
+export class MysqlService implements OnModuleDestroy {
   _connectionMap = new Map<string, DataSource>();
 
-  async onModuleInit(): Promise<void> {
+  async onBeforeModuleInit(): Promise<void> {
     const dbs = ServerConfig.db.mysql;
     const dev = ServerConfig.dev;
     for (const db of dbs) {
@@ -64,11 +64,13 @@ export class MysqlService implements OnModuleDestroy, OnModuleInit {
 
   getGlobalClient(): DataSource {
     const con = this._connectionMap.get(ConnectKeys.getGlobalKey());
+
     return con;
   }
 
   getClient(key: string): DataSource {
     const con = this._connectionMap.get(ConnectKeys.getKey(key));
+
     return con;
   }
 }

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CoreRedisKeys } from '@root/core/define/core.redis.key';
 import { SessionData } from 'express-session';
+import ServerConfig from '../config/server.config';
 import { RedisService } from '../redis/redis.service';
-import { NestToken } from './auth.schema';
 
 @Injectable()
 export class AuthRepository {
@@ -11,18 +11,21 @@ export class AuthRepository {
   async getSessionAsync(id: string): Promise<SessionData> {
     const con = this.redis.getGlobalClient();
     const session = await con.get(CoreRedisKeys.getSessionKey(id));
+
     return JSON.parse(session);
   }
 
-  async setTokenAsync(useridx: number, token: NestToken): Promise<boolean> {
+  async setRefreshTokenAsync(useridx: number, token: string): Promise<boolean> {
     const con = this.redis.getGlobalClient();
-    await con.set(CoreRedisKeys.getTokenKey(useridx), JSON.stringify(token));
+    await con.setEx(CoreRedisKeys.getTokenKey(useridx), ServerConfig.jwt.ttl_refresh, token);
+
     return true;
   }
 
-  async getTokenAsync(useridx: number): Promise<NestToken> {
+  async getRefreshTokenAsync(useridx: number): Promise<string> {
     const con = this.redis.getGlobalClient();
     const token = await con.get(CoreRedisKeys.getTokenKey(useridx));
-    return JSON.parse(token);
+
+    return token;
   }
 }

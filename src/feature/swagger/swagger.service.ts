@@ -30,7 +30,7 @@ export class SwaggerService {
   /**
    * Swagger Setup
    */
-  async setupSwagger(app: NestExpressApplication): Promise<void> {
+  async onBeforeModuleInit(app: NestExpressApplication): Promise<void> {
     if (ServerConfig.serverType == CoreDefine.SERVER_TYPE.LIVE) {
       return;
     }
@@ -46,6 +46,7 @@ export class SwaggerService {
       await SwaggerModule.loadPluginMetadata(async () => metadataCache);
     } catch (error) {
       console.error('Swagger Metadata Error:', error);
+
       return;
     }
 
@@ -60,6 +61,7 @@ export class SwaggerService {
     const models = await Promise.all(this.metadata['@nestjs/swagger']['models'].map(async (model: any[]) => await model[0]));
     const modelMetadata = models.reduce((acc: any[], obj: any) => {
       obj = [...Object.values(obj)].filter((x) => typeof x == 'function');
+
       return [...acc, ...obj];
     }, []);
 

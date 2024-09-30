@@ -1,12 +1,12 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class ReqCreateUser {
   /**
    * 계정 ID
    */
-  @IsString()
   @IsNotEmpty()
-  readonly id: string;
+  @IsEmail()
+  readonly email: string;
 
   /**
    * 계정 Password
@@ -14,19 +14,22 @@ export class ReqCreateUser {
   @IsString()
   @IsNotEmpty()
   readonly password: string;
-
-  /**
-   * 닉네임
-   */
-  @IsString()
-  @IsNotEmpty()
-  readonly nickname: string;
 }
 
 export class ReqLogin {
-  @IsNumber()
+  /**
+   * 계정 ID
+   */
   @IsNotEmpty()
-  readonly useridx: number;
+  @IsEmail()
+  readonly email: string;
+
+  /**
+   * 계정 Password
+   */
+  @IsString()
+  @IsNotEmpty()
+  readonly password: string;
 }
 
 export class ReqTokenRefresh {
