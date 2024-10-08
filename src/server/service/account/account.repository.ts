@@ -58,15 +58,15 @@ export class AccountRepository {
     return true;
   }
 
-  async createAccountAsync(account: DBAccount): Promise<DBAccount> {
+  async upsertAccountAsync(account: DBAccount): Promise<DBAccount> {
     const con = this.mongo.getGlobalClient();
     const model = con.model(DBAccount.name, DBAccountSchema);
-    await model.create(account);
-    if (!account) {
-      return account;
+    const result = await model.findOneAndUpdate({ useridx: account.useridx }, account, { new: true, upsert: true }).lean();
+    if (!result) {
+      return undefined;
     }
 
-    return account;
+    return result;
   }
 
   async increaseUseridx(): Promise<number> {
@@ -99,5 +99,17 @@ export class AccountRepository {
     const client = this.redis.getGlobalClient();
 
     return await client.expire(ServerRedisKeys.getUserStateKey(useridx), CoreDefine.LOGIN_STATE_EXPIRE_SECS);
+  }
+
+  async setEmailVerificationAsync(account: DBAccount): Promise<boolean> {
+    const client = this.redis.getGlobalClient();
+    const accountWithLoginDate = {
+      useridx: account.useridx,
+      nickname: account.nickname,
+      login_date: new Date().toISOString(),
+    };
+    await client.set(ServerRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: CoreDefine.LOGIN_STATE_EXPIRE_SECS });
+
+    return true;
   }
 }

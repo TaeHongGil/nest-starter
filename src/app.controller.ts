@@ -10,7 +10,7 @@ export class AppController {
 
   @Get('/')
   healthCheck(): any {
-    return { msg: 'server alive' };
+    return {};
   }
 
   @Get('/info')

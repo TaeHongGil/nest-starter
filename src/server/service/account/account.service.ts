@@ -13,21 +13,39 @@ export class AccountService {
   constructor(private readonly repository: AccountRepository) {}
 
   async getAccountNyUseridxAsync(useridx: number): Promise<DBAccount> {
-    const db = await this.repository.findAccountByUseridxAsync(useridx);
-
-    return db;
+    return await this.repository.findAccountByUseridxAsync(useridx);
   }
 
   async getAccountByEmailAsync(email: string): Promise<DBAccount> {
-    const db = await this.repository.findAccountByEmailAsync(email);
-
-    return db;
+    return await this.repository.findAccountByEmailAsync(email);
   }
 
   async getAccountByNicknameAsync(nickname: string): Promise<DBAccount> {
-    const db = await this.repository.findAccountByNicknameAsync(nickname);
+    return await this.repository.findAccountByNicknameAsync(nickname);
+  }
 
-    return db;
+  async upsertAccountAsync(account: DBAccount): Promise<DBAccount> {
+    return await this.repository.upsertAccountAsync(account);
+  }
+
+  async deleteAccountAsync(useridx: number): Promise<boolean> {
+    return await this.repository.deleteAccountAsync(useridx);
+  }
+
+  async setLoginStateAsync(account: DBAccount): Promise<boolean> {
+    return await this.repository.setLoginStateAsync(account);
+  }
+
+  async deleteLoginStateAsync(useridx: number): Promise<boolean> {
+    return await this.repository.deleteLoginStateAsync(useridx);
+  }
+
+  async refreshLoginStateAsync(useridx: number): Promise<boolean> {
+    return await this.repository.refreshLoginStateAsync(useridx);
+  }
+
+  async checkEmail(email: string): Promise<boolean> {
+    return (await this.repository.findAccountByEmailAsync(email)) ? true : false;
   }
 
   async createAccountAsync(req: ReqCreateUser): Promise<DBAccount> {
@@ -38,15 +56,8 @@ export class AccountService {
       nickname: `${CoreDefine.SERVER_NAME}${useridx}`,
       password: await CryptUtil.hash(req.password),
     };
-    const db = await this.repository.createAccountAsync(account);
 
-    return db;
-  }
-
-  async deleteAccountAsync(useridx: number): Promise<boolean> {
-    const db = await this.repository.deleteAccountAsync(useridx);
-
-    return db;
+    return account;
   }
 
   async loginAsync(session: SessionData, param: ReqLogin): Promise<SessionUser> {
@@ -63,17 +74,5 @@ export class AccountService {
     await this.setLoginStateAsync(account);
 
     return user;
-  }
-
-  async setLoginStateAsync(account: DBAccount): Promise<boolean> {
-    return await this.repository.setLoginStateAsync(account);
-  }
-
-  async deleteLoginStateAsync(useridx: number): Promise<boolean> {
-    return await this.repository.deleteLoginStateAsync(useridx);
-  }
-
-  async refreshLoginStateAsync(useridx: number): Promise<boolean> {
-    return await this.repository.refreshLoginStateAsync(useridx);
   }
 }

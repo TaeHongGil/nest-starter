@@ -2,7 +2,8 @@
   "port": 8080,
   "dev": true,
   "swagger": {
-    "active": true
+    "active": true,
+    "servers": []
   },
   "session": {
     "active": false,
@@ -55,5 +56,17 @@
         "poolSize": "1"
       }
     ]
+  },
+  "account": {
+    "verification": {
+      "active": true,
+      "url_host": "http://localhost:8080",
+      "expire_sec": 600
+    }
+  },
+  "stmp": {
+    "name": "Test",
+    "email": "",
+    "app_password": ""
   }
 }

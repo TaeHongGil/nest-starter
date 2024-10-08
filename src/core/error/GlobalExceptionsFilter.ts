@@ -1,5 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { CommonResponse } from '../common/response';
+import { ServerLogger } from '../server-log/server.log.service';
 
 @Catch()
 export class GlobalExceptionsFilter implements ExceptionFilter {
@@ -7,14 +9,8 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    const status = exception.getStatus ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-    const message = exception.message;
 
-    response.status(status).json({
-      statusCode: status,
-      message,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-    });
+    ServerLogger.error(`${request.method} ${request.path} error: \n${exception}`);
+    response.status(HttpStatus.OK).json(CommonResponse.builder().setError(new Error(exception.message)).build());
   }
 }

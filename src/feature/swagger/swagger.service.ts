@@ -5,6 +5,7 @@ import { OpenAPIObject, TagObject } from '@nestjs/swagger/dist/interfaces/open-a
 
 import ServerConfig from '@root/core/config/server.config';
 import { CoreDefine } from '@root/core/define/define';
+import { ServerLogger } from '@root/core/server-log/server.log.service';
 import { SwaggerConfigService } from './swagger.config.service';
 import { SwaggerUtilService } from './swagger.utils.service';
 
@@ -34,6 +35,7 @@ export class SwaggerService {
     if (ServerConfig.serverType == CoreDefine.SERVER_TYPE.LIVE) {
       return;
     }
+    this.swaggerConfigService.init();
     let metadata: () => Promise<Record<string, any>>;
     const path = './metadata';
     try {
@@ -45,7 +47,7 @@ export class SwaggerService {
       this.tags = this.swaggerUtilService.applyDecorators(resolvedMetadata);
       await SwaggerModule.loadPluginMetadata(async () => metadataCache);
     } catch (error) {
-      console.error('Swagger Metadata Error:', error);
+      ServerLogger.error('Swagger Metadata Error:', error);
 
       return;
     }

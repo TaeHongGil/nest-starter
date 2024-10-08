@@ -10,9 +10,11 @@ import { AppModule } from './app.module';
 import { CoreRedisKeys } from './core/define/core.redis.key';
 import { CoreDefine } from './core/define/define';
 import { GlobalExceptionsFilter } from './core/error/GlobalExceptionsFilter';
+import { ResponseInterceptor } from './core/interceptor/response.interceptor';
 import { MongoService } from './core/mongo/mongo.service';
 import { MysqlService } from './core/mysql/mysql.service';
 import { RedisService } from './core/redis/redis.service';
+import { ServerLogger } from './core/server-log/server.log.service';
 import { SwaggerService } from './feature/swagger/swagger.service';
 
 async function bootstrap(): Promise<void> {
@@ -69,6 +71,7 @@ function setAplication(app: INestApplication): void {
   };
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalFilters(new GlobalExceptionsFilter());
+  app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // validation을 위한 decorator가 붙어있지 않은 속성들은 제거
@@ -112,6 +115,6 @@ async function setSessionAsync(app: INestApplication, redisService: RedisService
 }
 
 bootstrap().catch((err) => {
-  console.error('Bootstrap failed:', err);
+  ServerLogger.error('Bootstrap failed:', err);
   process.exit(1);
 });

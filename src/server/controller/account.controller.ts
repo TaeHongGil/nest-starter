@@ -1,14 +1,18 @@
-import { Body, Controller, Post, Session, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Query, Session, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
+import { CacheService } from '@root/core/cache/cache.service';
 import ServerConfig from '@root/core/config/server.config';
+import { EmailService } from '@root/core/email/email.service';
+import TimeUtil from '@root/core/utils/time.utils';
 import { SessionData } from 'express-session';
 import { JwtPayload } from 'jsonwebtoken';
 import CryptUtil from '../../core/utils/crypt.utils';
-import { ResLogin, ResTokenRefresh } from '../common/reponse.dto';
+import { ResCreateUser, ResLogin, ResTokenRefresh } from '../common/reponse.dto';
 import { ReqCreateUser, ReqLogin, ReqTokenRefresh } from '../common/request.dto';
+import { DBAccount } from '../service/account/account.schema';
 import { AccountService } from '../service/account/account.service';
 
 /**
@@ -20,6 +24,8 @@ export class AccountController {
   constructor(
     private readonly accountService: AccountService,
     private readonly authService: AuthService,
+    private readonly cacheService: CacheService,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -27,10 +33,54 @@ export class AccountController {
    */
   @Post('/create')
   @UseGuards(NoAuthGuard)
-  async createAccount(@Session() session: SessionData, @Body() param: ReqCreateUser): Promise<any> {
-    const result = await this.accountService.createAccountAsync(param);
+  async createAccount(@Body() param: ReqCreateUser): Promise<ResCreateUser> {
+    if ((await this.cacheService.has(param.email)) || (await this.accountService.checkEmail(param.email))) {
+      throw new Error('duplicated email');
+    }
 
-    return result;
+    const account = await this.accountService.createAccountAsync(param);
+    const res: ResCreateUser = {
+      nickname: account.nickname,
+    };
+
+    if (ServerConfig.account.verification.active) {
+      const uuid = CryptUtil.generateUUID();
+      const url = new URL(`account/verification?email=${account.email}&uuid=${uuid}`, ServerConfig.account.verification.url_host);
+      const expire = ServerConfig.account.verification.expire_sec;
+      const content = await this.emailService.readHtml('verification', {
+        link: url.toString(),
+        expire: TimeUtil.secToString(expire),
+      });
+      this.emailService
+        .sendMail(ServerConfig.stmp.name, account.email, '계정 인증', '', content)
+        .then(async (): Promise<void> => await this.cacheService.set(account.email, { uuid: uuid, account: account }, expire))
+        .catch((e) => Logger.error(e));
+    } else {
+      await this.accountService.upsertAccountAsync(account);
+    }
+
+    return res;
+  }
+
+  /**
+   * 계정 검증
+   */
+  @Get('/verification')
+  @UseGuards(NoAuthGuard)
+  async emailVerificaiton(@Query('email') email: string, @Query('uuid') uuid: string): Promise<ResCreateUser> {
+    const accountInfo = await this.cacheService.get(email);
+    if (!accountInfo || accountInfo['uuid'] != uuid) {
+      throw new Error('uuid not found');
+    }
+    const account = accountInfo['account'] as DBAccount;
+    await this.accountService.upsertAccountAsync(account);
+    await this.cacheService.delete(email);
+
+    const res: ResCreateUser = {
+      nickname: account.nickname,
+    };
+
+    return res;
   }
 
   /**
@@ -57,7 +107,7 @@ export class AccountController {
    */
   @Post('/token/refresh')
   @UseGuards(NoAuthGuard)
-  async tokenRefresh(@Session() session: SessionData, @Body() param: ReqTokenRefresh): Promise<any> {
+  async tokenRefresh(@Body() param: ReqTokenRefresh): Promise<any> {
     if (!ServerConfig.jwt.active) {
       throw Error('jwt is not activated');
     }
@@ -68,6 +118,7 @@ export class AccountController {
     await this.authService.refreshTokenVerifyAsync(user.useridx, param.token);
     const result: ResTokenRefresh = {
       accessToken: await this.authService.createAccessTokenAsync(user),
+      refreshToken: await this.authService.createRefreshTokenAsync(user),
     };
 
     return result;

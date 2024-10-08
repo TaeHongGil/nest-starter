@@ -25,4 +25,8 @@ export class CoreRedisKeys {
   static getGlobalNumberKey(): string {
     return `${CoreRedisKeys.getPrefix()}:global:number`;
   }
+
+  static getGlobalCacheKey(key: string): string {
+    return `${CoreRedisKeys.getPrefix()}:cache:${key}`;
+  }
 }

@@ -26,11 +26,11 @@ export class SwaggerConfigService {
     live: '',
   };
 
-  constructor() {
+  init(): void {
     this.options = {
       includeModules: [AppModule, ServerModule],
       config: {
-        token: { api: '/account/login', body: 'accessToken' },
+        token: { api: '/account/login', body: 'data.accessToken' },
         header: {},
       },
     };
@@ -40,7 +40,7 @@ export class SwaggerConfigService {
       view: join(this.path.swagger, '../../../src/feature/swagger/ui', 'views'),
     };
 
-    const address = ServerConfig.serverAdress;
+    const address = ServerConfig.swagger.servers;
     if (address) {
       for (const zone of Object.keys(this.servers)) {
         this.servers[zone] = address[zone] || '';
@@ -49,5 +49,7 @@ export class SwaggerConfigService {
     if (ServerConfig.serverType == CoreDefine.SERVER_TYPE.LOCAL) {
       this.servers.local = `http://localhost:${ServerConfig.port}`;
     }
+
+    return;
   }
 }

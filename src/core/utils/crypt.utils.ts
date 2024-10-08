@@ -52,6 +52,10 @@ export class CryptUtil {
   static async compareHash(plainPassword: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(plainPassword, hashedPassword);
   }
+
+  static generateUUID(): string {
+    return crypto.randomUUID();
+  }
 }
 
 export default CryptUtil;
