@@ -42,7 +42,7 @@ export class EmailService implements OnModuleInit {
   }
 
   async readHtml(type: string, replace: Record<string, string> = {}): Promise<string> {
-    let content = fs.readFileSync(path.join(__dirname, '..', '..', 'env', 'email', `${type}.html`), { encoding: 'utf8' });
+    let content = fs.readFileSync(path.join(ServerConfig.paths.env, 'email', `${type}.html`), { encoding: 'utf8' });
     for (const [key, value] of Object.entries(replace)) {
       const regex = new RegExp(`{{${key}}}`, 'g');
       content = content.replace(regex, value);

@@ -1,4 +1,4 @@
-import { BadRequestException, ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import ServerConfig from '@root/core/config/server.config';
@@ -45,7 +45,7 @@ async function onBeforeModuleInit(app: NestExpressApplication): Promise<{ redisS
   return { redisService, mongoService, mysqlService };
 }
 
-function setHelmet(app: INestApplication): void {
+function setHelmet(app: NestExpressApplication): void {
   if (ServerConfig.dev === true) {
     return;
   }
@@ -59,7 +59,7 @@ function setHelmet(app: INestApplication): void {
   );
 }
 
-function setAplication(app: INestApplication): void {
+function setAplication(app: NestExpressApplication): void {
   const callError = (validationErrors: ValidationError[] = []): Error => {
     let msg = '';
     for (const error of validationErrors) {
@@ -69,6 +69,8 @@ function setAplication(app: INestApplication): void {
 
     return new BadRequestException(msg);
   };
+  app.useStaticAssets(ServerConfig.paths.ui.public);
+  app.setBaseViewsDir(ServerConfig.paths.ui.view);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalFilters(new GlobalExceptionsFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
@@ -83,7 +85,7 @@ function setAplication(app: INestApplication): void {
   );
 }
 
-async function setSessionAsync(app: INestApplication, redisService: RedisService): Promise<void> {
+async function setSessionAsync(app: NestExpressApplication, redisService: RedisService): Promise<void> {
   if (!ServerConfig.session.active) {
     return;
   }

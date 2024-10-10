@@ -45,18 +45,32 @@ export class ServerConfig {
     app_password: '',
   };
 
+  static paths: PathConfig = {
+    root: '',
+    env: '',
+    ui: {
+      public: '',
+      view: '',
+    },
+  };
+
   static async init(): Promise<void> {
     this.serverType = process.env.server_type;
+    this.paths.root = path.join(process.cwd(), 'src');
+    this.paths.env = path.join(this.paths.root, 'env');
+    this.paths.ui.public = path.join(this.paths.root, 'ui', 'public');
+    this.paths.ui.view = path.join(this.paths.root, 'ui', 'view');
     await this._load();
   }
 
   static async _load(): Promise<void> {
-    const dir = path.join(__dirname, '../../env/', `${this.serverType}-config.json`);
+    const excludes = ['name', 'prototype', 'length', 'serverType', 'paths'];
+    const dir = path.join(this.paths.env, `${this.serverType}-config.json`);
     const text = fs.readFileSync(dir, 'utf8');
     const config = JSON.parse(text);
 
     Object.keys(this).forEach((key) => {
-      if (key === 'name' || key === 'prototype' || key === 'length' || key === 'serverType') {
+      if (excludes.includes(key)) {
         return;
       }
 
@@ -130,19 +144,26 @@ export interface MysqlConfig {
 }
 
 export interface AccountConfig {
-  verification: AccountVerificationConfig;
-}
-
-export interface AccountVerificationConfig {
-  active: boolean;
-  url_host: string;
-  expire_sec: number;
+  verification: {
+    active: boolean;
+    url_host: string;
+    expire_sec: number;
+  };
 }
 
 export interface StmpConfig {
   name: string;
   email: string;
   app_password: string;
+}
+
+export interface PathConfig {
+  root: string;
+  env: string;
+  ui: {
+    public: string;
+    view: string;
+  };
 }
 
 export default ServerConfig;

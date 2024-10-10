@@ -4,5 +4,5 @@
     "type": "commonjs",
     "strict": true
   },
-  "exclude": ["node_modules", "dist", "spec.ts", "./**/swagger/ui/**"]
+  "exclude": ["node_modules", "dist", "spec.ts", "src/ui/**"]
 }

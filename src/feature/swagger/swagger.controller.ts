@@ -11,19 +11,19 @@ export class SwaggerController {
   ) {}
 
   @Get('/')
-  @Render('./swagger.main.ejs')
+  @Render('./swagger/swagger.main.ejs')
   mainRender(): any {
     return { spec: this.swaggerService.getDocument(), config: this.swaggerConfigService.options.config, servers: this.swaggerConfigService.servers };
   }
 
   @Get('/doc')
-  @Render('./contents/doc/swagger.doc.ejs')
+  @Render('./swagger/contents/doc/swagger.doc.ejs')
   docRender(): any {
     return;
   }
 
   @Get('/history')
-  @Render('./contents/swagger.history.ejs')
+  @Render('./swagger/contents/swagger.history.ejs')
   historyRender(): any {
     return;
   }

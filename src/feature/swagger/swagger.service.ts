@@ -51,9 +51,6 @@ export class SwaggerService {
 
       return;
     }
-
-    app.useStaticAssets(this.swaggerConfigService.path.ui.public);
-    app.setBaseViewsDir(this.swaggerConfigService.path.ui.view);
     app.setViewEngine('ejs');
 
     //옵션 설정

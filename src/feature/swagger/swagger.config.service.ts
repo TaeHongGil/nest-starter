@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { join } from 'path';
 
 import { AppModule } from '@root/app.module';
 import ServerConfig from '@root/core/config/server.config';
@@ -10,14 +9,6 @@ import { SwaggerOptions } from './swagger.define';
 @Injectable()
 export class SwaggerConfigService {
   options: SwaggerOptions;
-  path = {
-    swagger: '',
-    ui: {
-      public: '',
-      view: '',
-    },
-  };
-
   servers = {
     local: '',
     dev: '',
@@ -33,11 +24,6 @@ export class SwaggerConfigService {
         token: { api: '/account/login', body: 'data.accessToken' },
         header: {},
       },
-    };
-    this.path.swagger = __dirname;
-    this.path.ui = {
-      public: join(this.path.swagger, '../../../src/feature/swagger/ui', 'public'),
-      view: join(this.path.swagger, '../../../src/feature/swagger/ui', 'views'),
     };
 
     const address = ServerConfig.swagger.servers;
