@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SessionUser } from '@root/core/auth/auth.schema';
-import ServerConfig from '@root/core/config/server.config';
-import { CoreDefine } from '@root/core/define/define';
+import { CoreDefine, PLATFORM } from '@root/core/define/define';
 import { ReqCreateUser, ReqLogin } from '@root/server/common/request.dto';
 import { SessionData } from 'express-session';
 import CryptUtil from '../../../core/utils/crypt.utils';
@@ -18,6 +17,10 @@ export class AccountService {
 
   async getAccountByEmailAsync(email: string): Promise<DBAccount> {
     return await this.repository.findAccountByEmailAsync(email);
+  }
+
+  async getAccountByIdAsync(platform: PLATFORM, id: string): Promise<DBAccount> {
+    return await this.repository.findAccountByIdAsync(`${platform}.${id}`);
   }
 
   async getAccountByNicknameAsync(nickname: string): Promise<DBAccount> {
@@ -44,35 +47,47 @@ export class AccountService {
     return await this.repository.refreshLoginStateAsync(useridx);
   }
 
-  async checkEmail(email: string): Promise<boolean> {
-    return (await this.repository.findAccountByEmailAsync(email)) ? true : false;
+  async checkEmailAsync(email: string): Promise<boolean> {
+    return (await this.getAccountByEmailAsync(email)) ? true : false;
+  }
+
+  async checkIdAsync(platform: PLATFORM, id: string): Promise<boolean> {
+    return (await this.getAccountByIdAsync(platform, id)) ? true : false;
+  }
+
+  async checkNicknameAsync(nickname: string): Promise<boolean> {
+    return (await this.getAccountByNicknameAsync(nickname)) ? true : false;
   }
 
   async createAccountAsync(req: ReqCreateUser): Promise<DBAccount> {
     const useridx = await this.repository.increaseUseridx();
     const account: DBAccount = {
       useridx: useridx,
+      id: `${PLATFORM.SERVER}.${req.id}`,
       email: req.email,
-      nickname: `${CoreDefine.SERVER_NAME}${useridx}`,
+      nickname: `${CoreDefine.SERVICE_NAME}${useridx}`,
       password: await CryptUtil.hash(req.password),
+      platform: PLATFORM.SERVER,
+      create_date: new Date(),
     };
 
     return account;
   }
 
-  async loginAsync(session: SessionData, param: ReqLogin): Promise<SessionUser> {
-    const account = await this.getAccountByEmailAsync(param.email);
-    if (!(await CryptUtil.compareHash(param.password, account.password))) {
+  async loginAsync(session: SessionData, req: ReqLogin): Promise<DBAccount> {
+    const account = await this.getAccountByIdAsync(PLATFORM.SERVER, req.id);
+    if (!account) {
+      throw new Error('user not found');
+    }
+    if (!(await CryptUtil.compareHash(req.password, account.password))) {
       throw new Error('password error');
     }
     const user: SessionUser = {
       useridx: account.useridx,
     };
-    if (ServerConfig.session.active) {
-      session.user = user;
-    }
+    session.user = user;
     await this.setLoginStateAsync(account);
 
-    return user;
+    return account;
   }
 }

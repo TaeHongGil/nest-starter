@@ -69,11 +69,12 @@ function setAplication(app: NestExpressApplication): void {
 
     return new BadRequestException(msg);
   };
+  const reflector = app.get(Reflector);
   app.useStaticAssets(ServerConfig.paths.ui.public);
   app.setBaseViewsDir(ServerConfig.paths.ui.view);
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
   app.useGlobalFilters(new GlobalExceptionsFilter());
-  app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalInterceptors(new ResponseInterceptor(reflector));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // validation을 위한 decorator가 붙어있지 않은 속성들은 제거
@@ -89,12 +90,12 @@ async function setSessionAsync(app: NestExpressApplication, redisService: RedisS
   if (!ServerConfig.session.active) {
     return;
   }
-  const clustering = ServerConfig.session.clustering;
+  const redisClustering = ServerConfig.session.redis_clustering;
   const db = ServerConfig.db.redis;
   const ttl = ServerConfig.session.ttl;
   let redisStore = undefined;
 
-  if (clustering && db) {
+  if (redisClustering && db) {
     const redisClient = redisService.getGlobalClient();
     redisStore = new RedisStore({
       client: redisClient,
@@ -105,7 +106,7 @@ async function setSessionAsync(app: NestExpressApplication, redisService: RedisS
   app.use(
     session({
       store: redisStore,
-      secret: ServerConfig.session.key,
+      secret: ServerConfig.session.secret_key,
       resave: false,
       saveUninitialized: false,
       cookie: {

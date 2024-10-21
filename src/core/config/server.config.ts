@@ -7,9 +7,9 @@ export class ServerConfig {
   static dev: boolean = true;
   static session: SessionConfig = {
     active: false,
-    key: '',
+    secret_key: '',
     secure: false,
-    clustering: false,
+    redis_clustering: false,
     ttl: 0,
   };
 
@@ -54,6 +54,18 @@ export class ServerConfig {
     },
   };
 
+  static platform: PlatformConfig = {
+    google: {
+      client_id: '',
+    },
+    kakao: {
+      client_id: '',
+    },
+    naver: {
+      client_id: '',
+    },
+  };
+
   static async init(): Promise<void> {
     this.serverType = process.env.server_type;
     this.paths.root = path.join(process.cwd(), 'src');
@@ -65,9 +77,13 @@ export class ServerConfig {
 
   static async _load(): Promise<void> {
     const excludes = ['name', 'prototype', 'length', 'serverType', 'paths'];
-    const dir = path.join(this.paths.env, `${this.serverType}-config.json`);
-    const text = fs.readFileSync(dir, 'utf8');
-    const config = JSON.parse(text);
+    const configPath = path.join(this.paths.env, `${this.serverType}-config.json`);
+    const forceConfigPath = path.join(this.paths.env, `force-config.json`);
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    let forceConfig = undefined;
+    if (fs.existsSync(forceConfigPath)) {
+      forceConfig = JSON.parse(fs.readFileSync(forceConfigPath, 'utf8'));
+    }
 
     Object.keys(this).forEach((key) => {
       if (excludes.includes(key)) {
@@ -75,7 +91,11 @@ export class ServerConfig {
       }
 
       if (key in config) {
-        this[key] = config[key];
+        if (key in forceConfig) {
+          this[key] = forceConfig[key];
+        } else {
+          this[key] = config[key];
+        }
       } else {
         throw new Error(`Config Error: Missing key '${key}' in config file.`);
       }
@@ -90,9 +110,9 @@ export interface SwaggerConfig {
 
 export interface SessionConfig {
   active: boolean;
-  key: string;
+  secret_key: string;
   secure: boolean;
-  clustering: boolean;
+  redis_clustering: boolean;
   ttl: number;
 }
 
@@ -163,6 +183,18 @@ export interface PathConfig {
   ui: {
     public: string;
     view: string;
+  };
+}
+
+export interface PlatformConfig {
+  google: {
+    client_id: string;
+  };
+  kakao: {
+    client_id: string;
+  };
+  naver: {
+    client_id: string;
   };
 }
 

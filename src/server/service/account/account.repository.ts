@@ -25,6 +25,17 @@ export class AccountRepository {
     return resultDoc;
   }
 
+  async findAccountByIdAsync(id: string): Promise<DBAccount> {
+    const con = this.mongo.getGlobalClient();
+    const model = con.model(DBAccount.name, DBAccountSchema);
+    const resultDoc = await model.findOne({ id: id }).select('-_id').lean();
+    if (!resultDoc) {
+      return undefined;
+    }
+
+    return resultDoc;
+  }
+
   async findAccountByEmailAsync(email: string): Promise<DBAccount> {
     const con = this.mongo.getGlobalClient();
     const model = con.model(DBAccount.name, DBAccountSchema);

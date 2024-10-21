@@ -3,7 +3,7 @@ import { CoreDefine } from './define';
 
 export class ConnectKeys {
   static getPrefix(): string {
-    return `${CoreDefine.SERVER_NAME}_${ServerConfig.serverType}`;
+    return `${CoreDefine.SERVICE_NAME}_${ServerConfig.serverType}`;
   }
 
   static getGlobalKey(): string {

@@ -1,0 +1,255 @@
+<div class="container-fluid content-container">
+  <form id="login-form" class="login-form">
+    <h2>Login</h2>
+    <label for="id">ID:</label>
+    <input type="text" id="id" name="id" required class="login-input" />
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required class="login-input" />
+
+    <button type="submit" class="btn btn-primary login-button">Login</button>
+
+    <div class="divider"></div>
+
+    <label class="social-label">다음으로 로그인</label>
+    <div class="social-login">
+      <div>
+        <img src="/img/btn_google.svg" class="login-image" id="google-login-btn" />
+        <img src="/img/btn_kakao.svg" class="login-image" id="kakao-login-btn" />
+        <img src="/img/btn_naver.svg" class="login-image" id="naver-login-btn" />
+      </div>
+    </div>
+  </form>
+  <div id="login-info">none</div>
+</div>
+
+<style>
+  .content-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f4f4f9;
+  }
+
+  .login-form {
+    margin: 100px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .login-form h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+  }
+
+  .login-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  .login-button {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .divider {
+    margin: 20px 0;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    line-height: 0.1em;
+    margin-bottom: 30px;
+  }
+
+  .divider::before {
+    background: white;
+    padding: 0 10px;
+    position: relative;
+    top: -10px;
+    color: #888;
+  }
+
+  .social-label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #000000;
+    font-weight: bold;
+  }
+
+  .social-login {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .login-image {
+    width: 50px;
+    height: 50px;
+    margin: 0 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+
+  .login-image:hover {
+    transform: scale(1.1);
+  }
+</style>
+
+<script type="module">
+  //@ sourceURL=login.view.js
+  class LoginView {
+    constructor() {
+      this.config = window.platformConfig;
+      this.platforms = {
+        GOOGLE: {
+          clientId: this.config.google.client_id,
+          callbackUrl: `${window.location.protocol}//${window.location.host}/test`,
+          init: this.initializeGoogle.bind(this),
+          getToken: async (callback) => callback?.credential || callback?.access_token,
+        },
+        KAKAO: {
+          clientId: this.config.kakao.client_id,
+          callbackUrl: `${window.location.protocol}//${window.location.host}/test`,
+          init: this.initializeKakao.bind(this),
+          getToken: async () => Kakao.Auth.getAccessToken(),
+        },
+        NAVER: {
+          clientId: this.config.naver.client_id,
+          callbackUrl: `${window.location.protocol}//${window.location.host}/test`,
+          init: this.initializeNaver.bind(this),
+          getToken: async () => Naver.accessToken.accessToken,
+        },
+      };
+    }
+
+    async initAsync() {
+      this.initializeForm();
+      for (const platform of Object.values(this.platforms)) {
+        await platform.init();
+      }
+    }
+
+    setLoginPlatform(platform) {
+      sessionStorage.setItem('loginPlatform', platform);
+    }
+
+    getLoginPlatform() {
+      return sessionStorage.getItem('loginPlatform');
+    }
+
+    initializeForm() {
+      $('#login-form').on('submit', async (event) => {
+        event.preventDefault();
+        await this.requestLogin();
+      });
+    }
+
+    async initializeGoogle() {
+      const token = await google.accounts.oauth2.initTokenClient({
+        client_id: this.platforms.GOOGLE.clientId,
+        scope: 'https://www.googleapis.com/auth/userinfo.profile',
+        ux_mode: 'popup',
+        callback: await this.loginProgress.bind(this),
+      });
+      $('#google-login-btn').on('click', async () => {
+        this.setLoginPlatform('GOOGLE');
+        token.requestAccessToken({ prompt: 'consent' });
+      });
+    }
+
+    async initializeKakao() {
+      if (!Kakao.isInitialized()) {
+        Kakao.init(this.platforms.KAKAO.clientId);
+      }
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      if (code) {
+        await httpRequest({
+          url: 'https://kauth.kakao.com/oauth/token',
+          method: 'POST',
+          contentType: 'application/x-www-form-urlencoded;charset=utf-8',
+          body: {
+            grant_type: 'authorization_code',
+            client_id: this.platforms.KAKAO.clientId,
+            redirect_uri: this.platforms.KAKAO.callbackUrl,
+            code: code,
+          },
+        })
+          .then(async (data) => {
+            Kakao.Auth.setAccessToken(data?.access_token);
+            await this.loginProgress();
+          })
+          .catch((e) => console.error(e));
+      }
+      $('#kakao-login-btn').on('click', () => {
+        this.setLoginPlatform('KAKAO');
+        Kakao.Auth.authorize({ redirectUri: this.platforms.KAKAO.callbackUrl });
+      });
+    }
+
+    async initializeNaver() {
+      var naverLogin = new naver.LoginWithNaverId({
+        clientId: this.platforms.NAVER.clientId,
+        callbackUrl: this.platforms.NAVER.callbackUrl,
+        isPopup: true,
+      });
+      naverLogin.init();
+      $('#naver-login-btn').on('click', async () => {
+        this.setLoginPlatform('NAVER');
+        window.location.href = naverLogin.generateAuthorizeUrl();
+      });
+      await naverLogin.getLoginStatus(async (status) => {
+        if (status) {
+          await this.loginProgress();
+        }
+      });
+      window.Naver = naverLogin;
+    }
+
+    async loginProgress(callback) {
+      const platform = this.getLoginPlatform();
+      const token = await this.platforms[platform].getToken(callback);
+      if (platform && token) {
+        await this.requestPlatformLogin(platform, token);
+      }
+    }
+
+    async requestLogin() {
+      const id = $('#id').val();
+      const password = $('#password').val();
+      const response = await httpRequest({
+        url: '/account/login',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, password }),
+      });
+      $('#login-info').text(response?.data?.nickname || response?.error?.message);
+    }
+
+    async requestPlatformLogin(platform, token) {
+      const response = await httpRequest({
+        method: 'POST',
+        url: '/account/platform/login',
+        body: JSON.stringify({ platform, token }),
+      });
+      $('#login-info').text(response?.data?.nickname || response?.error?.message);
+    }
+  }
+
+  $(document).ready(async function () {
+    const view = new LoginView();
+    await view.initAsync();
+  });
+</script>

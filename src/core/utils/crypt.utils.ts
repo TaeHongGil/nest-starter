@@ -1,23 +1,10 @@
 import bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 import jwt, { Jwt, JwtPayload, TokenExpiredError, VerifyOptions } from 'jsonwebtoken';
 
 export class CryptUtil {
-  static atob(str: string): string {
-    return Buffer.from(str, 'base64').toString('binary');
-  }
-
-  static btoa(str: string): string {
-    return Buffer.from(str, 'utf8').toString('base64');
-  }
-
-  static jwtSignWithExpireSec(payload: object, secretKey: string, expireSec: number): string {
+  static jwtEncode(payload: object, secretKey: string, expireSec: number): string {
     const token = jwt.sign(payload, secretKey, { algorithm: 'HS256', expiresIn: expireSec });
-
-    return token;
-  }
-
-  static jwtSignWithOption(payload: object, secretKey: string, option: jwt.SignOptions): string {
-    const token = jwt.sign(payload, secretKey, option);
 
     return token;
   }
@@ -42,6 +29,9 @@ export class CryptUtil {
     }
   }
 
+  /**
+   * 단방향 암호화
+   */
   static async hash(str: string): Promise<string> {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(str, saltRounds);

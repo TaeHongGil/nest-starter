@@ -36,7 +36,7 @@
     }
 
     loadPageFromHash() {
-      const hash = window.location.hash || '#doc';
+      const hash = window.location.hash;
       const pageId = hash.substring(1);
       this.showPage(pageId);
     }

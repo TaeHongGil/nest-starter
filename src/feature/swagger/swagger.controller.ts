@@ -1,9 +1,11 @@
 import { Controller, Get, Render } from '@nestjs/common';
 
+import { SkipResponseInterceptor } from '@root/core/interceptor/response.interceptor';
 import { SwaggerConfigService } from './swagger.config.service';
 import { SwaggerService } from './swagger.service';
 
 @Controller('swagger')
+@SkipResponseInterceptor()
 export class SwaggerController {
   constructor(
     readonly swaggerConfigService: SwaggerConfigService,

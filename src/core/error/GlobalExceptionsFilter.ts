@@ -10,7 +10,7 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    ServerLogger.error(`${request.method} ${request.path} error: \n${exception}`);
+    ServerLogger.error(`${request.method} ${request.path} \nStack: ${exception.stack}`);
     response.status(HttpStatus.OK).json(CommonResponse.builder().setError(new Error(exception.message)).build());
   }
 }

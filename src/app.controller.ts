@@ -17,6 +17,7 @@ export class AppController {
   getInfo(): any {
     return {
       serverType: ServerConfig.serverType,
+      platform: ServerConfig.platform,
     };
   }
 }

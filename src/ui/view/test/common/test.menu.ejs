@@ -1,0 +1,60 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" role="button" data-bs-toggle="collapse" data-bs-target="#navbarText">Test</a>
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <button class="nav-link menu" page="login">Login</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<script type="module">
+  //@ sourceURL=menu.view.js
+  class TestMenuView {
+    constructor() {
+      this.menuSelector = '.navbar-nav .nav-link.menu';
+      this.storageKey = 'selectedMenu';
+    }
+
+    async init() {
+      this.setupEventListeners();
+      this.loadPageFromStorage();
+    }
+
+    setupEventListeners() {
+      $(this.menuSelector).on('click', async (event) => {
+        const page = event.target.getAttribute('page');
+        sessionStorage.setItem(this.storageKey, page);
+        await this.showPage(page);
+      });
+    }
+
+    activateMenu($menuLink) {
+      $(`${this.menuSelector}.active`).removeClass('active');
+      $menuLink.addClass('active');
+    }
+
+    async showPage(page) {
+      const $menu = $(`${this.menuSelector}[page="${page}"]`);
+      if ($menu.length) {
+        this.activateMenu($menu);
+        const url = `/test/${page}`;
+        $('#main-container').load(url);
+      }
+    }
+
+    loadPageFromStorage() {
+      const selectedPage = sessionStorage.getItem(this.storageKey);
+      if (selectedPage) {
+        this.showPage(selectedPage);
+      }
+    }
+  }
+
+  $(document).ready(async function () {
+    const view = new TestMenuView();
+    await view.init();
+  });
+</script>

@@ -7,16 +7,33 @@
   },
   "session": {
     "active": false,
-    "key": "Insert Session Key",
+    "secret_key": "Insert Session Secret Key",
     "secure": false,
     "clustering": true,
-    "ttl": 1200000
+    "ttl": 3600000
+  },
+  "platform": {
+    "google": {
+      "client_id": "Insert Client Key"
+    },
+    "kakao": {
+      "client_id": "Insert Client Key"
+    },
+    "naver": {
+      "client_id": "Insert Client Key"
+    }
+  },
+  "crypto": {
+    "aes256": {
+      "key": "Insert Key",
+      "iv": "Insert Key"
+    }
   },
   "jwt": {
     "active": true,
-    "key": "Insert Session Key",
+    "key": "Insert Key",
     "ttl_access": 30000,
-    "ttl_refresh": 1200000
+    "ttl_refresh": 3600000
   },
   "db": {
     "mongo": [
@@ -65,8 +82,8 @@
     }
   },
   "stmp": {
-    "name": "Test",
-    "email": "",
-    "app_password": ""
+    "name": "Insert Sender Name",
+    "email": "Insert Sender Google Mail",
+    "app_password": "Insert Sender Google App Password"
   }
 }

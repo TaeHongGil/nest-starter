@@ -1,17 +1,18 @@
 import { Body, Controller, Get, Logger, Post, Query, Session, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
 import ServerConfig from '@root/core/config/server.config';
+import { PLATFORM } from '@root/core/define/define';
 import { EmailService } from '@root/core/email/email.service';
 import TimeUtil from '@root/core/utils/time.utils';
 import { SessionData } from 'express-session';
 import { JwtPayload } from 'jsonwebtoken';
 import CryptUtil from '../../core/utils/crypt.utils';
 import { ResCreateUser, ResLogin, ResTokenRefresh } from '../common/reponse.dto';
-import { ReqCreateUser, ReqLogin, ReqTokenRefresh } from '../common/request.dto';
+import { ReqCreateUser, ReqLogin, ReqPlatformLogin, ReqTokenRefresh } from '../common/request.dto';
+import { AccountPlatformService } from '../service/account/account.platform.service';
 import { DBAccount } from '../service/account/account.schema';
 import { AccountService } from '../service/account/account.service';
 
@@ -19,10 +20,10 @@ import { AccountService } from '../service/account/account.service';
  * 게임 계정 및 인증 처리
  */
 @Controller('account')
-@ApiTags('Account')
 export class AccountController {
   constructor(
     private readonly accountService: AccountService,
+    private readonly accountPlatformService: AccountPlatformService,
     private readonly authService: AuthService,
     private readonly cacheService: CacheService,
     private readonly emailService: EmailService,
@@ -34,7 +35,9 @@ export class AccountController {
   @Post('/create')
   @UseGuards(NoAuthGuard)
   async createAccount(@Body() param: ReqCreateUser): Promise<ResCreateUser> {
-    if ((await this.cacheService.has(param.email)) || (await this.accountService.checkEmail(param.email))) {
+    if (await this.accountService.checkIdAsync(PLATFORM.SERVER, param.id)) {
+      throw new Error('duplicated id');
+    } else if (await this.accountService.checkEmailAsync(param.email)) {
       throw new Error('duplicated email');
     }
 
@@ -45,7 +48,7 @@ export class AccountController {
 
     if (ServerConfig.account.verification.active) {
       const uuid = CryptUtil.generateUUID();
-      const url = new URL(`account/verification?email=${account.email}&uuid=${uuid}`, ServerConfig.account.verification.url_host);
+      const url = new URL(`account/verification?id=${account.id}&uuid=${uuid}`, ServerConfig.account.verification.url_host);
       const expire = ServerConfig.account.verification.expire_sec;
       const content = await this.emailService.readHtml('verification', {
         link: url.toString(),
@@ -53,7 +56,7 @@ export class AccountController {
       });
       this.emailService
         .sendMail(ServerConfig.stmp.name, account.email, '계정 인증', '', content)
-        .then(async (): Promise<void> => await this.cacheService.set(account.email, { uuid: uuid, account: account }, expire))
+        .then(async (): Promise<void> => await this.cacheService.set(account.id, { uuid: uuid, account: account }, expire))
         .catch((e) => Logger.error(e));
     } else {
       await this.accountService.upsertAccountAsync(account);
@@ -67,20 +70,28 @@ export class AccountController {
    */
   @Get('/verification')
   @UseGuards(NoAuthGuard)
-  async emailVerificaiton(@Query('email') email: string, @Query('uuid') uuid: string): Promise<ResCreateUser> {
-    const accountInfo = await this.cacheService.get(email);
-    if (!accountInfo || accountInfo['uuid'] != uuid) {
-      throw new Error('uuid not found');
+  async emailVerificaiton(@Query('id') id: string, @Query('uuid') uuid: string): Promise<ResCreateUser> {
+    try {
+      const accountInfo = await this.cacheService.get(id);
+      if (!accountInfo || accountInfo['uuid'] != uuid) {
+        throw new Error('uuid not found');
+      }
+      const account = accountInfo['account'] as DBAccount;
+      if (await this.accountService.checkIdAsync(PLATFORM.SERVER, account.id)) {
+        throw new Error('duplicated id');
+      } else if (await this.accountService.checkEmailAsync(account.email)) {
+        throw new Error('duplicated email');
+      }
+      await this.accountService.upsertAccountAsync(account);
+
+      const res: ResCreateUser = {
+        nickname: account.nickname,
+      };
+
+      return res;
+    } finally {
+      await this.cacheService.delete(id);
     }
-    const account = accountInfo['account'] as DBAccount;
-    await this.accountService.upsertAccountAsync(account);
-    await this.cacheService.delete(email);
-
-    const res: ResCreateUser = {
-      nickname: account.nickname,
-    };
-
-    return res;
   }
 
   /**
@@ -89,17 +100,42 @@ export class AccountController {
   @Post('/login')
   @UseGuards(NoAuthGuard)
   async login(@Session() session: SessionData, @Body() param: ReqLogin): Promise<any> {
-    const user = await this.accountService.loginAsync(session, param);
+    const account = await this.accountService.loginAsync(session, param);
+    const res: ResLogin = {
+      accessToken: '',
+      refreshToken: '',
+      nickname: account.nickname,
+    };
     if (ServerConfig.jwt.active) {
-      const res: ResLogin = {
-        accessToken: await this.authService.createAccessTokenAsync(user),
-        refreshToken: await this.authService.createRefreshTokenAsync(user),
-      };
-
-      return res;
+      res.accessToken = await this.authService.createAccessTokenAsync(session.user);
+      res.refreshToken = await this.authService.createRefreshTokenAsync(session.user);
     }
 
-    return {};
+    return res;
+  }
+
+  /**
+   * 플랫폼 로그인
+   */
+  @Post('/platform/login')
+  @UseGuards(NoAuthGuard)
+  async paltformlogin(@Session() session: SessionData, @Body() param: ReqPlatformLogin): Promise<any> {
+    const id = await this.accountPlatformService.getPlatformIdAsync(param.platform, param.token);
+    if (!id) {
+      throw new Error('user not found');
+    }
+    const account = await this.accountPlatformService.platformLogin(session, param.platform, id);
+    const res: ResLogin = {
+      accessToken: '',
+      refreshToken: '',
+      nickname: account.nickname,
+    };
+    if (ServerConfig.jwt.active) {
+      res.accessToken = await this.authService.createAccessTokenAsync(session.user);
+      res.refreshToken = await this.authService.createRefreshTokenAsync(session.user);
+    }
+
+    return res;
   }
 
   /**
@@ -111,14 +147,13 @@ export class AccountController {
     if (!ServerConfig.jwt.active) {
       throw Error('jwt is not activated');
     }
-    const jwtInfo = CryptUtil.jwtVerify(param.token, ServerConfig.jwt.key) as JwtPayload;
+    const jwtInfo = CryptUtil.jwtVerify(param.refreshToken, ServerConfig.jwt.key) as JwtPayload;
     const user: SessionUser = {
       useridx: jwtInfo['useridx'],
     };
-    await this.authService.refreshTokenVerifyAsync(user.useridx, param.token);
+    await this.authService.refreshTokenVerifyAsync(user.useridx, param.refreshToken);
     const result: ResTokenRefresh = {
       accessToken: await this.authService.createAccessTokenAsync(user),
-      refreshToken: await this.authService.createRefreshTokenAsync(user),
     };
 
     return result;
@@ -152,7 +187,7 @@ export class AccountController {
    */
   @Post('/delete')
   @UseGuards(AuthGuard)
-  async delete(@Session() session: SessionData): Promise<any> {
+  async deleteAccount(@Session() session: SessionData): Promise<any> {
     const result = await this.accountService.deleteAccountAsync(session.user.useridx);
     session.request.session.destroy(() => {});
 

@@ -23,11 +23,11 @@ export class AuthService {
   }
 
   async createAccessTokenAsync(user: SessionUser): Promise<string> {
-    return CryptUtil.jwtSignWithExpireSec(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_access);
+    return CryptUtil.jwtEncode(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_access);
   }
 
   async createRefreshTokenAsync(user: SessionUser): Promise<string> {
-    const token = CryptUtil.jwtSignWithExpireSec(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_refresh);
+    const token = CryptUtil.jwtEncode(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_refresh);
     await this.authRepository.setRefreshTokenAsync(user.useridx, token);
 
     return token;

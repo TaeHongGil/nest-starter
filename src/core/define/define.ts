@@ -1,5 +1,5 @@
 export class CoreDefine {
-  static readonly SERVER_NAME = 'nest';
+  static readonly SERVICE_NAME = 'nest';
   static readonly ONE_HOUR_SECS = 60 * 60;
   static readonly ONE_HOUR_MILLIS = this.ONE_HOUR_SECS * 1000;
   static readonly ONE_DAY_SECS = this.ONE_HOUR_SECS * 24;
@@ -13,10 +13,6 @@ export class CoreDefine {
 
   static readonly LOGIN_STATE_EXPIRE_SECS = this.ONE_MINUTE_SECS * 15;
 
-  static readonly PLATFORM = {
-    GOOGLE: 'GOOGLE',
-  };
-
   static readonly SERVER_TYPE = {
     TEST: 'test',
     LOCAL: 'local',
@@ -24,4 +20,11 @@ export class CoreDefine {
     QA: 'qa',
     LIVE: 'live',
   };
+}
+
+export enum PLATFORM {
+  SERVER = 'SERVER',
+  GOOGLE = 'GOOGLE',
+  NAVER = 'NAVER',
+  KAKAO = 'KAKAO',
 }

@@ -3,7 +3,7 @@ import { CoreDefine } from '@root/core/define/define';
 
 export class CoreRedisKeys {
   static getPrefix(): string {
-    return `${CoreDefine.SERVER_NAME}:${ServerConfig.serverType}`;
+    return `${CoreDefine.SERVICE_NAME}:${ServerConfig.serverType}`;
   }
 
   static getSessionDefaultKey(): string {
