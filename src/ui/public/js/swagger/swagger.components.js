@@ -147,7 +147,7 @@ class Header {
       const parsedToken = JSON.parse(userToken).token;
       return `Bearer ${parsedToken}`;
     }
-    return window.config?.token?.api ? `Please ${window.config.token.api}` : 'Not Used';
+    return window.config?.token?.api ? `Please ${window.config.token.api.join(' | ')}` : 'Not Used';
   }
 
   setDefaultTime() {
@@ -536,7 +536,7 @@ class HttpContainer {
           body: isError ? JSON.stringify(responseJSON, null, 2) : this.addResponseDescription(responseJSON),
           header: responseXhr.getAllResponseHeaders() || 'No response headers',
         };
-        this.setResponseContainer(requestData, responseData, $responseContainer, isError);
+        this.setResponseContainer(requestData, responseData, $responseContainer);
         this.saveStorgedata(responseJSON, requestData, responseData);
         this.updateTokenDisplay(requestData, responseJSON);
         hideLoading();
@@ -564,7 +564,7 @@ class HttpContainer {
   /**
    * 응답 컨테이너를 설정
    */
-  setResponseContainer(requestData, responseData, $container, isError = false) {
+  setResponseContainer(requestData, responseData, $container) {
     const $url = $container.find('.response-url');
     const $status = $container.find('.response-status');
     const $body = $container.find('.response-body code');
@@ -664,7 +664,7 @@ class HttpContainer {
    * 토큰을 세션 스토리지에 저장하고 화면에 표시
    */
   updateTokenDisplay(requestData, responseJson, time = new Date()) {
-    if (requestData.url.includes(window?.config?.token?.api)) {
+    if (window?.config?.token?.api.includes(requestData.path)) {
       const token = window.config.token.body.split('.').reduce((acc, part) => acc && acc[part], responseJson);
       if (token) {
         sessionStorage.setItem(

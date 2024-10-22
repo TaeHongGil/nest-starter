@@ -18,6 +18,7 @@ export class ServerConfig {
     key: '',
     ttl_access: 0,
     ttl_refresh: 0,
+    type: '',
   };
 
   static db: DBConfig = {
@@ -119,6 +120,7 @@ export interface SessionConfig {
 export interface JwtConfig {
   active: boolean;
   key: string;
+  type: string;
   ttl_access: number;
   ttl_refresh: number;
 }

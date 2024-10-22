@@ -14,7 +14,7 @@ export interface SwaggerOptions {
    * header: 추가할 기본 헤더 (Authorization 제외)
    */
   config?: {
-    token?: { api: string; body: string };
+    token?: { api: string[]; body: string };
     header?: Record<string, any>;
   };
 }

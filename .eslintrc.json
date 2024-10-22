@@ -45,5 +45,5 @@
       { "blankLine": "always", "prev": "class", "next": "class" }
     ]
   },
-  "ignorePatterns": ["dist", "node_modules", "docker-local-db", "public", "ui"]
+  "ignorePatterns": ["dist", "node_modules", "docker-local-db", "public", "ui","metadata.ts"]
 }

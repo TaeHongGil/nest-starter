@@ -3,6 +3,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
+import { JwtInfo } from '@root/server/common/response.dto';
 import { Request } from 'express';
 import { SessionData } from 'express-session';
 import ServerConfig from '../config/server.config';
@@ -47,10 +48,19 @@ export class AuthService {
     if (!headerToken) {
       return undefined;
     }
-    if (headerToken.startsWith('Bearer ')) {
+    if (headerToken.startsWith(`${ServerConfig.jwt.type} `)) {
       return headerToken.substring(7, headerToken.length);
     } else {
       return undefined;
     }
+  }
+
+  async createTokenInfoAsync(user: SessionUser): Promise<JwtInfo> {
+    return {
+      access_token: await this.createAccessTokenAsync(user),
+      token_type: ServerConfig.jwt.type,
+      expires_in: ServerConfig.jwt.ttl_access,
+      refresh_token: await this.createRefreshTokenAsync(user),
+    };
   }
 }

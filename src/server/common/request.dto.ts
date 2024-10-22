@@ -57,5 +57,5 @@ export class ReqPlatformLogin {
 export class ReqTokenRefresh {
   @IsString()
   @IsNotEmpty()
-  readonly refreshToken: string;
+  readonly refresh_token: string;
 }

@@ -31,6 +31,7 @@
   },
   "jwt": {
     "active": true,
+    "type": "Bearer",
     "key": "Insert Key",
     "ttl_access": 30000,
     "ttl_refresh": 3600000

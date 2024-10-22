@@ -21,7 +21,7 @@ export class SwaggerConfigService {
     this.options = {
       includeModules: [AppModule, ServerModule],
       config: {
-        token: { api: '/account/login', body: 'data.accessToken' },
+        token: { api: ['/account/login', '/account/platform/login'], body: 'data.jwt.access_token' },
         header: {},
       },
     };

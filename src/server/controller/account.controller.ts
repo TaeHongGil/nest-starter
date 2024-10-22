@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Logger, Post, Query, Session, UseGuards } from '@nestjs/common';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
-import { SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
 import ServerConfig from '@root/core/config/server.config';
@@ -8,10 +7,9 @@ import { PLATFORM } from '@root/core/define/define';
 import { EmailService } from '@root/core/email/email.service';
 import TimeUtil from '@root/core/utils/time.utils';
 import { SessionData } from 'express-session';
-import { JwtPayload } from 'jsonwebtoken';
 import CryptUtil from '../../core/utils/crypt.utils';
-import { ResCreateUser, ResLogin, ResTokenRefresh } from '../common/reponse.dto';
-import { ReqCreateUser, ReqLogin, ReqPlatformLogin, ReqTokenRefresh } from '../common/request.dto';
+import { ReqCreateUser, ReqLogin, ReqPlatformLogin } from '../common/request.dto';
+import { ResCreateUser, ResLogin } from '../common/response.dto';
 import { AccountPlatformService } from '../service/account/account.platform.service';
 import { DBAccount } from '../service/account/account.schema';
 import { AccountService } from '../service/account/account.service';
@@ -99,16 +97,13 @@ export class AccountController {
    */
   @Post('/login')
   @UseGuards(NoAuthGuard)
-  async login(@Session() session: SessionData, @Body() param: ReqLogin): Promise<any> {
+  async login(@Session() session: SessionData, @Body() param: ReqLogin): Promise<ResLogin> {
     const account = await this.accountService.loginAsync(session, param);
     const res: ResLogin = {
-      accessToken: '',
-      refreshToken: '',
       nickname: account.nickname,
     };
     if (ServerConfig.jwt.active) {
-      res.accessToken = await this.authService.createAccessTokenAsync(session.user);
-      res.refreshToken = await this.authService.createRefreshTokenAsync(session.user);
+      res.jwt = await this.authService.createTokenInfoAsync(session.user);
     }
 
     return res;
@@ -119,44 +114,20 @@ export class AccountController {
    */
   @Post('/platform/login')
   @UseGuards(NoAuthGuard)
-  async paltformlogin(@Session() session: SessionData, @Body() param: ReqPlatformLogin): Promise<any> {
+  async paltformlogin(@Session() session: SessionData, @Body() param: ReqPlatformLogin): Promise<ResLogin> {
     const id = await this.accountPlatformService.getPlatformIdAsync(param.platform, param.token);
     if (!id) {
       throw new Error('user not found');
     }
     const account = await this.accountPlatformService.platformLogin(session, param.platform, id);
     const res: ResLogin = {
-      accessToken: '',
-      refreshToken: '',
       nickname: account.nickname,
     };
     if (ServerConfig.jwt.active) {
-      res.accessToken = await this.authService.createAccessTokenAsync(session.user);
-      res.refreshToken = await this.authService.createRefreshTokenAsync(session.user);
+      res.jwt = await this.authService.createTokenInfoAsync(session.user);
     }
 
     return res;
-  }
-
-  /**
-   * JWT 토큰 Refresh
-   */
-  @Post('/token/refresh')
-  @UseGuards(NoAuthGuard)
-  async tokenRefresh(@Body() param: ReqTokenRefresh): Promise<any> {
-    if (!ServerConfig.jwt.active) {
-      throw Error('jwt is not activated');
-    }
-    const jwtInfo = CryptUtil.jwtVerify(param.refreshToken, ServerConfig.jwt.key) as JwtPayload;
-    const user: SessionUser = {
-      useridx: jwtInfo['useridx'],
-    };
-    await this.authService.refreshTokenVerifyAsync(user.useridx, param.refreshToken);
-    const result: ResTokenRefresh = {
-      accessToken: await this.authService.createAccessTokenAsync(user),
-    };
-
-    return result;
   }
 
   /**

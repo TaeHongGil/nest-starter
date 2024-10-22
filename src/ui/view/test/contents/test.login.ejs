@@ -222,6 +222,7 @@
       const platform = this.getLoginPlatform();
       const token = await this.platforms[platform].getToken(callback);
       if (platform && token) {
+        console.log(`${platform} token : ${token}`);
         await this.requestPlatformLogin(platform, token);
       }
     }
