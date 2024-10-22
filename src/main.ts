@@ -5,10 +5,8 @@ import ServerConfig from '@root/core/config/server.config';
 import { ValidationError } from 'class-validator';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
-import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { CoreRedisKeys } from './core/define/core.redis.key';
-import { CoreDefine } from './core/define/define';
 import { GlobalExceptionsFilter } from './core/error/GlobalExceptionsFilter';
 import { ResponseInterceptor } from './core/interceptor/response.interceptor';
 import { MongoService } from './core/mongo/mongo.service';
@@ -49,14 +47,30 @@ function setHelmet(app: NestExpressApplication): void {
   if (ServerConfig.dev === true) {
     return;
   }
-  app.use(helmet());
-  app.use(
-    helmet.hsts({
-      maxAge: CoreDefine.ONE_DAY_SECS * 180, // 180일
-      includeSubDomains: true, // 모든 하위 도메인이 HSTS 정책을 따르도록 설정
-      preload: true, // 브라우저의 사전 로드 목록에 사이트를 등록,
-    }),
-  );
+  /**
+   * https://inpa.tistory.com/entry/NODE-%EB%B3%B4%EC%95%88-%F0%9F%93%9A-helmet-%EB%AA%A8%EB%93%88-%EC%82%AC%EC%9A%A9%EB%B2%95-%EC%9B%B9-%EB%B3%B4%EC%95%88%EC%9D%80-%EB%82%B4%EA%B0%80-%F0%9F%91%AE#helmet_default
+   */
+  // app.use(helmet.crossOriginEmbedderPolicy());
+  // app.use(helmet.crossOriginOpenerPolicy());
+  // app.use(helmet.crossOriginResourcePolicy());
+  // app.use(helmet.originAgentCluster());
+  // app.use(helmet.referrerPolicy());
+  // app.use(helmet.strictTransportSecurity());
+  // app.use(helmet.xContentTypeOptions());
+  // app.use(helmet.xDnsPrefetchControl());
+  // app.use(helmet.xDownloadOptions());
+  // app.use(helmet.xFrameOptions());
+  // app.use(helmet.xPermittedCrossDomainPolicies());
+  // app.use(helmet.xPoweredBy());
+  // app.use(helmet.xXssProtection());
+  // app.use(helmet.dnsPrefetchControl());
+  // app.use(helmet.frameguard());
+  // app.use(helmet.hidePoweredBy());
+  // app.use(helmet.hsts());
+  // app.use(helmet.ieNoOpen());
+  // app.use(helmet.noSniff());
+  // app.use(helmet.permittedCrossDomainPolicies());
+  // app.use(helmet.xssFilter());
 }
 
 function setAplication(app: NestExpressApplication): void {

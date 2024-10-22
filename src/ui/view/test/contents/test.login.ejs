@@ -163,9 +163,10 @@
         ux_mode: 'popup',
         callback: await this.loginProgress.bind(this),
       });
+
       $('#google-login-btn').on('click', async () => {
         this.setLoginPlatform('GOOGLE');
-        token.requestAccessToken({ prompt: 'consent' });
+        token.requestAccessToken();
       });
     }
 
