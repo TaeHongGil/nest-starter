@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import { CoreDefine, PLATFORM } from '@root/core/define/define';
-import { ServerLogger } from '@root/core/server-log/server.log.service';
+import { ServerError } from '@root/core/error/server.error';
 import { HttpUtil } from '@root/core/utils/http.utils';
 import { SessionData } from 'express-session';
 import { OAuth2Client } from 'google-auth-library';
@@ -28,16 +28,15 @@ export class AccountPlatformService {
 
   async getPlatformIdAsync(platform: PLATFORM, token: string): Promise<string> {
     const fetchPlatformId = this.platformIdFetchers[platform];
-
-    if (!fetchPlatformId) {
-      throw new Error('Unsupported platform');
-    }
-
     try {
-      return await fetchPlatformId(token);
+      const id = await fetchPlatformId(token);
+      if (!id) {
+        throw ServerError.PLATFORM_LOGIN_FAILED;
+      }
+
+      return id;
     } catch (e) {
-      ServerLogger.error(e);
-      throw new Error('Platform Login failed');
+      throw ServerError.PLATFORM_LOGIN_FAILED;
     }
   }
 

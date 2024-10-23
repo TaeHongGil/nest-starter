@@ -7,6 +7,7 @@ import { JwtInfo } from '@root/server/common/response.dto';
 import { Request } from 'express';
 import { SessionData } from 'express-session';
 import ServerConfig from '../config/server.config';
+import { ServerError } from '../error/server.error';
 import CryptUtil from '../utils/crypt.utils';
 import { AuthRepository } from './auth.repository';
 import { SessionUser } from './auth.schema';
@@ -37,7 +38,7 @@ export class AuthService {
   async refreshTokenVerifyAsync(useridx: number, token: string): Promise<boolean> {
     const dbToken = await this.getRefreshTokenAsync(useridx);
     if (token != dbToken) {
-      throw Error('not found token');
+      throw ServerError.INVALID_TOKEN;
     }
 
     return true;

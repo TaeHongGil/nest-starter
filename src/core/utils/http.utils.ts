@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ServerLogger } from '../server-log/server.log.service';
+import { ServerError } from '../error/server.error';
 
 export class HttpUtil {
   /**
@@ -13,8 +13,7 @@ export class HttpUtil {
 
       return response;
     } catch (error) {
-      this.handleError(error);
-      throw error;
+      throw ServerError.RESPONSE_ERROR;
     }
   }
 
@@ -30,8 +29,7 @@ export class HttpUtil {
 
       return response;
     } catch (error) {
-      this.handleError(error);
-      throw error;
+      throw ServerError.RESPONSE_ERROR;
     }
   }
 
@@ -47,8 +45,7 @@ export class HttpUtil {
 
       return response;
     } catch (error) {
-      this.handleError(error);
-      throw error;
+      throw ServerError.RESPONSE_ERROR;
     }
   }
 
@@ -63,24 +60,7 @@ export class HttpUtil {
 
       return response;
     } catch (error) {
-      this.handleError(error);
-      throw error;
-    }
-  }
-
-  /**
-   * 에러 처리 메서드
-   * @param error 에러 객체
-   */
-  private static handleError(error: any): void {
-    if (error.response) {
-      ServerLogger.error('Response error:', error.response.data);
-      ServerLogger.error('Status code:', error.response.status);
-      ServerLogger.error('Headers:', error.response.headers);
-    } else if (error.request) {
-      ServerLogger.error('No response received:', error.request);
-    } else {
-      ServerLogger.error('Error in request setup:', error.message);
+      throw ServerError.RESPONSE_ERROR;
     }
   }
 }

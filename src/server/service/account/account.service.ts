@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import { CoreDefine, PLATFORM } from '@root/core/define/define';
+import { ServerError } from '@root/core/error/server.error';
 import { ReqCreateUser, ReqLogin } from '@root/server/common/request.dto';
 import { SessionData } from 'express-session';
 import CryptUtil from '../../../core/utils/crypt.utils';
@@ -77,10 +78,9 @@ export class AccountService {
   async loginAsync(session: SessionData, req: ReqLogin): Promise<DBAccount> {
     const account = await this.getAccountByIdAsync(PLATFORM.SERVER, req.id);
     if (!account) {
-      throw new Error('user not found');
-    }
-    if (!(await CryptUtil.compareHash(req.password, account.password))) {
-      throw new Error('password error');
+      throw ServerError.USER_NOT_FOUND;
+    } else if (!(await CryptUtil.compareHash(req.password, account.password))) {
+      throw ServerError.PASSWORD_ERROR;
     }
     const user: SessionUser = {
       useridx: account.useridx,

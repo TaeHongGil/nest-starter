@@ -1,9 +1,10 @@
 // src/mail/mail.service.ts
-import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as nodemailer from 'nodemailer';
 import path from 'path';
 import ServerConfig from '../config/server.config';
+import { ServerError } from '../error/server.error';
 import { ServerLogger } from '../server-log/server.log.service';
 
 @Injectable()
@@ -33,11 +34,7 @@ export class EmailService implements OnModuleInit {
       await this.transporter.sendMail(mailOptions);
       ServerLogger.log(`Email sent to ${to}`);
     } catch (error) {
-      if (error.message.includes('rate limit') || error.message.includes('exceeded daily sending quota')) {
-        throw new BadRequestException('Gmail 일일 전송 제한에 도달했습니다. 나중에 다시 시도해 주세요.');
-      } else {
-        throw error;
-      }
+      throw ServerError.MAIL_ERROR;
     }
   }
 

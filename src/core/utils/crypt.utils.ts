@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
-import jwt, { Jwt, JwtPayload, TokenExpiredError, VerifyOptions } from 'jsonwebtoken';
+import jwt, { Jwt, JwtPayload, VerifyOptions } from 'jsonwebtoken';
+import { ServerError } from '../error/server.error';
 
 export class CryptUtil {
   static jwtEncode(payload: object, secretKey: string, expireSec: number): string {
@@ -21,11 +22,7 @@ export class CryptUtil {
 
       return decoded;
     } catch (e) {
-      if (e instanceof TokenExpiredError) {
-        throw Error(`jwt token expired. err:${e.message}`);
-      } else {
-        throw Error(`jwt token invalid. err:${e.message}`);
-      }
+      throw ServerError.INVALID_TOKEN;
     }
   }
 

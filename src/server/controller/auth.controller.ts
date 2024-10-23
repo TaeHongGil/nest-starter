@@ -3,6 +3,7 @@ import { NoAuthGuard } from '@root/core/auth/auth.guard';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
+import { ServerError } from '@root/core/error/server.error';
 import { JwtPayload } from 'jsonwebtoken';
 import CryptUtil from '../../core/utils/crypt.utils';
 import { ReqTokenRefresh } from '../common/request.dto';
@@ -22,7 +23,7 @@ export class AuthController {
   @UseGuards(NoAuthGuard)
   async tokenRefresh(@Body() param: ReqTokenRefresh): Promise<any> {
     if (!ServerConfig.jwt.active) {
-      throw Error('jwt is not activated');
+      throw ServerError.CONFIG_NOT_ACTIVE;
     }
     const jwtInfo = CryptUtil.jwtVerify(param.refresh_token, ServerConfig.jwt.key) as JwtPayload;
     const user: SessionUser = {

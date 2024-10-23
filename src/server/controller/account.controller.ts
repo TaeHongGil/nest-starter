@@ -5,6 +5,7 @@ import { CacheService } from '@root/core/cache/cache.service';
 import ServerConfig from '@root/core/config/server.config';
 import { PLATFORM } from '@root/core/define/define';
 import { EmailService } from '@root/core/email/email.service';
+import { ServerError } from '@root/core/error/server.error';
 import TimeUtil from '@root/core/utils/time.utils';
 import { SessionData } from 'express-session';
 import CryptUtil from '../../core/utils/crypt.utils';
@@ -34,9 +35,9 @@ export class AccountController {
   @UseGuards(NoAuthGuard)
   async createAccount(@Body() param: ReqCreateUser): Promise<ResCreateUser> {
     if (await this.accountService.checkIdAsync(PLATFORM.SERVER, param.id)) {
-      throw new Error('duplicated id');
+      throw ServerError.DUPLICATED_ID;
     } else if (await this.accountService.checkEmailAsync(param.email)) {
-      throw new Error('duplicated email');
+      throw ServerError.DUPLICATED_EMAIL;
     }
 
     const account = await this.accountService.createAccountAsync(param);
@@ -72,13 +73,13 @@ export class AccountController {
     try {
       const accountInfo = await this.cacheService.get(id);
       if (!accountInfo || accountInfo['uuid'] != uuid) {
-        throw new Error('uuid not found');
+        throw ServerError.UUID_NOT_FOUND;
       }
       const account = accountInfo['account'] as DBAccount;
       if (await this.accountService.checkIdAsync(PLATFORM.SERVER, account.id)) {
-        throw new Error('duplicated id');
+        throw ServerError.DUPLICATED_ID;
       } else if (await this.accountService.checkEmailAsync(account.email)) {
-        throw new Error('duplicated email');
+        throw ServerError.DUPLICATED_EMAIL;
       }
       await this.accountService.upsertAccountAsync(account);
 
@@ -115,11 +116,8 @@ export class AccountController {
   @Post('/platform/login')
   @UseGuards(NoAuthGuard)
   async paltformlogin(@Session() session: SessionData, @Body() param: ReqPlatformLogin): Promise<ResLogin> {
-    const id = await this.accountPlatformService.getPlatformIdAsync(param.platform, param.token);
-    if (!id) {
-      throw new Error('user not found');
-    }
-    const account = await this.accountPlatformService.platformLogin(session, param.platform, id);
+    const platformId = await this.accountPlatformService.getPlatformIdAsync(param.platform, param.token);
+    const account = await this.accountPlatformService.platformLogin(session, param.platform, platformId);
     const res: ResLogin = {
       nickname: account.nickname,
     };

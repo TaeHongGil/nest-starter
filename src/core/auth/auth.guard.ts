@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtPayload } from 'jsonwebtoken';
 import ServerConfig from '../config/server.config';
+import { ServerError } from '../error/server.error';
 import CryptUtil from '../utils/crypt.utils';
 import { SessionUser } from './auth.schema';
 import { AuthService } from './auth.service';
@@ -14,15 +15,12 @@ export class AuthGuard implements CanActivate {
     if (ServerConfig.session.active) {
       const sessionId = request.session.id;
       if (!sessionId) {
-        throw new Error('session id is missing');
+        throw ServerError.SESSION_NOT_FOUND;
       }
 
       const session = await this.authService.getSessionAsync(sessionId);
-      if (!session) {
-        throw new Error('session not found');
-      }
-      if (!session.user) {
-        throw new Error('login error');
+      if (!session || session.user) {
+        throw ServerError.SESSION_NOT_FOUND;
       }
     } else if (ServerConfig.jwt.active) {
       const jwtInfo = CryptUtil.jwtVerify(this.authService.getAuthToken(request), ServerConfig.jwt.key) as JwtPayload;
