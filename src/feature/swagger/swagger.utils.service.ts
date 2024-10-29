@@ -49,7 +49,7 @@ export class SwaggerUtilService {
           if (methodMetadata != undefined) {
             const descriptions = controllerMetadata?.[controllerName]?.[methodName]?.['description'];
             if (descriptions) {
-              const [summary, description] = descriptions.split('===').map((part: string) => part.trim());
+              const [summary, description] = descriptions.split('\n').map((part: string) => part.trim());
               const methodInterceptorMetadata = this.reflector.get(INTERCEPTORS_METADATA, method) || [];
               const interceptorsMetadata = [...controllerInterceptorMetadata, ...methodInterceptorMetadata];
               const interceptors = this.getInterceptors(interceptorsMetadata);

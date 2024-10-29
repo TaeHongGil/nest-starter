@@ -1,3 +1,4 @@
+import { SessionUser } from '@root/core/auth/auth.schema';
 import { Request, Response } from 'express';
 import 'express-session';
 

@@ -9,8 +9,15 @@
     "active": false,
     "secret_key": "Insert Session Secret Key",
     "secure": false,
-    "clustering": true,
-    "ttl": 3600000
+    "redis_clustering": true,
+    "ttl_msec": 3600000
+  },
+  "jwt": {
+    "active": true,
+    "type": "Bearer",
+    "key": "Insert Key",
+    "ttl_access_msec": 30000,
+    "ttl_refresh_msec": 3600000
   },
   "platform": {
     "google": {
@@ -28,13 +35,6 @@
       "key": "Insert Key",
       "iv": "Insert Key"
     }
-  },
-  "jwt": {
-    "active": true,
-    "type": "Bearer",
-    "key": "Insert Key",
-    "ttl_access": 30000,
-    "ttl_refresh": 3600000
   },
   "db": {
     "mongo": [
@@ -79,7 +79,8 @@
     "verification": {
       "active": true,
       "url_host": "http://localhost:8080",
-      "expire_sec": 600
+      "expire_msec": 600000,
+      "retry_msec": 60000
     }
   },
   "stmp": {

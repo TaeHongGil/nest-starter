@@ -106,14 +106,14 @@ async function setSessionAsync(app: NestExpressApplication, redisService: RedisS
   }
   const redisClustering = ServerConfig.session.redis_clustering;
   const db = ServerConfig.db.redis;
-  const ttl = ServerConfig.session.ttl;
+  const ttl = ServerConfig.session.ttl_msec;
   let redisStore = undefined;
 
   if (redisClustering && db) {
     const redisClient = redisService.getGlobalClient();
     redisStore = new RedisStore({
       client: redisClient,
-      prefix: CoreRedisKeys.getSessionDefaultKey(),
+      prefix: `${CoreRedisKeys.getSessionPrefix()}:`,
       ttl: ttl,
     });
   }

@@ -69,10 +69,30 @@ export class AccountRepository {
     return true;
   }
 
-  async upsertAccountAsync(account: DBAccount): Promise<DBAccount> {
+  /**
+   *
+   * @param account
+   * @param ttl_msec 0일 경우 제거
+   * @returns
+   */
+  async upsertAccountAsync(account: DBAccount, ttl_msec?: number): Promise<DBAccount> {
     const con = this.mongo.getGlobalClient();
     const model = con.model(DBAccount.name, DBAccountSchema);
-    const result = await model.findOneAndUpdate({ useridx: account.useridx }, account, { new: true, upsert: true }).lean();
+
+    const updateData: any = { ...account };
+    const update: any = { $set: updateData };
+
+    if (ttl_msec !== undefined) {
+      if (ttl_msec > 0) {
+        update.$set.expires_at = new Date(Date.now() + ttl_msec);
+      } else {
+        delete update.$set.expires_at;
+        update.$unset = { expires_at: '' };
+      }
+    }
+
+    const result = await model.findOneAndUpdate({ useridx: account.useridx }, update, { new: true, upsert: true }).lean();
+
     if (!result) {
       return undefined;
     }
@@ -94,7 +114,7 @@ export class AccountRepository {
       nickname: account.nickname,
       login_date: new Date().toISOString(),
     };
-    await client.set(ServerRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: CoreDefine.LOGIN_STATE_EXPIRE_SECS });
+    await client.set(ServerRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: CoreDefine.LOGIN_STATE_EXPIRE_SEC });
 
     return true;
   }
@@ -109,7 +129,7 @@ export class AccountRepository {
   async refreshLoginStateAsync(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
 
-    return await client.expire(ServerRedisKeys.getUserStateKey(useridx), CoreDefine.LOGIN_STATE_EXPIRE_SECS);
+    return await client.expire(ServerRedisKeys.getUserStateKey(useridx), CoreDefine.LOGIN_STATE_EXPIRE_SEC);
   }
 
   async setEmailVerificationAsync(account: DBAccount): Promise<boolean> {
@@ -119,7 +139,7 @@ export class AccountRepository {
       nickname: account.nickname,
       login_date: new Date().toISOString(),
     };
-    await client.set(ServerRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: CoreDefine.LOGIN_STATE_EXPIRE_SECS });
+    await client.set(ServerRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: CoreDefine.LOGIN_STATE_EXPIRE_SEC });
 
     return true;
   }

@@ -24,12 +24,16 @@ export class AuthService {
     return await this.authRepository.getRefreshTokenAsync(useridx);
   }
 
+  async deleteRefreshTokenAsync(useridx: number): Promise<boolean> {
+    return await this.authRepository.deleteRefreshTokenAsync(useridx);
+  }
+
   async createAccessTokenAsync(user: SessionUser): Promise<string> {
-    return CryptUtil.jwtEncode(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_access);
+    return CryptUtil.jwtEncode(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_access_msec);
   }
 
   async createRefreshTokenAsync(user: SessionUser): Promise<string> {
-    const token = CryptUtil.jwtEncode(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_refresh);
+    const token = CryptUtil.jwtEncode(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_refresh_msec);
     await this.authRepository.setRefreshTokenAsync(user.useridx, token);
 
     return token;
@@ -60,7 +64,7 @@ export class AuthService {
     return {
       access_token: await this.createAccessTokenAsync(user),
       token_type: ServerConfig.jwt.type,
-      expires_in: ServerConfig.jwt.ttl_access,
+      expires_in: ServerConfig.jwt.ttl_access_msec,
       refresh_token: await this.createRefreshTokenAsync(user),
     };
   }

@@ -28,8 +28,8 @@ export class AccountService {
     return await this.repository.findAccountByNicknameAsync(nickname);
   }
 
-  async upsertAccountAsync(account: DBAccount): Promise<DBAccount> {
-    return await this.repository.upsertAccountAsync(account);
+  async upsertAccountAsync(account: DBAccount, ttl_msec?: number): Promise<DBAccount> {
+    return await this.repository.upsertAccountAsync(account, ttl_msec);
   }
 
   async deleteAccountAsync(useridx: number): Promise<boolean> {
@@ -66,10 +66,11 @@ export class AccountService {
       useridx: useridx,
       id: `${PLATFORM.SERVER}.${req.id}`,
       email: req.email,
-      nickname: `${CoreDefine.SERVICE_NAME}${useridx}`,
+      nickname: req.nickname || `${CoreDefine.SERVICE_NAME}${useridx}`,
       password: await CryptUtil.hash(req.password),
       platform: PLATFORM.SERVER,
-      create_date: new Date(),
+      create_at: new Date(),
+      verification: 0,
     };
 
     return account;
@@ -82,8 +83,10 @@ export class AccountService {
     } else if (!(await CryptUtil.compareHash(req.password, account.password))) {
       throw ServerError.PASSWORD_ERROR;
     }
+
     const user: SessionUser = {
       useridx: account.useridx,
+      verification: account.verification == -1,
     };
     session.user = user;
     await this.setLoginStateAsync(account);

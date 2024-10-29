@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { CommonResponse } from '../common/response';
 import { ServerLogger } from '../server-log/server.log.service';
@@ -11,6 +11,6 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     ServerLogger.error(`${request.method} ${request.path} \nStack: ${exception.stack}`);
-    response.status(exception.getStatus()).json(CommonResponse.builder().setError(new Error(exception.message)).build());
+    response.status(exception.getStatus ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR).json(CommonResponse.builder().setError(new Error(exception.message)).build());
   }
 }

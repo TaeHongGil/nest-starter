@@ -17,7 +17,7 @@ export class AuthRepository {
 
   async setRefreshTokenAsync(useridx: number, token: string): Promise<boolean> {
     const con = this.redis.getGlobalClient();
-    await con.pSetEx(CoreRedisKeys.getTokenKey(useridx), ServerConfig.jwt.ttl_refresh, token);
+    await con.pSetEx(CoreRedisKeys.getTokenKey(useridx), ServerConfig.jwt.ttl_refresh_msec, token);
 
     return true;
   }
@@ -27,5 +27,12 @@ export class AuthRepository {
     const token = await con.get(CoreRedisKeys.getTokenKey(useridx));
 
     return token;
+  }
+
+  async deleteRefreshTokenAsync(useridx: number): Promise<boolean> {
+    const con = this.redis.getGlobalClient();
+    await con.del(CoreRedisKeys.getTokenKey(useridx));
+
+    return true;
   }
 }

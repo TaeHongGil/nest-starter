@@ -44,4 +44,27 @@ export class ResCreateUser {
    * 유저 닉네임
    */
   nickname: string;
+
+  /**
+   * 계정 만료 시간
+   */
+  expire_msec: number;
+}
+
+export class ResVerificationSend {
+  /**
+   * 리트라이 타임
+   */
+  retry_msec: number;
+}
+
+export class ResDuplicatedCheck {
+  /**
+   * 중복 여부 true: 중복 / false: 중복 X
+   */
+  result: boolean;
+}
+
+export class ResGetAccount {
+  nickname: string;
 }

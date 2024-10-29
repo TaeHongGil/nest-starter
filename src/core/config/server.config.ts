@@ -10,14 +10,14 @@ export class ServerConfig {
     secret_key: '',
     secure: false,
     redis_clustering: false,
-    ttl: 0,
+    ttl_msec: 0,
   };
 
   static jwt: JwtConfig = {
     active: false,
     key: '',
-    ttl_access: 0,
-    ttl_refresh: 0,
+    ttl_access_msec: 0,
+    ttl_refresh_msec: 0,
     type: '',
   };
 
@@ -36,7 +36,8 @@ export class ServerConfig {
     verification: {
       active: false,
       url_host: '',
-      expire_sec: 0,
+      expire_msec: 0,
+      retry_msec: 0,
     },
   };
 
@@ -114,15 +115,15 @@ export interface SessionConfig {
   secret_key: string;
   secure: boolean;
   redis_clustering: boolean;
-  ttl: number;
+  ttl_msec: number;
 }
 
 export interface JwtConfig {
   active: boolean;
   key: string;
   type: string;
-  ttl_access: number;
-  ttl_refresh: number;
+  ttl_access_msec: number;
+  ttl_refresh_msec: number;
 }
 
 export interface DBConfig {
@@ -169,7 +170,8 @@ export interface AccountConfig {
   verification: {
     active: boolean;
     url_host: string;
-    expire_sec: number;
+    expire_msec: number;
+    retry_msec: number;
   };
 }
 

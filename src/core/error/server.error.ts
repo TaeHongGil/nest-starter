@@ -13,4 +13,7 @@ export class ServerError {
   static readonly DUPLICATED_ID = new HttpException('duplicated id', HttpStatus.CONFLICT);
   static readonly DUPLICATED_EMAIL = new HttpException('duplicated email', HttpStatus.CONFLICT);
   static readonly PLATFORM_LOGIN_FAILED = new HttpException('platform login failed', HttpStatus.BAD_REQUEST);
+  static readonly TOO_MANY_REQUEST = new HttpException('too many reuqest', HttpStatus.TOO_MANY_REQUESTS);
+  static readonly EMAIL_VERIFICATION_ERROR = new HttpException('email verification error', HttpStatus.FORBIDDEN);
+  static readonly EMAIL_ALREADY_VERIFIED = new HttpException('email already verified', HttpStatus.BAD_REQUEST);
 }

@@ -28,6 +28,7 @@ export class AuthController {
     const jwtInfo = CryptUtil.jwtVerify(param.refresh_token, ServerConfig.jwt.key) as JwtPayload;
     const user: SessionUser = {
       useridx: jwtInfo['useridx'],
+      verification: jwtInfo['verification'],
     };
     await this.authService.refreshTokenVerifyAsync(user.useridx, param.refresh_token);
     const result: ResTokenRefresh = {

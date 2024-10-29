@@ -1,16 +1,17 @@
-import { Body, Controller, Get, Logger, Post, Query, Session, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query, Req, Session, UseGuards } from '@nestjs/common';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
 import ServerConfig from '@root/core/config/server.config';
-import { PLATFORM } from '@root/core/define/define';
+import { CoreDefine, PLATFORM } from '@root/core/define/define';
 import { EmailService } from '@root/core/email/email.service';
 import { ServerError } from '@root/core/error/server.error';
 import TimeUtil from '@root/core/utils/time.utils';
+import { Request } from 'express';
 import { SessionData } from 'express-session';
 import CryptUtil from '../../core/utils/crypt.utils';
 import { ReqCreateUser, ReqLogin, ReqPlatformLogin } from '../common/request.dto';
-import { ResCreateUser, ResLogin } from '../common/response.dto';
+import { ResCreateUser, ResDuplicatedCheck, ResGetAccount, ResLogin, ResVerificationSend } from '../common/response.dto';
 import { AccountPlatformService } from '../service/account/account.platform.service';
 import { DBAccount } from '../service/account/account.schema';
 import { AccountService } from '../service/account/account.service';
@@ -30,36 +31,17 @@ export class AccountController {
 
   /**
    * 계정을 생성한다.
+   * expire가 0이 아닐 시 해당 시간 안에 이메일 인증을 받지 않으면 계정이 삭제된다
    */
   @Post('/create')
   @UseGuards(NoAuthGuard)
   async createAccount(@Body() param: ReqCreateUser): Promise<ResCreateUser> {
-    if (await this.accountService.checkIdAsync(PLATFORM.SERVER, param.id)) {
-      throw ServerError.DUPLICATED_ID;
-    } else if (await this.accountService.checkEmailAsync(param.email)) {
-      throw ServerError.DUPLICATED_EMAIL;
-    }
-
     const account = await this.accountService.createAccountAsync(param);
     const res: ResCreateUser = {
       nickname: account.nickname,
+      expire_msec: ServerConfig.account.verification.active ? CoreDefine.ONE_HOUR_MSEC : 0,
     };
-
-    if (ServerConfig.account.verification.active) {
-      const uuid = CryptUtil.generateUUID();
-      const url = new URL(`account/verification?id=${account.id}&uuid=${uuid}`, ServerConfig.account.verification.url_host);
-      const expire = ServerConfig.account.verification.expire_sec;
-      const content = await this.emailService.readHtml('verification', {
-        link: url.toString(),
-        expire: TimeUtil.secToString(expire),
-      });
-      this.emailService
-        .sendMail(ServerConfig.stmp.name, account.email, '계정 인증', '', content)
-        .then(async (): Promise<void> => await this.cacheService.set(account.id, { uuid: uuid, account: account }, expire))
-        .catch((e) => Logger.error(e));
-    } else {
-      await this.accountService.upsertAccountAsync(account);
-    }
+    await this.accountService.upsertAccountAsync(account, ServerConfig.account.verification.active ? CoreDefine.ONE_HOUR_MSEC : undefined);
 
     return res;
   }
@@ -69,28 +51,52 @@ export class AccountController {
    */
   @Get('/verification')
   @UseGuards(NoAuthGuard)
-  async emailVerificaiton(@Query('id') id: string, @Query('uuid') uuid: string): Promise<ResCreateUser> {
+  async emailVerificaiton(@Query('id') id: string, @Query('uuid') uuid: string): Promise<any> {
     try {
-      const accountInfo = await this.cacheService.get(id);
-      if (!accountInfo || accountInfo['uuid'] != uuid) {
-        throw ServerError.UUID_NOT_FOUND;
+      const info = await this.cacheService.get(id);
+      if (!info || info['uuid'] != uuid) {
+        throw ServerError.USER_NOT_FOUND;
       }
-      const account = accountInfo['account'] as DBAccount;
-      if (await this.accountService.checkIdAsync(PLATFORM.SERVER, account.id)) {
-        throw ServerError.DUPLICATED_ID;
-      } else if (await this.accountService.checkEmailAsync(account.email)) {
-        throw ServerError.DUPLICATED_EMAIL;
-      }
-      await this.accountService.upsertAccountAsync(account);
+      const account = info['account'] as DBAccount;
+      account.verification = -1;
+      await this.accountService.upsertAccountAsync(account, 0);
 
-      const res: ResCreateUser = {
-        nickname: account.nickname,
-      };
-
-      return res;
+      return { message: 'Please login again' };
     } finally {
       await this.cacheService.delete(id);
     }
+  }
+
+  /**
+   * 계정 검증 이메일 보내기
+   */
+  @Post('/verification/send')
+  @UseGuards(AuthGuard(false))
+  async sendVerificaiton(@Session() session: SessionData): Promise<ResVerificationSend> {
+    if (!ServerConfig.account.verification.active) {
+      throw ServerError.CONFIG_NOT_ACTIVE;
+    }
+    const account = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
+    if (!account) {
+      throw ServerError.USER_NOT_FOUND;
+    } else if (account.verification == -1) {
+      throw ServerError.EMAIL_ALREADY_VERIFIED;
+    } else if (account.verification > Date.now()) {
+      throw ServerError.TOO_MANY_REQUEST;
+    }
+    const uuid = CryptUtil.generateUUID();
+    const url = new URL(`account/verification?id=${account.id}&uuid=${uuid}`, ServerConfig.account.verification.url_host);
+    const expire = ServerConfig.account.verification.expire_msec;
+    const content = await this.emailService.readHtml('verification', {
+      link: url.toString(),
+      expire: TimeUtil.msecToString(expire),
+    });
+    await this.emailService.sendMail(ServerConfig.stmp.name, account.email, '계정 인증', '', content);
+    await this.cacheService.set(account.id, { uuid, account }, expire);
+    account.verification = Date.now() + ServerConfig.account.verification.retry_msec;
+    await this.accountService.upsertAccountAsync(account);
+
+    return { retry_msec: ServerConfig.account.verification.retry_msec };
   }
 
   /**
@@ -131,36 +137,86 @@ export class AccountController {
   /**
    * 계정 정보
    */
-  @Post('/get')
-  @UseGuards(AuthGuard)
-  async getAccount(@Session() session: SessionData): Promise<any> {
-    const result = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
+  @Get('/get')
+  @UseGuards(AuthGuard())
+  async getAccount(@Session() session: SessionData): Promise<ResGetAccount> {
+    const account = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
 
-    return result;
+    return { nickname: account.nickname };
+  }
+
+  /**
+   * 이메일 중복 검사
+   */
+  @Get('/check/email')
+  @UseGuards(NoAuthGuard)
+  async checkEmail(@Session() session: SessionData, @Query('email') email: string): Promise<ResDuplicatedCheck> {
+    const account = await this.accountService.getAccountByEmailAsync(email);
+
+    return { result: account ? true : false };
+  }
+
+  /**
+   * ID 중복 검사
+   */
+  @Get('/check/id')
+  @UseGuards(NoAuthGuard)
+  async checkId(@Session() session: SessionData, @Query('id') id: string): Promise<ResDuplicatedCheck> {
+    const account = await this.accountService.getAccountByIdAsync(PLATFORM.SERVER, id);
+
+    return { result: account ? true : false };
+  }
+
+  /**
+   * 닉네임 중복 검사
+   */
+  @Get('/check/nickname')
+  @UseGuards(NoAuthGuard)
+  async checkNickname(@Session() session: SessionData, @Query('nickname') nickname: string): Promise<ResDuplicatedCheck> {
+    const account = await this.accountService.getAccountByNicknameAsync(nickname);
+
+    return { result: account ? true : false };
   }
 
   /**
    * 로그아웃
    */
   @Post('/logout')
-  @UseGuards(AuthGuard)
-  async logout(@Session() session: SessionData): Promise<any> {
+  @UseGuards(AuthGuard(false))
+  async logout(@Session() session: SessionData, @Req() req: Request): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);
-    session.request.session.destroy(() => {});
+    if (ServerConfig.session.active) {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Failed to destroy session:', err);
+        }
+      });
+    } else {
+      await this.authService.deleteRefreshTokenAsync(session.user.useridx);
+    }
 
-    return true;
+    return { message: 'success' };
   }
 
   /**
    * 계정삭제
    */
-  @Post('/delete')
-  @UseGuards(AuthGuard)
-  async deleteAccount(@Session() session: SessionData): Promise<any> {
+  @Delete('/delete')
+  @UseGuards(AuthGuard())
+  async deleteAccount(@Session() session: SessionData, @Req() req: Request): Promise<any> {
+    await this.accountService.deleteLoginStateAsync(session.user.useridx);
     const result = await this.accountService.deleteAccountAsync(session.user.useridx);
-    session.request.session.destroy(() => {});
+    if (ServerConfig.session.active) {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Failed to destroy session:', err);
+        }
+      });
+    } else {
+      await this.authService.deleteRefreshTokenAsync(session.user.useridx);
+    }
 
-    return { result: result };
+    return { message: 'success' };
   }
 
   /**
@@ -168,7 +224,7 @@ export class AccountController {
    * 15분 동안 유지 된다.
    */
   @Post('/ping')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard(false))
   async ping(@Session() session: SessionData): Promise<any> {
     const result = await this.accountService.refreshLoginStateAsync(session.user.useridx);
 

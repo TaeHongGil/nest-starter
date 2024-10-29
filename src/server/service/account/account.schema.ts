@@ -24,11 +24,13 @@ export class DBAccount {
   platform: string;
 
   @Prop()
-  create_date: Date;
+  verification: number;
+
+  @Prop()
+  create_at: Date;
+
+  @Prop()
+  expires_at?: Date;
 }
 
-export const DBAccountSchema = SchemaFactory.createForClass<DBAccount>(DBAccount)
-  .index({ useridx: 1 }, { unique: true, name: 'idx_useridx' })
-  .index({ id: 1 }, { unique: true, name: 'idx_id' })
-  .index({ email: 1 }, { unique: true, name: 'idx_email' })
-  .index({ nickname: 1 }, { unique: true, name: 'idx_nickname' });
+export const DBAccountSchema = SchemaFactory.createForClass(DBAccount).index({ expires_at: 1 }, { expireAfterSeconds: 0 });

@@ -80,7 +80,8 @@ export class AccountPlatformService {
       nickname: `${CoreDefine.SERVICE_NAME}${useridx}`,
       password: '',
       platform: platform,
-      create_date: new Date(),
+      create_at: new Date(),
+      verification: -1,
     };
 
     return account;

@@ -17,6 +17,12 @@ export class ReqCreateUser {
   readonly email: string;
 
   /**
+   * 계정 email
+   */
+  @IsString()
+  readonly nickname?: string;
+
+  /**
    * 계정 Password
    */
   @IsString()

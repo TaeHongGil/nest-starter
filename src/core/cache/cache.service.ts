@@ -29,16 +29,38 @@ export class CacheService {
 
   /**
    * 캐시에서 데이터를 가져온다.
-   * @param key 캐시 키
-   * @returns 캐시 값 (없을 경우 undefined 반환)
+   * @param key 캐시 키 또는 키 패턴
+   * @param isPattern 패턴 검색 여부
+   * @returns 캐시 값 또는 패턴에 일치하는 값들의 배열 (없을 경우 undefined 반환)
    */
-  async get<T>(key: string): Promise<T | undefined> {
+  async get<T>(key: string, isPattern: boolean = false): Promise<T | T[] | undefined> {
     try {
       const redis = this.redisService.getGlobalClient();
       if (redis) {
-        const redisData = await redis.get(CoreRedisKeys.getGlobalCacheKey(key));
-        if (redisData) {
-          return JSON.parse(redisData) as T;
+        if (isPattern) {
+          const keys = await redis.keys(CoreRedisKeys.getGlobalCacheKey(key));
+          const result: T[] = [];
+          for (const k of keys) {
+            const redisData = await redis.get(k);
+            if (redisData) {
+              try {
+                result.push(JSON.parse(redisData));
+              } catch {
+                result.push(redisData as any);
+              }
+            }
+          }
+
+          return result.length > 0 ? result : undefined;
+        } else {
+          const redisData = await redis.get(CoreRedisKeys.getGlobalCacheKey(key));
+          if (redisData) {
+            try {
+              return JSON.parse(redisData) as T;
+            } catch {
+              return redisData as any;
+            }
+          }
         }
       }
     } catch (error) {
