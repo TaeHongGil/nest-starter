@@ -13,39 +13,39 @@ export class AccountService {
   constructor(private readonly repository: AccountRepository) {}
 
   async getAccountNyUseridxAsync(useridx: number): Promise<DBAccount> {
-    return await this.repository.findAccountByUseridxAsync(useridx);
+    return await this.repository.findOne({ useridx });
   }
 
   async getAccountByEmailAsync(email: string): Promise<DBAccount> {
-    return await this.repository.findAccountByEmailAsync(email);
+    return await this.repository.findOne({ email });
   }
 
   async getAccountByIdAsync(platform: PLATFORM, id: string): Promise<DBAccount> {
-    return await this.repository.findAccountByIdAsync(`${platform}.${id}`);
+    return await this.repository.findOne({ id: `${platform}.${id}` });
   }
 
   async getAccountByNicknameAsync(nickname: string): Promise<DBAccount> {
-    return await this.repository.findAccountByNicknameAsync(nickname);
+    return await this.repository.findOne({ nickname });
   }
 
   async upsertAccountAsync(account: DBAccount, ttl_msec?: number): Promise<DBAccount> {
-    return await this.repository.upsertAccountAsync(account, ttl_msec);
+    return await this.repository.upsert(account, ttl_msec);
   }
 
   async deleteAccountAsync(useridx: number): Promise<boolean> {
-    return await this.repository.deleteAccountAsync(useridx);
+    return await this.repository.delete(useridx);
   }
 
   async setLoginStateAsync(account: DBAccount): Promise<boolean> {
-    return await this.repository.setLoginStateAsync(account);
+    return await this.repository.setLoginState(account);
   }
 
   async deleteLoginStateAsync(useridx: number): Promise<boolean> {
-    return await this.repository.deleteLoginStateAsync(useridx);
+    return await this.repository.deleteLoginState(useridx);
   }
 
   async refreshLoginStateAsync(useridx: number): Promise<boolean> {
-    return await this.repository.refreshLoginStateAsync(useridx);
+    return await this.repository.refreshLoginState(useridx);
   }
 
   async checkEmailAsync(email: string): Promise<boolean> {
