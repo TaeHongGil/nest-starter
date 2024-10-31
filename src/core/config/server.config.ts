@@ -2,9 +2,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export class ServerConfig {
-  static serverType: string;
+  static serverType: string = 'local';
   static port: number = 8080;
   static dev: boolean = true;
+  static service: ServiceConfig = {
+    name: '',
+  };
+
   static session: SessionConfig = {
     active: false,
     secret_key: '',
@@ -36,13 +40,12 @@ export class ServerConfig {
     verification: {
       active: false,
       url_host: '',
-      expire_msec: 0,
+      expires_msec: 0,
       retry_msec: 0,
     },
   };
 
   static stmp: StmpConfig = {
-    name: '',
     email: '',
     app_password: '',
   };
@@ -105,11 +108,24 @@ export class ServerConfig {
   }
 }
 
+/**
+ * 서비스 설정
+ */
+export interface ServiceConfig {
+  name: string;
+}
+
+/**
+ * 스웨거 설정
+ */
 export interface SwaggerConfig {
   active: boolean;
   servers: string[];
 }
 
+/**
+ * 세션 설정
+ */
 export interface SessionConfig {
   active: boolean;
   secret_key: string;
@@ -118,6 +134,9 @@ export interface SessionConfig {
   ttl_msec: number;
 }
 
+/**
+ * JWT 설정
+ */
 export interface JwtConfig {
   active: boolean;
   key: string;
@@ -126,12 +145,18 @@ export interface JwtConfig {
   ttl_refresh_msec: number;
 }
 
+/**
+ * DB설정
+ */
 export interface DBConfig {
   mongo: MongoConfig[];
   redis: RedisConfig[];
   mysql: MysqlConfig[];
 }
 
+/**
+ * 몽고DB 설정
+ */
 export interface MongoConfig {
   active: boolean;
   host: string;
@@ -145,6 +170,9 @@ export interface MongoConfig {
   use_tls: false;
 }
 
+/**
+ * Redis 설정
+ */
 export interface RedisConfig {
   active: boolean;
   host: string;
@@ -156,6 +184,9 @@ export interface RedisConfig {
   db: number;
 }
 
+/**
+ * Mysql 설정
+ */
 export interface MysqlConfig {
   active: boolean;
   host: string;
@@ -166,21 +197,29 @@ export interface MysqlConfig {
   poolSize: number;
 }
 
+/**
+ * 계정 설정
+ */
 export interface AccountConfig {
   verification: {
     active: boolean;
     url_host: string;
-    expire_msec: number;
+    expires_msec: number;
     retry_msec: number;
   };
 }
 
+/**
+ * 이메일(stmp) 설정
+ */
 export interface StmpConfig {
-  name: string;
   email: string;
   app_password: string;
 }
 
+/**
+ * 경로 설정
+ */
 export interface PathConfig {
   root: string;
   env: string;
@@ -190,6 +229,9 @@ export interface PathConfig {
   };
 }
 
+/**
+ * 플랫폼 설정
+ */
 export interface PlatformConfig {
   google: {
     client_id: string;

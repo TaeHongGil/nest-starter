@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { SessionUser } from '@root/core/auth/auth.schema';
-import { CoreDefine, PLATFORM } from '@root/core/define/define';
+import ServerConfig from '@root/core/config/server.config';
+import { PLATFORM } from '@root/core/define/define';
 import { ServerError } from '@root/core/error/server.error';
+import StringUtil from '@root/core/utils/string.utils';
 import { ReqCreateUser, ReqLogin } from '@root/server/common/request.dto';
 import { SessionData } from 'express-session';
 import CryptUtil from '../../../core/utils/crypt.utils';
@@ -66,10 +68,9 @@ export class AccountService {
       useridx: useridx,
       id: `${PLATFORM.SERVER}.${req.id}`,
       email: req.email,
-      nickname: req.nickname || `${CoreDefine.SERVICE_NAME}${useridx}`,
+      nickname: req.nickname || `${StringUtil.toCamelCase(ServerConfig.service.name)}${useridx}`,
       password: await CryptUtil.hash(req.password),
       platform: PLATFORM.SERVER,
-      create_at: new Date(),
       verification: 0,
     };
 

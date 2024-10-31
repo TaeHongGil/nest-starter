@@ -1,9 +1,9 @@
 import ServerConfig from '../config/server.config';
-import { CoreDefine } from './define';
+import StringUtil from '../utils/string.utils';
 
 export class ConnectKeys {
   static getPrefix(): string {
-    return `${CoreDefine.SERVICE_NAME}_${ServerConfig.serverType}`;
+    return `${StringUtil.toSnakeCase(ServerConfig.service.name)}_${ServerConfig.serverType}`;
   }
 
   static getGlobalKey(): string {

@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # 환경 변수 출력 (디버깅 용도)
-echo "Project Name: $PROJECT_NAME"
 echo "User Name: $USER_NAME"
 echo "User Password: $USER_PASSWORD"
 

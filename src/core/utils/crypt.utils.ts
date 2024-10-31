@@ -4,8 +4,8 @@ import jwt, { Jwt, JwtPayload, VerifyOptions } from 'jsonwebtoken';
 import { ServerError } from '../error/server.error';
 
 export class CryptUtil {
-  static jwtEncode(payload: object, secretKey: string, expireSec: number): string {
-    const token = jwt.sign(payload, secretKey, { algorithm: 'HS256', expiresIn: expireSec });
+  static jwtEncode(payload: object, secretKey: string, expiresSec: number): string {
+    const token = jwt.sign(payload, secretKey, { algorithm: 'HS256', expiresIn: expiresSec });
 
     return token;
   }

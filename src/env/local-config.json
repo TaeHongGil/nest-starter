@@ -1,4 +1,7 @@
 {
+  "service": {
+    "name": "Nest"
+  },
   "port": 8080,
   "dev": true,
   "swagger": {
@@ -28,12 +31,6 @@
     },
     "naver": {
       "client_id": "Insert Client Key"
-    }
-  },
-  "crypto": {
-    "aes256": {
-      "key": "Insert Key",
-      "iv": "Insert Key"
     }
   },
   "db": {
@@ -79,12 +76,11 @@
     "verification": {
       "active": true,
       "url_host": "http://localhost:8080",
-      "expire_msec": 600000,
+      "expires_msec": 600000,
       "retry_msec": 60000
     }
   },
   "stmp": {
-    "name": "Insert Sender Name",
     "email": "Insert Sender Google Mail",
     "app_password": "Insert Sender Google App Password"
   }

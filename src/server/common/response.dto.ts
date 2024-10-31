@@ -48,7 +48,7 @@ export class ResCreateUser {
   /**
    * 계정 만료 시간
    */
-  expire_msec: number;
+  expires_msec: number;
 }
 
 export class ResVerificationSend {

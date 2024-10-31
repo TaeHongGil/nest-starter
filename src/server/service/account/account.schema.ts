@@ -3,6 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema({
   collection: 'user_account',
   versionKey: false,
+  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 })
 export class DBAccount {
   @Prop({ unique: true })
@@ -27,7 +28,10 @@ export class DBAccount {
   verification: number;
 
   @Prop()
-  create_at: Date;
+  created_at?: Date;
+
+  @Prop()
+  updated_at?: Date;
 
   @Prop()
   expires_at?: Date;

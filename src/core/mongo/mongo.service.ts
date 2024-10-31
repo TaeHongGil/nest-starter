@@ -25,6 +25,7 @@ export class MongoService implements OnModuleDestroy {
         maxPoolSize: db.max_pool_size,
         minPoolSize: db.min_pool_size,
         tls: db.use_tls,
+        autoIndex: true,
       });
       this._connectionMap.set(db.db_name, ucon);
       ServerLogger.log('mongo', `Connecting to a MongoDB instance. host=${host} db=${db.db_name}`);

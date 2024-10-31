@@ -1,9 +1,9 @@
 import ServerConfig from '@root/core/config/server.config';
-import { CoreDefine } from '@root/core/define/define';
+import StringUtil from '../utils/string.utils';
 
 export class CoreRedisKeys {
   static getPrefix(): string {
-    return `${CoreDefine.SERVICE_NAME}:${ServerConfig.serverType}`;
+    return `${StringUtil.toSnakeCase(ServerConfig.service.name)}:${ServerConfig.serverType}`;
   }
 
   static getSessionPrefix(): string {

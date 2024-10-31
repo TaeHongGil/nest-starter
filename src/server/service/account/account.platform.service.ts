@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { SessionUser } from '@root/core/auth/auth.schema';
-import { CoreDefine, PLATFORM } from '@root/core/define/define';
+import ServerConfig from '@root/core/config/server.config';
+import { PLATFORM } from '@root/core/define/define';
 import { ServerError } from '@root/core/error/server.error';
 import { HttpUtil } from '@root/core/utils/http.utils';
+import StringUtil from '@root/core/utils/string.utils';
 import { SessionData } from 'express-session';
 import { OAuth2Client } from 'google-auth-library';
 import { AccountRepository } from './account.repository';
@@ -77,10 +79,9 @@ export class AccountPlatformService {
       useridx: useridx,
       id: `${platform}.${id}`,
       email: `${platform}.${id}`,
-      nickname: `${CoreDefine.SERVICE_NAME}${useridx}`,
+      nickname: `${StringUtil.toCamelCase(ServerConfig.service.name)}${useridx}`,
       password: '',
       platform: platform,
-      create_at: new Date(),
       verification: -1,
     };
 

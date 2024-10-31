@@ -39,7 +39,7 @@ export class AccountController {
     const account = await this.accountService.createAccountAsync(param);
     const res: ResCreateUser = {
       nickname: account.nickname,
-      expire_msec: ServerConfig.account.verification.active ? CoreDefine.ONE_HOUR_MSEC : 0,
+      expires_msec: ServerConfig.account.verification.active ? CoreDefine.ONE_HOUR_MSEC : 0,
     };
     await this.accountService.upsertAccountAsync(account, ServerConfig.account.verification.active ? CoreDefine.ONE_HOUR_MSEC : undefined);
 
@@ -86,13 +86,13 @@ export class AccountController {
     }
     const uuid = CryptUtil.generateUUID();
     const url = new URL(`account/verification?id=${account.id}&uuid=${uuid}`, ServerConfig.account.verification.url_host);
-    const expire = ServerConfig.account.verification.expire_msec;
+    const expires_msec = ServerConfig.account.verification.expires_msec;
     const content = await this.emailService.readHtml('verification', {
       link: url.toString(),
-      expire: TimeUtil.msecToString(expire),
+      expires_msec: TimeUtil.msecToString(expires_msec),
     });
-    await this.emailService.sendMail(ServerConfig.stmp.name, account.email, '계정 인증', '', content);
-    await this.cacheService.set(account.id, { uuid, account }, expire);
+    await this.emailService.sendMail(ServerConfig.service.name, account.email, '계정 인증', '', content);
+    await this.cacheService.set(account.id, { uuid, account }, expires_msec);
     account.verification = Date.now() + ServerConfig.account.verification.retry_msec;
     await this.accountService.upsertAccountAsync(account);
 

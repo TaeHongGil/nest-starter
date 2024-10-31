@@ -19,7 +19,6 @@ export class AccountRepository implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     this.model = this.mongo.getGlobalClient().model<DBAccount>(DBAccount.name, DBAccountSchema);
-    await this.model.createIndexes();
   }
 
   async findOne(filter: Partial<DBAccount>): Promise<DBAccount | undefined> {
@@ -71,7 +70,7 @@ export class AccountRepository implements OnModuleInit {
       nickname: account.nickname,
       login_date: new Date().toISOString(),
     };
-    await client.set(ServerRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: CoreDefine.LOGIN_STATE_EXPIRE_SEC });
+    await client.set(ServerRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: CoreDefine.LOGIN_STATE_EXPIRES_SEC });
 
     return true;
   }
@@ -86,6 +85,6 @@ export class AccountRepository implements OnModuleInit {
   async refreshLoginState(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
 
-    return await client.expire(ServerRedisKeys.getUserStateKey(useridx), CoreDefine.LOGIN_STATE_EXPIRE_SEC);
+    return await client.expire(ServerRedisKeys.getUserStateKey(useridx), CoreDefine.LOGIN_STATE_EXPIRES_SEC);
   }
 }

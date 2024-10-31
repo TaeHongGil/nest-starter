@@ -1,5 +1,4 @@
 export class CoreDefine {
-  static readonly SERVICE_NAME = 'nest';
   static readonly ONE_HOUR_SEC = 60 * 60;
   static readonly ONE_HOUR_MSEC = this.ONE_HOUR_SEC * 1000;
   static readonly ONE_DAY_SEC = this.ONE_HOUR_SEC * 24;
@@ -11,7 +10,7 @@ export class CoreDefine {
   static readonly ONE_SEC_MSEC = 1000;
   static readonly ONE_DAY_MIN = 24 * 60;
 
-  static readonly LOGIN_STATE_EXPIRE_SEC = this.ONE_MINUTE_SEC * 15;
+  static readonly LOGIN_STATE_EXPIRES_SEC = this.ONE_MINUTE_SEC * 15;
 
   static readonly SERVER_TYPE = {
     TEST: 'test',
