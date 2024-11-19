@@ -1,10 +1,9 @@
-// src/mail/mail.service.ts
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as nodemailer from 'nodemailer';
 import path from 'path';
 import ServerConfig from '../config/server.config';
-import { ServerError } from '../error/server.error';
+import ServerError from '../error/server.error';
 import { ServerLogger } from '../server-log/server.log.service';
 
 @Injectable()

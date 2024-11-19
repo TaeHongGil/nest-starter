@@ -3,9 +3,10 @@ import { CoreModule } from '@root/core/core.module';
 import { ServerLogger } from '@root/core/server-log/server.log.service';
 import path from 'path';
 import { AccountModule } from './service/account/account.module';
+import { BoardModule } from './service/board/board.module';
 
 @Module({
-  imports: [AccountModule, CoreModule.registerController(ServerModule, path.join(__dirname, 'controller'), '.controller')],
+  imports: [AccountModule, BoardModule, CoreModule.registerController(ServerModule, path.join(__dirname, 'controller'), '.controller')],
   controllers: [],
   providers: [],
   exports: [],

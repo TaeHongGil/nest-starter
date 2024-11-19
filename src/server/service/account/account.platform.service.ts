@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { SessionUser } from '@root/core/auth/auth.schema';
 import ServerConfig from '@root/core/config/server.config';
-import { PLATFORM } from '@root/core/define/define';
-import { ServerError } from '@root/core/error/server.error';
-import { HttpUtil } from '@root/core/utils/http.utils';
+import { PLATFORM, ROLE } from '@root/core/define/define';
+import ServerError from '@root/core/error/server.error';
+import HttpUtil from '@root/core/utils/http.utils';
 import StringUtil from '@root/core/utils/string.utils';
 import { SessionData } from 'express-session';
 import { OAuth2Client } from 'google-auth-library';
@@ -74,15 +73,15 @@ export class AccountPlatformService {
   }
 
   async createPlatformAccountAsync(platform: PLATFORM, id: string): Promise<DBAccount> {
-    const useridx = await this.repository.increaseUseridx();
+    const useridx = await this.repository.increaseidx();
     const account: DBAccount = {
       useridx: useridx,
       id: `${platform}.${id}`,
       email: `${platform}.${id}`,
-      nickname: `${StringUtil.toCamelCase(ServerConfig.service.name)}${useridx}`,
+      nickname: `${StringUtil.toCapitalizedCamelCase(ServerConfig.service.name)}${useridx}`,
       password: '',
       platform: platform,
-      verification: -1,
+      role: ROLE.USER,
     };
 
     return account;
@@ -94,7 +93,11 @@ export class AccountPlatformService {
       account = await this.createPlatformAccountAsync(platform, id);
       await this.accountService.upsertAccountAsync(account);
     }
-    session.user = { useridx: account.useridx } as SessionUser;
+    session.user = {
+      useridx: account.useridx,
+      nickname: account.nickname,
+      role: account.role,
+    };
     await this.accountService.setLoginStateAsync(account);
 
     return account;

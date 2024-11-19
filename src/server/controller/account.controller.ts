@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, Post, Query, Req, Session, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query, Req, Session, SetMetadata, UseGuards } from '@nestjs/common';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
 import ServerConfig from '@root/core/config/server.config';
-import { CoreDefine, PLATFORM } from '@root/core/define/define';
+import { CUSTOM_METADATA, PLATFORM, ROLE, TIME_IN_MILLISECONDS } from '@root/core/define/define';
 import { EmailService } from '@root/core/email/email.service';
-import { ServerError } from '@root/core/error/server.error';
+import ServerError from '@root/core/error/server.error';
 import TimeUtil from '@root/core/utils/time.utils';
 import { Request } from 'express';
 import { SessionData } from 'express-session';
@@ -33,15 +33,15 @@ export class AccountController {
    * 계정을 생성한다.
    * expire가 0이 아닐 시 해당 시간 안에 이메일 인증을 받지 않으면 계정이 삭제된다
    */
-  @Post('/create')
+  @Post('/register')
   @UseGuards(NoAuthGuard)
   async createAccount(@Body() param: ReqCreateUser): Promise<ResCreateUser> {
     const account = await this.accountService.createAccountAsync(param);
     const res: ResCreateUser = {
       nickname: account.nickname,
-      expires_msec: ServerConfig.account.verification.active ? CoreDefine.ONE_HOUR_MSEC : 0,
+      expires_msec: ServerConfig.account.verification.active ? TIME_IN_MILLISECONDS.ONE_HOUR : 0,
     };
-    await this.accountService.upsertAccountAsync(account, ServerConfig.account.verification.active ? CoreDefine.ONE_HOUR_MSEC : undefined);
+    await this.accountService.upsertAccountAsync(account, ServerConfig.account.verification.active ? TIME_IN_MILLISECONDS.ONE_HOUR : undefined);
 
     return res;
   }
@@ -58,7 +58,7 @@ export class AccountController {
         throw ServerError.USER_NOT_FOUND;
       }
       const account = info['account'] as DBAccount;
-      account.verification = -1;
+      account.role = ROLE.USER;
       await this.accountService.upsertAccountAsync(account, 0);
 
       return { message: 'Please login again' };
@@ -71,17 +71,19 @@ export class AccountController {
    * 계정 검증 이메일 보내기
    */
   @Post('/verification/send')
-  @UseGuards(AuthGuard(false))
+  @UseGuards(AuthGuard)
+  @SetMetadata(CUSTOM_METADATA.NOT_VERIFIED, true)
   async sendVerificaiton(@Session() session: SessionData): Promise<ResVerificationSend> {
     if (!ServerConfig.account.verification.active) {
       throw ServerError.CONFIG_NOT_ACTIVE;
     }
     const account = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
+    const beforeCache = await this.cacheService.get(account.id);
     if (!account) {
       throw ServerError.USER_NOT_FOUND;
-    } else if (account.verification == -1) {
+    } else if (account.role != ROLE.UNVERIFIED) {
       throw ServerError.EMAIL_ALREADY_VERIFIED;
-    } else if (account.verification > Date.now()) {
+    } else if (beforeCache && beforeCache['retry_msec'] > Date.now()) {
       throw ServerError.TOO_MANY_REQUEST;
     }
     const uuid = CryptUtil.generateUUID();
@@ -92,8 +94,7 @@ export class AccountController {
       expires_msec: TimeUtil.msecToString(expires_msec),
     });
     await this.emailService.sendMail(ServerConfig.service.name, account.email, '계정 인증', '', content);
-    await this.cacheService.set(account.id, { uuid, account }, expires_msec);
-    account.verification = Date.now() + ServerConfig.account.verification.retry_msec;
+    await this.cacheService.set(account.id, { uuid, account, retry_msec: Date.now() + ServerConfig.account.verification.retry_msec }, expires_msec);
     await this.accountService.upsertAccountAsync(account);
 
     return { retry_msec: ServerConfig.account.verification.retry_msec };
@@ -108,6 +109,7 @@ export class AccountController {
     const account = await this.accountService.loginAsync(session, param);
     const res: ResLogin = {
       nickname: account.nickname,
+      role: account.role,
     };
     if (ServerConfig.jwt.active) {
       res.jwt = await this.authService.createTokenInfoAsync(session.user);
@@ -126,6 +128,7 @@ export class AccountController {
     const account = await this.accountPlatformService.platformLogin(session, param.platform, platformId);
     const res: ResLogin = {
       nickname: account.nickname,
+      role: account.role,
     };
     if (ServerConfig.jwt.active) {
       res.jwt = await this.authService.createTokenInfoAsync(session.user);
@@ -138,7 +141,7 @@ export class AccountController {
    * 계정 정보
    */
   @Get('/get')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard)
   async getAccount(@Session() session: SessionData): Promise<ResGetAccount> {
     const account = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
 
@@ -182,7 +185,8 @@ export class AccountController {
    * 로그아웃
    */
   @Post('/logout')
-  @UseGuards(AuthGuard(false))
+  @UseGuards(AuthGuard)
+  @SetMetadata(CUSTOM_METADATA.NOT_VERIFIED, true)
   async logout(@Session() session: SessionData, @Req() req: Request): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);
     if (ServerConfig.session.active) {
@@ -202,7 +206,7 @@ export class AccountController {
    * 계정삭제
    */
   @Delete('/delete')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard)
   async deleteAccount(@Session() session: SessionData, @Req() req: Request): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);
     const result = await this.accountService.deleteAccountAsync(session.user.useridx);
@@ -224,7 +228,8 @@ export class AccountController {
    * 15분 동안 유지 된다.
    */
   @Post('/ping')
-  @UseGuards(AuthGuard(false))
+  @UseGuards(AuthGuard)
+  @SetMetadata(CUSTOM_METADATA.NOT_VERIFIED, true)
   async ping(@Session() session: SessionData): Promise<any> {
     const result = await this.accountService.refreshLoginStateAsync(session.user.useridx);
 

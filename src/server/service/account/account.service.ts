@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import ServerConfig from '@root/core/config/server.config';
 import { PLATFORM } from '@root/core/define/define';
-import { ServerError } from '@root/core/error/server.error';
+import ServerError from '@root/core/error/server.error';
 import StringUtil from '@root/core/utils/string.utils';
 import { ReqCreateUser, ReqLogin } from '@root/server/common/request.dto';
 import { SessionData } from 'express-session';
@@ -63,15 +63,15 @@ export class AccountService {
   }
 
   async createAccountAsync(req: ReqCreateUser): Promise<DBAccount> {
-    const useridx = await this.repository.increaseUseridx();
+    const useridx = await this.repository.increaseidx();
     const account: DBAccount = {
       useridx: useridx,
       id: `${PLATFORM.SERVER}.${req.id}`,
       email: req.email,
-      nickname: req.nickname || `${StringUtil.toCamelCase(ServerConfig.service.name)}${useridx}`,
+      nickname: req.nickname || `${StringUtil.toCapitalizedCamelCase(ServerConfig.service.name)}${useridx}`,
       password: await CryptUtil.hash(req.password),
       platform: PLATFORM.SERVER,
-      verification: 0,
+      role: 0,
     };
 
     return account;
@@ -87,7 +87,8 @@ export class AccountService {
 
     const user: SessionUser = {
       useridx: account.useridx,
-      verification: account.verification == -1,
+      role: account.role,
+      nickname: account.nickname,
     };
     session.user = user;
     await this.setLoginStateAsync(account);

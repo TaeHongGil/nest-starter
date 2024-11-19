@@ -1,13 +1,8 @@
-/**
- * Redis Service
- */
-
 import { Injectable } from '@nestjs/common';
 import { JwtInfo } from '@root/server/common/response.dto';
 import { Request } from 'express';
-import { SessionData } from 'express-session';
 import ServerConfig from '../config/server.config';
-import { ServerError } from '../error/server.error';
+import ServerError from '../error/server.error';
 import CryptUtil from '../utils/crypt.utils';
 import { AuthRepository } from './auth.repository';
 import { SessionUser } from './auth.schema';
@@ -15,10 +10,6 @@ import { SessionUser } from './auth.schema';
 @Injectable()
 export class AuthService {
   constructor(private readonly authRepository: AuthRepository) {}
-
-  async getSessionAsync(id: string): Promise<SessionData> {
-    return await this.authRepository.getSessionAsync(id);
-  }
 
   async getRefreshTokenAsync(useridx: number): Promise<string> {
     return await this.authRepository.getRefreshTokenAsync(useridx);

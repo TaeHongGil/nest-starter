@@ -1,4 +1,7 @@
+import { ROLE } from '../define/define';
+
 export class SessionUser {
   useridx: number;
-  verification: boolean;
+  nickname: string;
+  role: ROLE;
 }

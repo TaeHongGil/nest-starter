@@ -2,24 +2,24 @@
   "service": {
     "name": "Nest"
   },
-  "port": 8080,
+  "port": 80,
   "dev": true,
   "swagger": {
     "active": true,
     "servers": []
   },
   "session": {
-    "active": false,
+    "active": true,
     "secret_key": "Insert Session Secret Key",
     "secure": false,
     "redis_clustering": true,
     "ttl_msec": 3600000
   },
   "jwt": {
-    "active": true,
+    "active": false,
     "type": "Bearer",
     "key": "Insert Key",
-    "ttl_access_msec": 30000,
+    "ttl_access_msec": 300000,
     "ttl_refresh_msec": 3600000
   },
   "platform": {
@@ -75,7 +75,7 @@
   "account": {
     "verification": {
       "active": true,
-      "url_host": "http://localhost:8080",
+      "url_host": "http://localhost",
       "expires_msec": 600000,
       "retry_msec": 60000
     }

@@ -1,7 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, mixin, Type } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { JwtPayload } from 'jsonwebtoken';
 import ServerConfig from '../config/server.config';
-import { ServerError } from '../error/server.error';
+import { CUSTOM_METADATA, ROLE } from '../define/define';
+import ServerError from '../error/server.error';
 import CryptUtil from '../utils/crypt.utils';
 import { SessionUser } from './auth.schema';
 import { AuthService } from './auth.service';
@@ -11,52 +13,46 @@ import { AuthService } from './auth.service';
  * @param verification 이메일 인증 여부 확인
  * @returns
  */
-export const AuthGuard = (verification: boolean = true): Type<CanActivate> => {
-  @Injectable()
-  class AuthGuardMixin implements CanActivate {
-    constructor(private readonly authService: AuthService) {}
-    async canActivate(context: ExecutionContext): Promise<boolean> {
-      if (!ServerConfig.account.verification.active) {
-        verification = false;
+@Injectable()
+export class AuthGuard implements CanActivate {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly reflector: Reflector,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const response = context.switchToHttp().getResponse();
+    if (ServerConfig.session.active) {
+      if (!request.session?.user) {
+        throw ServerError.SESSION_NOT_FOUND;
       }
-
-      const request = context.switchToHttp().getRequest();
-      const response = context.switchToHttp().getResponse();
-      if (ServerConfig.session.active) {
-        const sessionId = request.session.id;
-        if (!sessionId) {
-          throw ServerError.SESSION_NOT_FOUND;
-        }
-
-        const session = await this.authService.getSessionAsync(sessionId);
-        if (!session?.user) {
-          throw ServerError.SESSION_NOT_FOUND;
-        } else if (verification && session?.user?.verification == false) {
-          throw ServerError.EMAIL_VERIFICATION_ERROR;
-        }
-      } else if (ServerConfig.jwt.active) {
-        const jwtInfo = CryptUtil.jwtVerify(this.authService.getAuthToken(request), ServerConfig.jwt.key) as JwtPayload;
-        const user: SessionUser = {
-          useridx: jwtInfo['useridx'],
-          verification: jwtInfo['verification'],
-        };
-        if (verification && !user.verification) {
-          throw ServerError.EMAIL_VERIFICATION_ERROR;
-        }
-        request.session = {
-          cookie: undefined,
-          user: user,
-          request: request,
-          response: response,
-        };
+    } else if (ServerConfig.jwt.active) {
+      const jwtInfo = CryptUtil.jwtVerify(this.authService.getAuthToken(request), ServerConfig.jwt.key) as JwtPayload;
+      if (!jwtInfo) {
+        throw ServerError.INVALID_TOKEN;
       }
-
-      return true;
+      const user: SessionUser = {
+        useridx: jwtInfo['useridx'],
+        role: jwtInfo['role'],
+        nickname: jwtInfo['nickname'],
+      };
+      request.session = {
+        cookie: undefined,
+        user: user,
+        request: request,
+        response: response,
+      };
     }
-  }
 
-  return mixin(AuthGuardMixin);
-};
+    const notVerifired = this.reflector.get<boolean>(CUSTOM_METADATA.NOT_VERIFIED, context.getHandler());
+    if (ServerConfig.account.verification.active && !notVerifired && request.session.user?.role == ROLE.UNVERIFIED) {
+      throw ServerError.EMAIL_VERIFICATION_ERROR;
+    }
+
+    return true;
+  }
+}
 
 @Injectable()
 export class NoAuthGuard implements CanActivate {
@@ -65,9 +61,21 @@ export class NoAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
     if (ServerConfig.jwt.active) {
+      const token = this.authService.getAuthToken(request);
+      let user: SessionUser;
+      if (token) {
+        const jwtInfo = CryptUtil.jwtVerify(token, ServerConfig.jwt.key) as JwtPayload;
+        if (jwtInfo) {
+          user = {
+            useridx: jwtInfo['useridx'],
+            role: jwtInfo['role'],
+            nickname: jwtInfo['nickname'],
+          };
+        }
+      }
       request.session = {
         cookie: undefined,
-        user: undefined,
+        user: user,
         request: request,
         response: response,
       };

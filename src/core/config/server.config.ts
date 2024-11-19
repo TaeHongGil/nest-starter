@@ -3,7 +3,7 @@ import * as path from 'path';
 
 export class ServerConfig {
   static serverType: string = 'local';
-  static port: number = 8080;
+  static port: number = 80;
   static dev: boolean = true;
   static service: ServiceConfig = {
     name: '',

@@ -1,12 +1,16 @@
 import lodash from 'lodash';
 
-export class StringUtil {
+class StringUtil {
   static toSnakeCase(str: string): string {
     return lodash.snakeCase(str);
   }
 
   static toCamelCase(str: string): string {
     return lodash.camelCase(str);
+  }
+
+  static toCapitalizedCamelCase(str: string): string {
+    return lodash.upperFirst(lodash.camelCase(str));
   }
 }
 

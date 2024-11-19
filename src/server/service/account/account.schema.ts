@@ -1,4 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ROLE } from '@root/core/define/define';
+import { Expose } from 'class-transformer';
 
 @Schema({
   collection: 'user_account',
@@ -7,33 +9,43 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 })
 export class DBAccount {
   @Prop({ unique: true })
+  @Expose()
   useridx: number;
 
   @Prop({ unique: true })
+  @Expose()
   id: string;
 
   @Prop({ unique: true })
+  @Expose()
   email: string;
 
   @Prop({ unique: true })
+  @Expose()
   nickname: string;
 
   @Prop()
+  @Expose()
   password: string;
 
   @Prop()
+  @Expose()
   platform: string;
 
-  @Prop()
-  verification: number;
+  @Prop({ type: Number, enum: Object.values(ROLE), index: true })
+  @Expose()
+  role: ROLE;
 
   @Prop()
+  @Expose()
   created_at?: Date;
 
   @Prop()
+  @Expose()
   updated_at?: Date;
 
   @Prop()
+  @Expose()
   expires_at?: Date;
 }
 

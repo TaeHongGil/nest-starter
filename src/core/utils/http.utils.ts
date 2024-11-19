@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ServerError } from '../error/server.error';
+import ServerError from '../error/server.error';
 
-export class HttpUtil {
+class HttpUtil {
   /**
    * GET 요청을 보냅니다.
    * @param url 요청할 URL
@@ -36,7 +36,7 @@ export class HttpUtil {
   /**
    * PUT 요청을 보냅니다.
    * @param url 요청할 URL
-   * @param data 수정할 데이터
+   * @param data 전송할 데이터
    * @param config 추가적인 axios 설정 (헤더 등)
    */
   static async put<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
@@ -64,3 +64,5 @@ export class HttpUtil {
     }
   }
 }
+
+export default HttpUtil;

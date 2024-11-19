@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import jwt, { Jwt, JwtPayload, VerifyOptions } from 'jsonwebtoken';
-import { ServerError } from '../error/server.error';
+import { ServerLogger } from '../server-log/server.log.service';
 
-export class CryptUtil {
+class CryptUtil {
   static jwtEncode(payload: object, secretKey: string, expiresSec: number): string {
     const token = jwt.sign(payload, secretKey, { algorithm: 'HS256', expiresIn: expiresSec });
 
@@ -22,7 +22,9 @@ export class CryptUtil {
 
       return decoded;
     } catch (e) {
-      throw ServerError.INVALID_TOKEN;
+      ServerLogger.error(e?.stack);
+
+      return undefined;
     }
   }
 

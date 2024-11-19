@@ -1,7 +1,7 @@
 /* Code Highlight Styles */
 #main-container {
   flex: 1;
-  overflow: inherit;
+  overflow: auto;
   display: flex;
   flex-direction: row;
 }

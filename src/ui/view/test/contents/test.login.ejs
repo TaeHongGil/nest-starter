@@ -1,16 +1,29 @@
 <div class="container-fluid content-container">
-  <form id="login-form" class="login-form">
+  <form id="signup-form" class="form">
+    <h2>Sign Up</h2>
+    <label for="signup-id">ID:</label>
+    <input type="text" id="signup-id" required class="form-input" />
+
+    <label for="signup-password">Password:</label>
+    <input type="password" id="signup-password" required class="form-input" />
+
+    <label for="signup-email">Email:</label>
+    <input type="email" id="signup-email" required class="form-input" />
+
+    <label for="signup-nickname">Nickname:</label>
+    <input type="text" id="signup-nickname" required class="form-input" />
+
+    <button type="submit" class="btn btn-primary form-button">Sign Up</button>
+  </form>
+
+  <form id="login-form" class="form">
     <h2>Login</h2>
-    <label for="id">ID:</label>
-    <input type="text" id="id" name="id" required class="login-input" />
-
+    <label for="login-id">ID:</label>
+    <input type="text" id="login-id" required class="form-input" />
     <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required class="login-input" />
-
-    <button type="submit" class="btn btn-primary login-button">Login</button>
-
+    <input type="password" id="login-password" required class="form-input" />
+    <button type="submit" class="btn btn-primary form-button">Login</button>
     <div class="divider"></div>
-
     <label class="social-label">다음으로 로그인</label>
     <div class="social-login">
       <div>
@@ -20,20 +33,37 @@
       </div>
     </div>
   </form>
-  <div id="login-info">none</div>
+
+  <form id="info-form" class="form">
+    <h2>Login Info</h2>
+    <div class="info-item">
+      <label for="info-nickname">Nickname:</label>
+      <span id="info-nickname" class="info-value">N/A</span>
+    </div>
+    <div class="info-item">
+      <label for="info-role">Verification:</label>
+      <span id="info-role" class="info-value">N/A</span>
+    </div>
+    <button type="submit" id="verification-btn" class="btn btn-success form-button" disabled>메일 인증</button>
+  </form>
 </div>
 
 <style>
+  #info-form {
+    background-color: #e9f7ef;
+    border: 1px solid #b2dfdb;
+  }
+
   .content-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
+    flex-direction: row;
     height: 100vh;
     background-color: #f4f4f9;
   }
 
-  .login-form {
+  .form {
     margin: 100px;
     background-color: white;
     padding: 30px;
@@ -44,13 +74,7 @@
     text-align: center;
   }
 
-  .login-form h2 {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
-  }
-
-  .login-input {
+  .form-input {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
@@ -59,7 +83,7 @@
     font-size: 16px;
   }
 
-  .login-button {
+  .form-button {
     width: 100%;
     padding: 10px;
   }
@@ -70,14 +94,6 @@
     border-bottom: 1px solid #ccc;
     line-height: 0.1em;
     margin-bottom: 30px;
-  }
-
-  .divider::before {
-    background: white;
-    padding: 0 10px;
-    position: relative;
-    top: -10px;
-    color: #888;
   }
 
   .social-label {
@@ -154,6 +170,16 @@
         event.preventDefault();
         await this.requestLogin();
       });
+
+      $('#signup-form').on('submit', async (event) => {
+        event.preventDefault();
+        await this.requestSignup();
+      });
+
+      $('#info-form').on('submit', async (event) => {
+        event.preventDefault();
+        await this.requestVerification();
+      });
     }
 
     async initializeGoogle() {
@@ -221,32 +247,110 @@
 
     async loginProgress(callback) {
       const platform = this.getLoginPlatform();
+      if (!platform) {
+        return;
+      }
       const token = await this.platforms[platform].getToken(callback);
-      if (platform && token) {
+      if (token) {
         console.log(`${platform} token : ${token}`);
         await this.requestPlatformLogin(platform, token);
       }
     }
 
+    async requestSignup() {
+      try {
+        showLoading();
+        const id = $('#signup-id').val();
+        const password = $('#signup-password').val();
+        const email = $('#signup-email').val();
+        const nickname = $('#signup-nickname').val();
+        const response = await httpRequest({
+          url: '/account/register',
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, password, email, nickname }),
+        });
+        $('#login-info').text(response?.data?.nickname || response?.error?.message);
+        if (response?.data?.expires_msec) {
+          const expire_sec = Math.floor(response?.data?.expires_msec / 1000);
+          alert(`${expire_sec}초 후 계정이 삭제됩니다. 로그인 후 메일을 인증해주세요.`);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async requestVerification() {
+      try {
+        showLoading();
+        const response = await httpRequest({
+          url: '/account/verification/send',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${testStorage.serverToken}`,
+          },
+        });
+        if (response?.data?.retry_msec) {
+          const retry_msec = Math.floor(response?.data?.retry_msec / 1000);
+          alert(`${retry_msec} 후 재시 도 가능 / 메일을 확인하세요`);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideLoading();
+      }
+    }
+
     async requestLogin() {
-      const id = $('#id').val();
-      const password = $('#password').val();
-      const response = await httpRequest({
-        url: '/account/login',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, password }),
-      });
-      $('#login-info').text(response?.data?.nickname || response?.error?.message);
+      try {
+        showLoading();
+        const id = $('#login-id').val();
+        const password = $('#login-password').val();
+        const response = await httpRequest({
+          url: '/account/login',
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, password }),
+        });
+        $('#login-info').text(response?.data?.nickname || response?.error?.message);
+        if (response?.data?.jwt) {
+          this.displayLoginInfo(response?.data);
+          testStorage.serverToken = response?.data?.jwt?.access_token;
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideLoading();
+      }
     }
 
     async requestPlatformLogin(platform, token) {
-      const response = await httpRequest({
-        method: 'POST',
-        url: '/account/platform/login',
-        body: JSON.stringify({ platform, token }),
-      });
-      $('#login-info').text(response?.data?.nickname || response?.error?.message);
+      try {
+        showLoading();
+        const response = await httpRequest({
+          method: 'POST',
+          url: '/account/platform/login',
+          body: JSON.stringify({ platform, token }),
+        });
+        $('#login-info').text(response?.data?.nickname || response?.error?.message);
+        if (response?.data) {
+          this.displayLoginInfo(response?.data);
+          testStorage.serverToken = response?.data?.jwt?.access_token;
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    displayLoginInfo(data) {
+      $('#info-nickname').text(data.nickname);
+      $('#info-role').text(data.role);
+      $('#verification-btn').prop('disabled', data.role);
     }
   }
 

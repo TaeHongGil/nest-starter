@@ -1,21 +1,18 @@
 import { Controller, Get, Render } from '@nestjs/common';
 
 import { SkipResponseInterceptor } from '@root/core/interceptor/response.interceptor';
-import { SwaggerConfigService } from './swagger.config.service';
+import SwaggerConfig from './swagger.config';
 import { SwaggerService } from './swagger.service';
 
 @Controller('swagger')
 @SkipResponseInterceptor()
 export class SwaggerController {
-  constructor(
-    readonly swaggerConfigService: SwaggerConfigService,
-    readonly swaggerService: SwaggerService,
-  ) {}
+  constructor(readonly swaggerService: SwaggerService) {}
 
   @Get('/')
   @Render('./swagger/swagger.main.ejs')
   mainRender(): any {
-    return { spec: this.swaggerService.getDocument(), config: this.swaggerConfigService.options.config, servers: this.swaggerConfigService.servers };
+    return { spec: this.swaggerService.getDocument(), config: SwaggerConfig.options.config, servers: SwaggerConfig.servers };
   }
 
   @Get('/doc')

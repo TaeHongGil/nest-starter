@@ -1,22 +1,21 @@
 import { Injectable, applyDecorators } from '@nestjs/common';
-import { INTERCEPTORS_METADATA, METHOD_METADATA } from '@nestjs/common/constants';
+import { GUARDS_METADATA, METHOD_METADATA } from '@nestjs/common/constants';
 import { ModulesContainer, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TagObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
-import { SwaggerConfigService } from './swagger.config.service';
+import SwaggerConfig from './swagger.config';
 
 @Injectable()
 export class SwaggerUtilService {
   constructor(
     private readonly modulesContainer: ModulesContainer,
     private readonly reflector: Reflector,
-    private readonly swaggerConfig: SwaggerConfigService,
   ) {}
 
   applyDecorators(metadata: Record<string, any>): TagObject[] {
     const controllerMetadata = metadata['@nestjs/swagger']['controllers'].map((controller: any[]) => controller[1]).reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
-    const includeModules = this.swaggerConfig.options.includeModules.map((x) => x.name);
+    const includeModules = SwaggerConfig.options.includeModules.map((x) => x.name);
     const controllers = [...this.modulesContainer.values()]
       .flatMap((module) => {
         if (includeModules.includes(module.metatype?.name)) {
@@ -40,7 +39,7 @@ export class SwaggerUtilService {
         tags.push({ name: tag });
       }
 
-      const controllerInterceptorMetadata = this.reflector.get(INTERCEPTORS_METADATA, controller) || [];
+      const controllerInterceptorMetadata = this.reflector.get(GUARDS_METADATA, controller) || [];
       Object.getOwnPropertyNames(prototype).forEach((methodName) => {
         const method = prototype[methodName];
         const descriptor = Object.getOwnPropertyDescriptor(prototype, methodName);
@@ -50,7 +49,7 @@ export class SwaggerUtilService {
             const descriptions = controllerMetadata?.[controllerName]?.[methodName]?.['description'];
             if (descriptions) {
               const [summary, description] = descriptions.split('\n').map((part: string) => part.trim());
-              const methodInterceptorMetadata = this.reflector.get(INTERCEPTORS_METADATA, method) || [];
+              const methodInterceptorMetadata = this.reflector.get(GUARDS_METADATA, method) || [];
               const interceptorsMetadata = [...controllerInterceptorMetadata, ...methodInterceptorMetadata];
               const interceptors = this.getInterceptors(interceptorsMetadata);
               const operation = {
@@ -75,7 +74,9 @@ export class SwaggerUtilService {
 
   private getInterceptors(interceptorsMetadata: any[]): string[] {
     const interceptors = interceptorsMetadata.reduce((acc, interceptor) => {
-      return interceptor.name;
+      acc.add(interceptor.name);
+
+      return acc;
     }, new Set<string>());
 
     return Array.from(interceptors);

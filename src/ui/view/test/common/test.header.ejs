@@ -15,5 +15,9 @@
     const platformConfigElement = $('#platform-config');
     const platformConfig = JSON.parse(platformConfigElement.text());
     window.platformConfig = platformConfig;
+    window.testStorage = JSON.parse(localStorage.getItem('testStorage') || '{}');
+    window.addEventListener('beforeunload', (event) => {
+      localStorage.setItem('testStorage', JSON.stringify(window.testStorage));
+    });
   </script>
 </head>
