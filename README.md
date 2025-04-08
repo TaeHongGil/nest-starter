@@ -6,7 +6,6 @@
 <img src="https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white">
 <img src="https://img.shields.io/badge/ejs-B4CA65?style=for-the-badge&logo=ejs&logoColor=white">
 
-<img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
 <img src="https://img.shields.io/badge/mongoDB-47A248?style=for-the-badge&logo=MongoDB&logoColor=white">
 <img src="https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=white">
 
@@ -27,7 +26,7 @@
   - [Prettier ESLint](https://marketplace.visualstudio.com/items?itemName=rvest.vs-code-prettier-eslint)
 
 ## Docker
-- Modify the `docker-local-db/.env`, `docker-local-db/.env`
+- Modify the `docker-local-db/.env`
 - Start the docker daemon.
 - `Run Docker` from VS Code (Run And Debug)
   - `.vscode/launch.json`
