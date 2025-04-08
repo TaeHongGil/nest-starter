@@ -18,21 +18,13 @@ export class DBAccount {
 
   @Prop({ unique: true })
   @Expose()
-  email: string;
-
-  @Prop({ unique: true })
-  @Expose()
   nickname: string;
-
-  @Prop()
-  @Expose()
-  password: string;
 
   @Prop()
   @Expose()
   platform: string;
 
-  @Prop({ type: Number, enum: Object.values(ROLE), index: true })
+  @Prop({ type: 'string', enum: Object.values(ROLE), index: true })
   @Expose()
   role: ROLE;
 

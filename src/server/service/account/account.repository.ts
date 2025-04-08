@@ -2,7 +2,6 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CoreRedisKeys } from '@root/core/define/core.redis.key';
 import { LOGIN_STATE } from '@root/core/define/define';
 import { MongoService } from '@root/core/mongo/mongo.service';
-import { MysqlService } from '@root/core/mysql/mysql.service';
 import { RedisService } from '@root/core/redis/redis.service';
 import { ServerRedisKeys } from '@root/server/define/server.redis.key';
 import { plainToInstance } from 'class-transformer';
@@ -14,7 +13,6 @@ export class AccountRepository implements OnModuleInit {
 
   constructor(
     readonly mongo: MongoService,
-    readonly mysql: MysqlService,
     readonly redis: RedisService,
   ) {}
 

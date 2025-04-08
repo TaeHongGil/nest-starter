@@ -2,7 +2,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CoreRedisKeys } from '@root/core/define/core.redis.key';
 import { MongoService } from '@root/core/mongo/mongo.service';
-import { MysqlService } from '@root/core/mysql/mysql.service';
 import { RedisService } from '@root/core/redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
@@ -14,7 +13,6 @@ export class CommentRepository implements OnModuleInit {
 
   constructor(
     readonly mongo: MongoService,
-    readonly mysql: MysqlService,
     readonly redis: RedisService,
   ) {}
 

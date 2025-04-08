@@ -77,9 +77,7 @@ export class AccountPlatformService {
     const account: DBAccount = {
       useridx: useridx,
       id: `${platform}.${id}`,
-      email: `${platform}.${id}`,
       nickname: `${StringUtil.toCapitalizedCamelCase(ServerConfig.service.name)}${useridx}`,
-      password: '',
       platform: platform,
       role: ROLE.USER,
     };
@@ -88,7 +86,7 @@ export class AccountPlatformService {
   }
 
   async platformLogin(session: SessionData, platform: PLATFORM, id: string): Promise<DBAccount> {
-    let account = await this.accountService.getAccountByIdAsync(platform, id);
+    let account = await this.accountService.getAccountByIdAsync(`${platform}.${id}`);
     if (!account) {
       account = await this.createPlatformAccountAsync(platform, id);
       await this.accountService.upsertAccountAsync(account);

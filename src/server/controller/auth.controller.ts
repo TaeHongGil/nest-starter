@@ -22,9 +22,6 @@ export class AuthController {
   @Post('/token')
   @UseGuards(NoAuthGuard)
   async tokenRefresh(@Body() param: ReqTokenRefresh): Promise<any> {
-    if (!ServerConfig.jwt.active) {
-      throw ServerError.CONFIG_NOT_ACTIVE;
-    }
     const jwtInfo = CryptUtil.jwtVerify(param.refresh_token, ServerConfig.jwt.key) as JwtPayload;
     if (!jwtInfo) {
       throw ServerError.INVALID_TOKEN;

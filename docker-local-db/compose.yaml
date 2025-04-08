@@ -1,18 +1,4 @@
 services:
-  mysql:
-    image: mysql:8.0
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./config/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
-      - ./config/mysql/initdb.d:/docker-entrypoint-initdb.d
-      - ./data/mysql:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-admin}"
-      USER_NAME: "${USER_NAME:-admin}"
-      USER_PASSWORD: "${USER_PASSWORD:-admin}"
-      MYSQL_DEFAULT_AUTHENTICATION_PLUGIN: mysql_native_password
-
   mongo:
     image: mongo
     ports:

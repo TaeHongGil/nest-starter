@@ -31,11 +31,15 @@ class CryptUtil {
   /**
    * 단방향 암호화
    */
-  static async hash(str: string): Promise<string> {
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(str, saltRounds);
+  static hash(str: string): string {
+    return crypto.createHash('sha256').update(str).digest('hex');
+  }
 
-    return hashedPassword;
+  /**
+   * 단방향 암호화
+   */
+  static async hashWithSalt(str: string, salt: string | number): Promise<string> {
+    return await bcrypt.hash(str, salt);
   }
 
   static async compareHash(plainPassword: string, hashedPassword: string): Promise<boolean> {

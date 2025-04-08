@@ -30,14 +30,14 @@
       "type": "node",
       "request": "launch",
       "preLaunchTask": "db-compose-up",
-      "program": "${workspaceFolder}/.vscode/empty.js"
+      "program": ""
     },
     {
       "name": "Stop Docker DB",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "db-compose-down",
-      "program": "${workspaceFolder}/.vscode/empty.js"
+      "program": ""
     },
     {
       "type": "node",

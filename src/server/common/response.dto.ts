@@ -53,9 +53,9 @@ export class ResCreateUser {
   nickname: string;
 
   /**
-   * 계정 만료 시간
+   * UUID
    */
-  expires_msec: number;
+  uuid: string;
 }
 
 export class ResVerificationSend {

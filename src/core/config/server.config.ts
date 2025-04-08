@@ -9,16 +9,7 @@ export class ServerConfig {
     name: '',
   };
 
-  static session: SessionConfig = {
-    active: false,
-    secret_key: '',
-    secure: false,
-    redis_clustering: false,
-    ttl_msec: 0,
-  };
-
   static jwt: JwtConfig = {
-    active: false,
     key: '',
     ttl_access_msec: 0,
     ttl_refresh_msec: 0,
@@ -28,7 +19,6 @@ export class ServerConfig {
   static db: DBConfig = {
     mongo: [],
     redis: [],
-    mysql: [],
   };
 
   static swagger: SwaggerConfig = {
@@ -43,11 +33,6 @@ export class ServerConfig {
       expires_msec: 0,
       retry_msec: 0,
     },
-  };
-
-  static stmp: StmpConfig = {
-    email: '',
-    app_password: '',
   };
 
   static paths: PathConfig = {
@@ -72,6 +57,7 @@ export class ServerConfig {
   };
 
   static async init(): Promise<void> {
+    global.ServerConfig = ServerConfig;
     this.serverType = process.env.server_type;
     this.paths.root = path.join(process.cwd(), 'src');
     this.paths.env = path.join(this.paths.root, 'env');
@@ -124,21 +110,9 @@ export interface SwaggerConfig {
 }
 
 /**
- * 세션 설정
- */
-export interface SessionConfig {
-  active: boolean;
-  secret_key: string;
-  secure: boolean;
-  redis_clustering: boolean;
-  ttl_msec: number;
-}
-
-/**
  * JWT 설정
  */
 export interface JwtConfig {
-  active: boolean;
   key: string;
   type: string;
   ttl_access_msec: number;
@@ -151,7 +125,6 @@ export interface JwtConfig {
 export interface DBConfig {
   mongo: MongoConfig[];
   redis: RedisConfig[];
-  mysql: MysqlConfig[];
 }
 
 /**
@@ -185,19 +158,6 @@ export interface RedisConfig {
 }
 
 /**
- * Mysql 설정
- */
-export interface MysqlConfig {
-  active: boolean;
-  host: string;
-  db_name: string;
-  port: number;
-  user_name: string;
-  password: string;
-  poolSize: number;
-}
-
-/**
  * 계정 설정
  */
 export interface AccountConfig {
@@ -207,14 +167,6 @@ export interface AccountConfig {
     expires_msec: number;
     retry_msec: number;
   };
-}
-
-/**
- * 이메일(stmp) 설정
- */
-export interface StmpConfig {
-  email: string;
-  app_password: string;
 }
 
 /**

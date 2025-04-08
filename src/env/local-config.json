@@ -8,13 +8,6 @@
     "active": true,
     "servers": []
   },
-  "session": {
-    "active": true,
-    "secret_key": "Insert Session Secret Key",
-    "secure": false,
-    "redis_clustering": true,
-    "ttl_msec": 3600000
-  },
   "jwt": {
     "active": false,
     "type": "Bearer",
@@ -79,9 +72,5 @@
       "expires_msec": 600000,
       "retry_msec": 60000
     }
-  },
-  "stmp": {
-    "email": "Insert Sender Google Mail",
-    "app_password": "Insert Sender Google App Password"
   }
 }

@@ -25,7 +25,7 @@ export class RedisService implements OnModuleDestroy {
         socket: undefined,
       };
       if (db.tls) {
-        redisClientOptions.socket = { tls: true, checkServerIdentity: () => undefined };
+        redisClientOptions.socket = { tls: true, checkServerIdentity: (): any => undefined };
       }
 
       const redisClient: RedisClientType = createClient(redisClientOptions);

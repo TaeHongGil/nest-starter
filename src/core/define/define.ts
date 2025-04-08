@@ -39,10 +39,9 @@ export enum PLATFORM {
 }
 
 export enum ROLE {
-  UNVERIFIED = 0,
-  USER = 1,
-  MANAGER = 10,
-  ADMIN = 100,
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+  GUEST = 'GUEST',
 }
 
 export class BOARD_CONFIG {

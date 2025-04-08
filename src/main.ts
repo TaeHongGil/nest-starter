@@ -3,44 +3,51 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import ServerConfig from '@root/core/config/server.config';
 import { ValidationError } from 'class-validator';
-import RedisStore from 'connect-redis';
-import session from 'express-session';
 import { AppModule } from './app.module';
-import { CoreRedisKeys } from './core/define/core.redis.key';
 import { GlobalExceptionsFilter } from './core/error/GlobalExceptionsFilter';
 import { ResponseInterceptor } from './core/interceptor/response.interceptor';
 import { MongoService } from './core/mongo/mongo.service';
-import { MysqlService } from './core/mysql/mysql.service';
 import { RedisService } from './core/redis/redis.service';
 import { ServerLogger } from './core/server-log/server.log.service';
-import { SwaggerService } from './feature/swagger/swagger.service';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   await ServerConfig.init();
-  global.ServerConfig = ServerConfig;
-  const { redisService, mongoService, mysqlService } = await onBeforeModuleInit(app);
+  await onBeforeModuleInit(app);
   setHelmet(app);
   setAplication(app);
-  await setSessionAsync(app, redisService);
   await app.listen(ServerConfig.port);
+  if (ServerConfig.serverType == 'local') {
+    const figlet = (await import('figlet')).default;
+    figlet(ServerConfig.service.name.toUpperCase(), (err, data) => {
+      if (err) {
+        console.error('Figlet error:', err);
+
+        return;
+      }
+      const appUrl = `http://localhost:${ServerConfig.port}`;
+      process.stdout.write('\x1b[2J\x1b[0f');
+      console.log('\x1b[36m%s\x1b[0m', data);
+      console.log(`Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
+      console.log(`Swagger Url: \x1b[0m \x1b[32m${appUrl}/swagger\x1b[0m\n`);
+    });
+  }
 }
 
-async function onBeforeModuleInit(app: NestExpressApplication): Promise<{ redisService: RedisService; mongoService: MongoService; mysqlService: MysqlService }> {
+async function onBeforeModuleInit(app: NestExpressApplication): Promise<{ redisService: RedisService; mongoService: MongoService }> {
   const redisService = app.get(RedisService);
   const mongoService = app.get(MongoService);
-  const mysqlService = app.get(MysqlService);
   await redisService.onBeforeModuleInit();
   await mongoService.onBeforeModuleInit();
-  await mysqlService.onBeforeModuleInit();
 
   if (ServerConfig.dev) {
+    const { SwaggerService } = await import('./feature/swagger/swagger.service');
     const swagger = app.get(SwaggerService);
     await swagger.onBeforeModuleInit(app);
   }
 
-  return { redisService, mongoService, mysqlService };
+  return { redisService, mongoService };
 }
 
 function setHelmet(app: NestExpressApplication): void {
@@ -96,37 +103,6 @@ function setAplication(app: NestExpressApplication): void {
       transform: true, // 요청에서 넘어온 자료들의 형변환
       enableDebugMessages: true,
       exceptionFactory: callError,
-    }),
-  );
-}
-
-async function setSessionAsync(app: NestExpressApplication, redisService: RedisService): Promise<void> {
-  if (!ServerConfig.session.active) {
-    return;
-  }
-  const redisClustering = ServerConfig.session.redis_clustering;
-  const db = ServerConfig.db.redis;
-  const ttl = ServerConfig.session.ttl_msec;
-  let redisStore = undefined;
-
-  if (redisClustering && db) {
-    const redisClient = redisService.getGlobalClient();
-    redisStore = new RedisStore({
-      client: redisClient,
-      prefix: `${CoreRedisKeys.getSessionPrefix()}:`,
-      ttl: ttl,
-    });
-  }
-  app.use(
-    session({
-      store: redisStore,
-      secret: ServerConfig.session.secret_key,
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: ServerConfig.session.secure,
-        maxAge: ttl,
-      },
     }),
   );
 }

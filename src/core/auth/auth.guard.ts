@@ -2,7 +2,6 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtPayload } from 'jsonwebtoken';
 import ServerConfig from '../config/server.config';
-import { CUSTOM_METADATA, ROLE } from '../define/define';
 import ServerError from '../error/server.error';
 import CryptUtil from '../utils/crypt.utils';
 import { SessionUser } from './auth.schema';
@@ -23,32 +22,22 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-    if (ServerConfig.session.active) {
-      if (!request.session?.user) {
-        throw ServerError.SESSION_NOT_FOUND;
-      }
-    } else if (ServerConfig.jwt.active) {
-      const jwtInfo = CryptUtil.jwtVerify(this.authService.getAuthToken(request), ServerConfig.jwt.key) as JwtPayload;
-      if (!jwtInfo) {
-        throw ServerError.INVALID_TOKEN;
-      }
-      const user: SessionUser = {
-        useridx: jwtInfo['useridx'],
-        role: jwtInfo['role'],
-        nickname: jwtInfo['nickname'],
-      };
-      request.session = {
-        cookie: undefined,
-        user: user,
-        request: request,
-        response: response,
-      };
-    }
 
-    const notVerifired = this.reflector.get<boolean>(CUSTOM_METADATA.NOT_VERIFIED, context.getHandler());
-    if (ServerConfig.account.verification.active && !notVerifired && request.session.user?.role == ROLE.UNVERIFIED) {
-      throw ServerError.EMAIL_VERIFICATION_ERROR;
+    const jwtInfo = CryptUtil.jwtVerify(this.authService.getAuthToken(request), ServerConfig.jwt.key) as JwtPayload;
+    if (!jwtInfo) {
+      throw ServerError.INVALID_TOKEN;
     }
+    const user: SessionUser = {
+      useridx: jwtInfo['useridx'],
+      role: jwtInfo['role'],
+      nickname: jwtInfo['nickname'],
+    };
+    request.session = {
+      cookie: undefined,
+      user: user,
+      request: request,
+      response: response,
+    };
 
     return true;
   }
@@ -60,26 +49,24 @@ export class NoAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-    if (ServerConfig.jwt.active) {
-      const token = this.authService.getAuthToken(request);
-      let user: SessionUser;
-      if (token) {
-        const jwtInfo = CryptUtil.jwtVerify(token, ServerConfig.jwt.key) as JwtPayload;
-        if (jwtInfo) {
-          user = {
-            useridx: jwtInfo['useridx'],
-            role: jwtInfo['role'],
-            nickname: jwtInfo['nickname'],
-          };
-        }
+    const token = this.authService.getAuthToken(request);
+    let user: SessionUser;
+    if (token) {
+      const jwtInfo = CryptUtil.jwtVerify(token, ServerConfig.jwt.key) as JwtPayload;
+      if (jwtInfo) {
+        user = {
+          useridx: jwtInfo['useridx'],
+          role: jwtInfo['role'],
+          nickname: jwtInfo['nickname'],
+        };
       }
-      request.session = {
-        cookie: undefined,
-        user: user,
-        request: request,
-        response: response,
-      };
     }
+    request.session = {
+      cookie: undefined,
+      user: user,
+      request: request,
+      response: response,
+    };
 
     return true;
   }

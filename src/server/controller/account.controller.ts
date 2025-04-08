@@ -2,18 +2,12 @@ import { Body, Controller, Delete, Get, Post, Query, Req, Session, SetMetadata, 
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
-import ServerConfig from '@root/core/config/server.config';
-import { CUSTOM_METADATA, PLATFORM, ROLE, TIME_IN_MILLISECONDS } from '@root/core/define/define';
-import { EmailService } from '@root/core/email/email.service';
-import ServerError from '@root/core/error/server.error';
-import TimeUtil from '@root/core/utils/time.utils';
+import { CUSTOM_METADATA } from '@root/core/define/define';
 import { Request } from 'express';
 import { SessionData } from 'express-session';
-import CryptUtil from '../../core/utils/crypt.utils';
-import { ReqCreateUser, ReqLogin, ReqPlatformLogin } from '../common/request.dto';
-import { ResCreateUser, ResDuplicatedCheck, ResGetAccount, ResLogin, ResVerificationSend } from '../common/response.dto';
+import { ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../common/request.dto';
+import { ResCreateUser as ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../common/response.dto';
 import { AccountPlatformService } from '../service/account/account.platform.service';
-import { DBAccount } from '../service/account/account.schema';
 import { AccountService } from '../service/account/account.service';
 
 /**
@@ -26,94 +20,35 @@ export class AccountController {
     private readonly accountPlatformService: AccountPlatformService,
     private readonly authService: AuthService,
     private readonly cacheService: CacheService,
-    private readonly emailService: EmailService,
   ) {}
 
   /**
-   * 계정을 생성한다.
-   * expire가 0이 아닐 시 해당 시간 안에 이메일 인증을 받지 않으면 계정이 삭제된다
+   * 게스트 계정을 생성한다.
    */
-  @Post('/register')
+  @Post('/guest/create')
   @UseGuards(NoAuthGuard)
-  async createAccount(@Body() param: ReqCreateUser): Promise<ResCreateUser> {
-    const account = await this.accountService.createAccountAsync(param);
-    const res: ResCreateUser = {
-      nickname: account.nickname,
-      expires_msec: ServerConfig.account.verification.active ? TIME_IN_MILLISECONDS.ONE_HOUR : 0,
+  async createGuestAccount(@Session() session: SessionData, @Body() param: ReqCreateGuest): Promise<ResCreateGuest> {
+    const guestAccount = await this.accountService.createGuestAccountAsync(param.device_id);
+    const res: ResCreateGuest = {
+      nickname: guestAccount.nickname,
+      uuid: guestAccount.id,
     };
-    await this.accountService.upsertAccountAsync(account, ServerConfig.account.verification.active ? TIME_IN_MILLISECONDS.ONE_HOUR : undefined);
 
     return res;
   }
 
   /**
-   * 계정 검증
-   */
-  @Get('/verification')
-  @UseGuards(NoAuthGuard)
-  async emailVerificaiton(@Query('id') id: string, @Query('uuid') uuid: string): Promise<any> {
-    try {
-      const info = await this.cacheService.get(id);
-      if (!info || info['uuid'] != uuid) {
-        throw ServerError.USER_NOT_FOUND;
-      }
-      const account = info['account'] as DBAccount;
-      account.role = ROLE.USER;
-      await this.accountService.upsertAccountAsync(account, 0);
-
-      return { message: 'Please login again' };
-    } finally {
-      await this.cacheService.delete(id);
-    }
-  }
-
-  /**
-   * 계정 검증 이메일 보내기
-   */
-  @Post('/verification/send')
-  @UseGuards(AuthGuard)
-  @SetMetadata(CUSTOM_METADATA.NOT_VERIFIED, true)
-  async sendVerificaiton(@Session() session: SessionData): Promise<ResVerificationSend> {
-    if (!ServerConfig.account.verification.active) {
-      throw ServerError.CONFIG_NOT_ACTIVE;
-    }
-    const account = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
-    const beforeCache = await this.cacheService.get(account.id);
-    if (!account) {
-      throw ServerError.USER_NOT_FOUND;
-    } else if (account.role != ROLE.UNVERIFIED) {
-      throw ServerError.EMAIL_ALREADY_VERIFIED;
-    } else if (beforeCache && beforeCache['retry_msec'] > Date.now()) {
-      throw ServerError.TOO_MANY_REQUEST;
-    }
-    const uuid = CryptUtil.generateUUID();
-    const url = new URL(`account/verification?id=${account.id}&uuid=${uuid}`, ServerConfig.account.verification.url_host);
-    const expires_msec = ServerConfig.account.verification.expires_msec;
-    const content = await this.emailService.readHtml('verification', {
-      link: url.toString(),
-      expires_msec: TimeUtil.msecToString(expires_msec),
-    });
-    await this.emailService.sendMail(ServerConfig.service.name, account.email, '계정 인증', '', content);
-    await this.cacheService.set(account.id, { uuid, account, retry_msec: Date.now() + ServerConfig.account.verification.retry_msec }, expires_msec);
-    await this.accountService.upsertAccountAsync(account);
-
-    return { retry_msec: ServerConfig.account.verification.retry_msec };
-  }
-
-  /**
    * 로그인
    */
-  @Post('/login')
+  @Post('/guest/login')
   @UseGuards(NoAuthGuard)
-  async login(@Session() session: SessionData, @Body() param: ReqLogin): Promise<ResLogin> {
+  async login(@Session() session: SessionData, @Body() param: ReqGuestLogin): Promise<ResLogin> {
     const account = await this.accountService.loginAsync(session, param);
     const res: ResLogin = {
       nickname: account.nickname,
       role: account.role,
     };
-    if (ServerConfig.jwt.active) {
-      res.jwt = await this.authService.createTokenInfoAsync(session.user);
-    }
+    res.jwt = await this.authService.createTokenInfoAsync(session.user);
 
     return res;
   }
@@ -130,9 +65,7 @@ export class AccountController {
       nickname: account.nickname,
       role: account.role,
     };
-    if (ServerConfig.jwt.active) {
-      res.jwt = await this.authService.createTokenInfoAsync(session.user);
-    }
+    res.jwt = await this.authService.createTokenInfoAsync(session.user);
 
     return res;
   }
@@ -146,28 +79,6 @@ export class AccountController {
     const account = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
 
     return { nickname: account.nickname };
-  }
-
-  /**
-   * 이메일 중복 검사
-   */
-  @Get('/check/email')
-  @UseGuards(NoAuthGuard)
-  async checkEmail(@Session() session: SessionData, @Query('email') email: string): Promise<ResDuplicatedCheck> {
-    const account = await this.accountService.getAccountByEmailAsync(email);
-
-    return { result: account ? true : false };
-  }
-
-  /**
-   * ID 중복 검사
-   */
-  @Get('/check/id')
-  @UseGuards(NoAuthGuard)
-  async checkId(@Session() session: SessionData, @Query('id') id: string): Promise<ResDuplicatedCheck> {
-    const account = await this.accountService.getAccountByIdAsync(PLATFORM.SERVER, id);
-
-    return { result: account ? true : false };
   }
 
   /**
@@ -189,15 +100,7 @@ export class AccountController {
   @SetMetadata(CUSTOM_METADATA.NOT_VERIFIED, true)
   async logout(@Session() session: SessionData, @Req() req: Request): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);
-    if (ServerConfig.session.active) {
-      req.session.destroy((err) => {
-        if (err) {
-          console.error('Failed to destroy session:', err);
-        }
-      });
-    } else {
-      await this.authService.deleteRefreshTokenAsync(session.user.useridx);
-    }
+    await this.authService.deleteRefreshTokenAsync(session.user.useridx);
 
     return { message: 'success' };
   }
@@ -209,16 +112,8 @@ export class AccountController {
   @UseGuards(AuthGuard)
   async deleteAccount(@Session() session: SessionData, @Req() req: Request): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);
-    const result = await this.accountService.deleteAccountAsync(session.user.useridx);
-    if (ServerConfig.session.active) {
-      req.session.destroy((err) => {
-        if (err) {
-          console.error('Failed to destroy session:', err);
-        }
-      });
-    } else {
-      await this.authService.deleteRefreshTokenAsync(session.user.useridx);
-    }
+    await this.authService.deleteRefreshTokenAsync(session.user.useridx);
+    await this.accountService.deleteAccountAsync(session.user.useridx);
 
     return { message: 'success' };
   }

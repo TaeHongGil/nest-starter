@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 class TimeUtil {
   /**
@@ -7,7 +7,7 @@ class TimeUtil {
    * @returns 시:분:초 형식의 문자열 (예: 01:01:01)
    */
   static msecToString(msec: number): string {
-    return moment.utc(msec).format('HH:mm:ss');
+    return dayjs(msec).format('HH:mm:ss');
   }
 }
 

@@ -60,14 +60,6 @@ class ServerError {
   static get TOO_MANY_REQUEST(): HttpException {
     return new HttpException('too many requests', HttpStatus.TOO_MANY_REQUESTS);
   }
-
-  static get EMAIL_VERIFICATION_ERROR(): HttpException {
-    return new HttpException('email verification error', HttpStatus.FORBIDDEN);
-  }
-
-  static get EMAIL_ALREADY_VERIFIED(): HttpException {
-    return new HttpException('email already verified', HttpStatus.BAD_REQUEST);
-  }
 }
 
 export default ServerError;

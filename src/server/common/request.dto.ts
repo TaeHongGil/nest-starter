@@ -1,48 +1,20 @@
 import { BOARD_CONFIG, PLATFORM } from '@root/core/define/define';
-import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
-export class ReqCreateUser {
+export class ReqCreateGuest {
   /**
    * 계정 ID
    */
-  @IsString()
   @IsNotEmpty()
-  readonly id: string;
-
-  /**
-   * 계정 email
-   */
-  @IsEmail()
-  @IsNotEmpty()
-  readonly email: string;
-
-  /**
-   * 계정 닉네임
-   */
-  @IsString()
-  readonly nickname?: string;
-
-  /**
-   * 계정 Password
-   */
-  @IsString()
-  @IsNotEmpty()
-  readonly password: string;
+  readonly device_id: string;
 }
 
-export class ReqLogin {
+export class ReqGuestLogin {
   /**
    * 계정 ID
    */
   @IsNotEmpty()
-  readonly id: string;
-
-  /**
-   * 계정 Password
-   */
-  @IsString()
-  @IsNotEmpty()
-  readonly password: string;
+  readonly uuid: string;
 }
 
 export class ReqPlatformLogin {
