@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, Post, Query, Req, Session, SetMetadata, UseGuards } from '@nestjs/common';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
+import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
 import { CUSTOM_METADATA } from '@root/core/define/define';
 import { Request } from 'express';
-import { SessionData } from 'express-session';
 import { ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../common/request.dto';
 import { ResCreateUser as ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../common/response.dto';
 import { AccountPlatformService } from '../service/account/account.platform.service';

@@ -33,7 +33,6 @@ export class AuthGuard implements CanActivate {
       nickname: jwtInfo['nickname'],
     };
     request.session = {
-      cookie: undefined,
       user: user,
       request: request,
       response: response,
@@ -62,7 +61,6 @@ export class NoAuthGuard implements CanActivate {
       }
     }
     request.session = {
-      cookie: undefined,
       user: user,
       request: request,
       response: response,

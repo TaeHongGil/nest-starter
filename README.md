@@ -1,4 +1,4 @@
-# Nest Starter
+# Nestjs Starter
 
 ## Stacks
 <img src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white">

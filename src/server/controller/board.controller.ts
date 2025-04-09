@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Post, Put, Query, Session, UseGuards } from '@nestjs/common';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
+import { SessionData } from '@root/core/auth/auth.schema';
 import { BOARD_CONFIG } from '@root/core/define/define';
 import ServerError from '@root/core/error/server.error';
-import { SessionData } from 'express-session';
 import { ReqCreateComment, ReqCreatePost, ReqUpdateComment, ReqUpdatePost } from '../common/request.dto';
 import { PostComment, ResComments, ResDeletePost, ResPostDetail, ResPosts } from '../common/response.dto';
 import { DBComment } from '../service/board/board.comment.schema';

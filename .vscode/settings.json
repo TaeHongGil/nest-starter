@@ -1,7 +1,7 @@
 {
   "typescript.preferences.importModuleSpecifier": "shortest",
   "typescript.preferences.quoteStyle": "single",
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always",
@@ -11,30 +11,15 @@
   "editor.detectIndentation": false,
   "editor.insertSpaces": true,
   "files.trimTrailingWhitespace": true,
-  "editor.rulers": [200],
-  "files.associations": {
-    "*.ejs": "html"
-  },
+  "editor.rulers": [250],
   "search.exclude": {
     "**/.git": true,
     "**/node_modules": true,
-    "**/public/AdminLTE": true,
-    "**/public/js/jquery*": true,
     "**/dist": true
   },
   "editor.fontFamily": "D2Coding, Consolas, 'Courier New', monospace",
-  "jestrunner.jestCommand": "npm run test --",
   "typescript.tsdk": "node_modules/typescript/lib",
   "eslint.debug": true,
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[html]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
   "files.watcherExclude": {
     "**/target": true
   }

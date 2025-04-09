@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { SessionData } from '@root/core/auth/auth.schema';
 import { BOARD_CONFIG } from '@root/core/define/define';
 import { ReqCreateComment } from '@root/server/common/request.dto';
-import { SessionData } from 'express-session';
 import { CommentRepository } from './board.comment.repository';
 import { DBComment } from './board.comment.schema';
 

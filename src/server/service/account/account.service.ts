@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { SessionUser } from '@root/core/auth/auth.schema';
+import { SessionData, SessionUser } from '@root/core/auth/auth.schema';
 import ServerConfig from '@root/core/config/server.config';
 import { PLATFORM, ROLE } from '@root/core/define/define';
 import ServerError from '@root/core/error/server.error';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import StringUtil from '@root/core/utils/string.utils';
 import { ReqGuestLogin } from '@root/server/common/request.dto';
-import { SessionData } from 'express-session';
 import { AccountRepository } from './account.repository';
 import { DBAccount } from './account.schema';
 

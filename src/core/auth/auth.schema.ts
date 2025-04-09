@@ -5,3 +5,9 @@ export class SessionUser {
   nickname: string;
   role: ROLE;
 }
+
+export interface SessionData {
+  user: SessionUser;
+  request: Request;
+  response: Response;
+}

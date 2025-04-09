@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { SessionData } from '@root/core/auth/auth.schema';
 import { BOARD_CONFIG } from '@root/core/define/define';
 import { ReqCreatePost } from '@root/server/common/request.dto';
-import { SessionData } from 'express-session';
 import { PostRepository } from './board.post.repository';
 import { DBPost } from './board.post.schema';
 

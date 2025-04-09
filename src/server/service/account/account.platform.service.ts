@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { SessionData } from '@root/core/auth/auth.schema';
 import ServerConfig from '@root/core/config/server.config';
 import { PLATFORM, ROLE } from '@root/core/define/define';
 import ServerError from '@root/core/error/server.error';
 import HttpUtil from '@root/core/utils/http.utils';
 import StringUtil from '@root/core/utils/string.utils';
-import { SessionData } from 'express-session';
 import { OAuth2Client } from 'google-auth-library';
 import { AccountRepository } from './account.repository';
 import { DBAccount } from './account.schema';
