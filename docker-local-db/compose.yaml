@@ -2,18 +2,19 @@ services:
   mongo:
     image: mongo
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - ./data/mongo:/data/db
+      - ./config/mongo:/etc/mongo-init
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${USER_NAME:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${USER_PASSWORD:-admin}
-      MONGO_INITDB_DATABASE: "peopledb"
+      USER_NAME: ${USER_NAME:-admin}
+      USER_PASSWORD: ${USER_PASSWORD:-admin}
+    command: ['sh', '/etc/mongo-init/init.sh']
 
   redis:
     image: redis
     ports:
-      - "6379:6379"
+      - '6379:6379'
     environment:
       USER_NAME: ${USER_NAME:-admin}
       USER_PASSWORD: ${USER_PASSWORD:-admin}
@@ -21,4 +22,4 @@ services:
     volumes:
       - ./data/redis:/data
       - ./config/redis:/usr/local/etc/redis
-    command: ["sh", "/usr/local/etc/redis/start.sh"]
+    command: ['sh', '/usr/local/etc/redis/start.sh']

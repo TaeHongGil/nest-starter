@@ -30,8 +30,8 @@
     "mongo": [
       {
         "active": true,
-        "host": "localhost",
-        "port": 27017,
+        "hosts": ["localhost:27017"],
+        "replica_set": "rs0",
         "auth_source": "admin",
         "db_name": "nest_local_global",
         "user_name": "test_user",
@@ -52,25 +52,6 @@
         "tls": false,
         "db": 0
       }
-    ],
-    "mysql": [
-      {
-        "active": true,
-        "host": "localhost",
-        "db_name": "nest_local_global",
-        "port": 3306,
-        "user_name": "test_user",
-        "password": "asdfqwerzxcvqwer1234",
-        "poolSize": "1"
-      }
     ]
-  },
-  "account": {
-    "verification": {
-      "active": true,
-      "url_host": "http://localhost",
-      "expires_msec": 600000,
-      "retry_msec": 60000
-    }
   }
 }

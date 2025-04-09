@@ -58,13 +58,6 @@ export class ResCreateUser {
   uuid: string;
 }
 
-export class ResVerificationSend {
-  /**
-   * 리트라이 타임
-   */
-  retry_msec: number;
-}
-
 export class ResDuplicatedCheck {
   /**
    * 중복 여부 true: 중복 / false: 중복 X

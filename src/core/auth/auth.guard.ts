@@ -8,9 +8,7 @@ import { SessionUser } from './auth.schema';
 import { AuthService } from './auth.service';
 
 /**
- *
- * @param verification 이메일 인증 여부 확인
- * @returns
+ * Auth Guard
  */
 @Injectable()
 export class AuthGuard implements CanActivate {

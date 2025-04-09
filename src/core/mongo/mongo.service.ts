@@ -16,7 +16,7 @@ export class MongoService implements OnModuleDestroy {
       if (db.active == false) {
         continue;
       }
-      const host = `mongodb://${db.host}:${db.port}`;
+      const host = `mongodb://${db.hosts.join(',')}/?replicaSet=${db.replica_set}`;
       const ucon = mongoose.createConnection(host, {
         dbName: db.db_name,
         user: db.user_name,

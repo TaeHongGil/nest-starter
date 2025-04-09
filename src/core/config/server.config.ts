@@ -26,15 +26,6 @@ export class ServerConfig {
     servers: [],
   };
 
-  static account: AccountConfig = {
-    verification: {
-      active: false,
-      url_host: '',
-      expires_msec: 0,
-      retry_msec: 0,
-    },
-  };
-
   static paths: PathConfig = {
     root: '',
     env: '',
@@ -132,10 +123,10 @@ export interface DBConfig {
  */
 export interface MongoConfig {
   active: boolean;
-  host: string;
+  hosts: string[];
+  replica_set: string;
   auth_source: string;
   db_name: string;
-  port: number;
   user_name: string;
   password: string;
   min_pool_size: number;
@@ -155,18 +146,6 @@ export interface RedisConfig {
   password: string;
   tls: boolean;
   db: number;
-}
-
-/**
- * 계정 설정
- */
-export interface AccountConfig {
-  verification: {
-    active: boolean;
-    url_host: string;
-    expires_msec: number;
-    retry_msec: number;
-  };
 }
 
 /**
