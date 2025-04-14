@@ -11,48 +11,29 @@ import { DBAccount, DBAccountSchema } from './account.schema';
 export class AccountRepository implements OnModuleInit {
   private model: Model<DBAccount>;
 
-  constructor(
-    readonly mongo: MongoService,
-    readonly redis: RedisService,
-  ) {}
+  constructor(readonly redis: RedisService) {}
 
   async onModuleInit(): Promise<void> {
-    this.model = this.mongo.getGlobalClient().model<DBAccount>(DBAccount.name, DBAccountSchema);
-    await this.model.createIndexes();
+    this.model = MongoService.getGlobalClient().model<DBAccount>(DBAccount.name, DBAccountSchema);
+    await this.model.syncIndexes();
   }
 
   async findOne(filter: Partial<DBAccount>): Promise<DBAccount> {
-    const result = await this.model.findOne(filter).select('-_id').lean();
+    const session = MongoService.getCurrentSession();
+    const result = await this.model.findOne(filter).select('-_id').session(session).lean();
 
     return plainToInstance(DBAccount, result) || undefined;
   }
 
   async delete(useridx: number): Promise<boolean> {
-    const result = await this.model.deleteOne({ useridx }).lean();
-
+    const session = MongoService.getCurrentSession();
+    const result = await this.model.deleteOne({ useridx }).session(session).lean();
     return result.deletedCount > 0;
   }
 
-  /**
-   *
-   * @param account
-   * @param ttl_msec 0일 경우 제거
-   * @returns
-   */
-  async upsert(account: DBAccount, ttl_msec?: number): Promise<DBAccount> {
-    const updateData: any = { ...account };
-    const update: any = { $set: updateData };
-
-    if (ttl_msec !== undefined) {
-      if (ttl_msec > 0) {
-        update.$set.expires_at = new Date(Date.now() + ttl_msec);
-      } else {
-        delete update.$set.expires_at;
-        update.$unset = { expires_at: '' };
-      }
-    }
-    await this.model.findOneAndUpdate({ useridx: account.useridx }, update, { new: true, upsert: true }).lean();
-
+  async upsert(account: DBAccount): Promise<DBAccount> {
+    const session = MongoService.getCurrentSession();
+    await this.model.findOneAndUpdate({ useridx: account.useridx }, account, { new: true, upsert: true }).session(session).lean();
     return account;
   }
 

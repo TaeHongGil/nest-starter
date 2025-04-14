@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Post, Query, Req, Session, SetMetadata, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query, Session, SetMetadata, UseGuards } from '@nestjs/common';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
 import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
 import { CUSTOM_METADATA } from '@root/core/define/define';
-import { Request } from 'express';
+import ServerError from '@root/core/error/server.error';
+import { MongoTransaction } from '@root/core/mongo/mongo.service';
 import { ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../common/request.dto';
 import { ResCreateUser as ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../common/response.dto';
 import { AccountPlatformService } from '../service/account/account.platform.service';
@@ -13,7 +14,7 @@ import { AccountService } from '../service/account/account.service';
 /**
  * 게임 계정 및 인증 처리
  */
-@Controller('account')
+@Controller({ path: 'account', version: '1' })
 export class AccountController {
   constructor(
     private readonly accountService: AccountService,
@@ -77,7 +78,9 @@ export class AccountController {
   @UseGuards(AuthGuard)
   async getAccount(@Session() session: SessionData): Promise<ResGetAccount> {
     const account = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
-
+    if (!account) {
+      throw ServerError.USER_NOT_FOUND;
+    }
     return { nickname: account.nickname };
   }
 
@@ -87,6 +90,9 @@ export class AccountController {
   @Get('/check/nickname')
   @UseGuards(NoAuthGuard)
   async checkNickname(@Session() session: SessionData, @Query('nickname') nickname: string): Promise<ResDuplicatedCheck> {
+    if (!nickname || !nickname.trim()) {
+      throw ServerError.BAD_REQUEST;
+    }
     const account = await this.accountService.getAccountByNicknameAsync(nickname);
 
     return { result: account ? true : false };
@@ -98,7 +104,7 @@ export class AccountController {
   @Post('/logout')
   @UseGuards(AuthGuard)
   @SetMetadata(CUSTOM_METADATA.NOT_VERIFIED, true)
-  async logout(@Session() session: SessionData, @Req() req: Request): Promise<any> {
+  async logout(@Session() session: SessionData): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);
     await this.authService.deleteRefreshTokenAsync(session.user.useridx);
 
@@ -110,7 +116,8 @@ export class AccountController {
    */
   @Delete('/delete')
   @UseGuards(AuthGuard)
-  async deleteAccount(@Session() session: SessionData, @Req() req: Request): Promise<any> {
+  @MongoTransaction()
+  async deleteAccount(@Session() session: SessionData): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);
     await this.authService.deleteRefreshTokenAsync(session.user.useridx);
     await this.accountService.deleteAccountAsync(session.user.useridx);

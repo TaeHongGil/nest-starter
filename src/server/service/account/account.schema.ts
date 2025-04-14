@@ -35,10 +35,6 @@ export class DBAccount {
   @Prop()
   @Expose()
   updated_at?: Date;
-
-  @Prop()
-  @Expose()
-  expires_at?: Date;
 }
 
 export const DBAccountSchema = SchemaFactory.createForClass(DBAccount).index({ expires_at: 1 }, { expireAfterSeconds: 0 });

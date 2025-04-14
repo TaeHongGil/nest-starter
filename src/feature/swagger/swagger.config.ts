@@ -19,7 +19,7 @@ class SwaggerConfig {
     this.options = {
       includeModules: [AppModule, ServerModule],
       config: {
-        token: { api: ['/account/guest/login', '/account/platform/login'], body: 'data.jwt.access_token' },
+        token: { api: ['/v1/account/guest/login', '/v1/account/platform/login'], body: 'data.jwt.access_token' },
         header: {},
       },
     };

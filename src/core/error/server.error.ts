@@ -60,6 +60,18 @@ class ServerError {
   static get TOO_MANY_REQUEST(): HttpException {
     return new HttpException('too many requests', HttpStatus.TOO_MANY_REQUESTS);
   }
+
+  static get MONGO_CONNECTION_NOT_FOUND(): HttpException {
+    return new HttpException('MongoDB connection not found', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  static get MONGO_SESSION_NOT_FOUND(): HttpException {
+    return new HttpException('MongoDB session not found', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  static get MONGO_COMMIT_FAILED(): HttpException {
+    return new HttpException('MongoDB commit failed', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 }
 
 export default ServerError;

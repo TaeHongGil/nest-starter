@@ -1,4 +1,4 @@
-import { BadRequestException, ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import ServerConfig from '@root/core/config/server.config';
@@ -11,9 +11,12 @@ import { RedisService } from './core/redis/redis.service';
 import { ServerLogger } from './core/server-log/server.log.service';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
   await ServerConfig.init();
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
   await onBeforeModuleInit(app);
   setHelmet(app);
   setAplication(app);

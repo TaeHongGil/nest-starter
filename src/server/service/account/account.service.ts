@@ -25,8 +25,8 @@ export class AccountService {
     return await this.repository.findOne({ nickname });
   }
 
-  async upsertAccountAsync(account: DBAccount, ttl_msec?: number): Promise<DBAccount> {
-    return await this.repository.upsert(account, ttl_msec);
+  async upsertAccountAsync(account: DBAccount): Promise<DBAccount> {
+    return await this.repository.upsert(account);
   }
 
   async deleteAccountAsync(useridx: number): Promise<boolean> {
