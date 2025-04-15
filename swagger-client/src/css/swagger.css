@@ -158,3 +158,21 @@
 .gutter.gutter-vertical:active {
   background-color: #999;
 }
+
+.query-table-container {
+  color: white !important;
+  padding: 20px;
+}
+
+.query-table-header {
+  font-weight: bold !important;
+  color: white !important;
+}
+
+.query-table-cell {
+  color: white !important;
+}
+
+.query-text-field {
+  background-color: white;
+}

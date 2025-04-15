@@ -4,8 +4,8 @@ class NGSCommonUtil {
   static copyToClipboard = (text: string) => {
     navigator.clipboard
       .writeText(text)
-      .then(() => NGSMessage.info(`클립보드에 복사되었습니다.`))
-      .catch((err) => NGSMessage.error(`복사 실패: ${err}`));
+      .then(() => NGSMessage.info(`Copied to clipboard.`))
+      .catch((err) => NGSMessage.error(`Copy failed: ${err}`));
   };
 }
 

@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 
 /**
- * Context 관련 유틸리티 (Toast, Modal ...)
+ * Context-related utilities (Toast, Modal, etc.)
  */
 class NGSMessage {
   static error(message: string, delay = 3000): string {

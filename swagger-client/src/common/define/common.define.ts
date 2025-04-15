@@ -1,19 +1,5 @@
 /**
- * 컴포넌트 색상 타입
- */
-export enum COLOR_TYPE {
-  PRIMARY = 'primary',
-  SECONDARY = 'secondary',
-  SUCCESS = 'success',
-  DANGER = 'danger',
-  WARNING = 'warning',
-  INFO = 'info',
-  DARK = 'dark',
-  LIGHT = 'light',
-}
-
-/**
- * 서비스 TYPE 종류
+ * Service TYPE categories
  */
 export enum SERVER_TYPE {
   TEST = 'test',
@@ -26,7 +12,7 @@ export enum SERVER_TYPE {
 }
 
 /**
- * http method 타입
+ * HTTP method types
  */
 export enum METHOD_TYPE {
   GET = 'GET',

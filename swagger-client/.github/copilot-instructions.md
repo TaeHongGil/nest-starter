@@ -1,11 +1,11 @@
-다음과 같은 조건으로 답해라.
+Answer under the following conditions:
 
-- typescript 사용하는 클라이언트 프로젝트이다.
+- The project is a TypeScript-based client project.
 
-- vite + react + @mui/material 라이브러리를 사용한다.
+- It uses vite + react + @mui/material libraries.
 
-- 한국말로 답해라.
+- Answer in Korean.
 
-- 간결하게 답해라.
+- Be concise.
 
-- 항상 코드에 알맞은 타입을 설정해라.
+- Always provide appropriate types for the code.

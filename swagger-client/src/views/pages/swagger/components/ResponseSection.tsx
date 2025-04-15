@@ -42,6 +42,7 @@ const ResponseSection = observer(({ store }: SwaggerResponseProps) => {
                 onClick={async () => {
                   await store.updateCurrentApiData(item.data);
                   store.updateRequestBody(item.data.request.body);
+                  store.updateRequestQuery(item.data.request.query);
                   handleMenuClose();
                 }}
               >

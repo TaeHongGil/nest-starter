@@ -6,7 +6,7 @@ import { CacheService } from '@root/core/cache/cache.service';
 import { CUSTOM_METADATA } from '@root/core/define/define';
 import ServerError from '@root/core/error/server.error';
 import { MongoTransaction } from '@root/core/mongo/mongo.service';
-import { ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../common/request.dto';
+import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../common/request.dto';
 import { ResCreateUser as ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../common/response.dto';
 import { AccountPlatformService } from '../service/account/account.platform.service';
 import { AccountService } from '../service/account/account.service';
@@ -89,11 +89,11 @@ export class AccountController {
    */
   @Get('/check/nickname')
   @UseGuards(NoAuthGuard)
-  async checkNickname(@Session() session: SessionData, @Query('nickname') nickname: string): Promise<ResDuplicatedCheck> {
-    if (!nickname || !nickname.trim()) {
+  async checkNickname(@Session() session: SessionData, @Query() req: ReqCheckNickname): Promise<ResDuplicatedCheck> {
+    if (!req.nickname || !req.nickname.trim()) {
       throw ServerError.BAD_REQUEST;
     }
-    const account = await this.accountService.getAccountByNicknameAsync(nickname);
+    const account = await this.accountService.getAccountByNicknameAsync(req.nickname);
 
     return { result: account ? true : false };
   }

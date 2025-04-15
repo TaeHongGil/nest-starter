@@ -1,6 +1,7 @@
 import { linter } from '@codemirror/lint';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Button, ButtonGroup, Card, Divider, Tab, Typography } from '@mui/material';
+import { METHOD_TYPE } from '@root/common/define/common.define';
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { json5, json5ParseLinter } from 'codemirror-json5';
 import { observer } from 'mobx-react';
@@ -8,10 +9,12 @@ import { useState } from 'react';
 import Split from 'react-split';
 import { SwaggerProps } from '../Swagger';
 import { MethodTag } from './MethodTag';
+import QueryTable from './QueryTable';
 
 const ReqeustSection = observer(({ store }: SwaggerProps) => {
-  const [requestActiveTab, setRequestActiveTab] = useState('body');
-
+  const [requestActiveTab, setRequestActiveTab] = useState<string>('1');
+  const path = store.pathData.path;
+  const method = store.pathData.method;
   const handleChange = (event: React.SyntheticEvent, tab: string) => {
     setRequestActiveTab(tab);
   };
@@ -37,30 +40,31 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
     <Card style={{ height: '100%', overflow: 'hidden' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px' }}>
         <div>
-          <MethodTag method={store.pathData.method} />
-          <span>{store.pathData.path}</span>
+          <MethodTag method={method} />
+          <span>{path}</span>
         </div>
         <div>
-          <Button
-            color="primary"
-            variant="contained"
-            size="small"
-            sx={{ marginRight: 1 }}
-            onClick={async () => {
-              store.formatRequestBody();
-            }}
-            disableElevation
-            disableFocusRipple
-            disableRipple
-          >
-            Format
-          </Button>
+          {method !== METHOD_TYPE.GET && (
+            <Button
+              color="primary"
+              variant="contained"
+              size="small"
+              sx={{ marginRight: 1 }}
+              onClick={async () => {
+                store.formatRequestBody();
+              }}
+              disableElevation
+              disableFocusRipple
+              disableRipple
+            >
+              Format
+            </Button>
+          )}
           <ButtonGroup variant="contained" size="small" disableElevation disableFocusRipple disableRipple>
             <Button
               color="error"
               onClick={async () => {
                 await store.resetRequest();
-                store.updateRequestBody(store.getCurrentData().request.body);
               }}
             >
               Reset
@@ -81,22 +85,28 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <TabContext value={requestActiveTab}>
             <TabList onChange={handleChange} className="swagger-tab-list" textColor="inherit">
-              <Tab label="Schema" value="schema" />
-              <Tab label="Request Body" value="body" />
+              <Tab label="Schema" value="0" />
+              {method === METHOD_TYPE.GET ? <Tab label="Query" value="1" /> : <Tab label="Request Body" value="1" />}
             </TabList>
             <div style={{ flex: 1, overflow: 'hidden' }}>
-              <TabPanel value="schema" className="swagger-panel">
+              <TabPanel value="0" className="swagger-panel">
                 <ReactCodeMirror height="100%" value={store.getSchemaString()} basicSetup={{ tabSize: 4 }} theme="dark" extensions={[json5(), EditorView.lineWrapping]} readOnly />
               </TabPanel>
-              <TabPanel value="body" className="swagger-panel">
-                <ReactCodeMirror
-                  value={store.requestBody}
-                  basicSetup={{ tabSize: 4 }}
-                  theme="dark"
-                  extensions={[json5(), EditorView.lineWrapping, linter(json5ParseLinter())]}
-                  onChange={(value) => store.updateRequestBody(value)}
-                />
-              </TabPanel>
+              {method === METHOD_TYPE.GET ? (
+                <TabPanel value="1" className="swagger-panel">
+                  <QueryTable store={store} />
+                </TabPanel>
+              ) : (
+                <TabPanel value="1" className="swagger-panel">
+                  <ReactCodeMirror
+                    value={store.requestBody}
+                    basicSetup={{ tabSize: 4 }}
+                    theme="dark"
+                    extensions={[json5(), EditorView.lineWrapping, linter(json5ParseLinter())]}
+                    onChange={(value) => store.updateRequestBody(value)}
+                  />
+                </TabPanel>
+              )}
             </div>
           </TabContext>
         </div>

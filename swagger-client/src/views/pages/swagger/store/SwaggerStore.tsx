@@ -14,6 +14,7 @@ type SwaggerGlobalHeader = Record<string, string>;
 
 interface SwaggerData {
   request: {
+    query: Record<string, any>;
     body: string;
   };
   response: {
@@ -33,6 +34,7 @@ export class SwaggerStore {
   history: SwaggerHistory;
   globalHeader: SwaggerGlobalHeader;
   requestBody: string;
+  requestQuery: Record<string, any>;
   pathData: PathData;
   activeGameUrl: string;
   gameUrls: string[];
@@ -50,6 +52,7 @@ export class SwaggerStore {
     this.gameUrls = [];
     this.activeGameUrl = '';
     this.requestBody = '';
+    this.requestQuery = {};
     this.pathData = { method: METHOD_TYPE.GET, path: '' };
   }
 
@@ -78,7 +81,9 @@ export class SwaggerStore {
       this.activeGameUrl = activeGameUrl;
       this.pathData = path;
     });
-    this.updateRequestBody(this.getCurrentData().request.body);
+    const data = this.getCurrentData();
+    this.updateRequestBody(data.request.body);
+    this.updateRequestQuery(data.request.query);
     this.refresh();
   }
 
@@ -115,26 +120,27 @@ export class SwaggerStore {
 
   async sendRequest(): Promise<void> {
     if (!this.pathData || !this.requestBody) {
-      NGSMessage.error('path and body are required to send a request.');
+      NGSMessage.error('Path and body are required to send a request.');
       return;
     }
-
-    let parsedBody;
+    const method = this.pathData.method;
+    const path = this.pathData.path;
+    let params;
     try {
-      parsedBody = JSON5.parse(this.requestBody);
+      params = method == METHOD_TYPE.GET ? this.requestQuery : JSON5.parse(this.requestBody);
     } catch (error: any) {
       NGSMessage.error(`Invalid JSON format: ${error.message}`);
       return;
     }
 
     try {
-      const result = await HttpUtil.request(this.pathData.method, this.pathData.path, parsedBody, this.globalHeader);
+      const result = await HttpUtil.request(method, path, params, this.globalHeader);
+      console.log(result);
 
       const data: SwaggerData = {
-        request: { body: this.formatRequestBody() },
+        request: { body: this.formatRequestBody(), query: this.requestQuery },
         response: { headers: JSON.stringify(result.headers, null, 4), body: JSON.stringify(result.data, null, 4) },
       };
-
       await this.setAuthorization(result.data);
       await this.updateHistory(data);
       await this.updateCurrentApiData(data);
@@ -150,7 +156,7 @@ export class SwaggerStore {
       this.updateRequestBody(formattedLines);
       return formattedLines;
     } catch (e: any) {
-      NGSMessage.error('JSON 포맷에 실패했습니다.');
+      NGSMessage.error('Failed to format JSON.');
       console.error(e);
       return this.requestBody;
     }
@@ -162,6 +168,9 @@ export class SwaggerStore {
 
   async resetRequest(): Promise<void> {
     delete this.currentApi[this.getApiKey()];
+    const data = this.getCurrentData();
+    this.updateRequestBody(data.request.body);
+    this.updateRequestQuery(data.request.query);
     await this.saveLocalStorage('api', this.currentApi);
   }
 
@@ -235,7 +244,7 @@ export class SwaggerStore {
 
   getCurrentData(): SwaggerData {
     const data: SwaggerData = this.currentApi[this.getApiKey()] ?? {
-      request: { body: this.toSchemaString(this.getCurrentSchmea()) },
+      request: { body: this.toSchemaString(this.getCurrentSchmea()), query: {} },
       response: { headers: '', body: '' },
     };
     return data;
@@ -261,6 +270,12 @@ export class SwaggerStore {
   updateRequestBody(body: string) {
     runInAction(() => {
       this.requestBody = body;
+    });
+  }
+
+  updateRequestQuery(params: Record<string, any>) {
+    runInAction(() => {
+      this.requestQuery = params;
     });
   }
 
@@ -295,7 +310,9 @@ export class SwaggerStore {
     runInAction(() => {
       this.pathData = path;
     });
-    this.updateRequestBody(this.getCurrentData().request.body);
+    const data = this.getCurrentData();
+    this.updateRequestBody(data.request.body);
+    this.updateRequestQuery(data.request.query);
     await this.saveLocalStorage('path', path);
   }
 
