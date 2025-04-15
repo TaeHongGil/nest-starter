@@ -41,7 +41,6 @@ async function bootstrap(): Promise<void> {
       process.stdout.write('\x1b[2J\x1b[0f');
       console.log('\x1b[36m%s\x1b[0m', data);
       console.log(`Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
-      console.log(`Swagger Url: \x1b[0m \x1b[32m${appUrl}/swagger\x1b[0m\n`);
     });
   }
 }
