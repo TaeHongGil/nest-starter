@@ -1,5 +1,7 @@
+import dayjs from 'dayjs';
+
 export class CommonResponse {
-  timestamp: Date;
+  timestamp: string;
   data?: any;
   error?: Error;
 
@@ -15,12 +17,12 @@ export class CommonResponse {
 }
 
 export class CommonResponseBuilder {
-  timestamp: Date;
+  timestamp: string;
   data?: any;
   error?: any;
 
   constructor() {
-    this.timestamp = new Date();
+    this.timestamp = dayjs.tz().format();
   }
 
   setData(data: any): this {
@@ -36,7 +38,7 @@ export class CommonResponseBuilder {
     return this;
   }
 
-  setTimestamp(timestamp: Date): this {
+  setTimestamp(timestamp: string): this {
     this.timestamp = timestamp;
 
     return this;

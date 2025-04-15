@@ -9,6 +9,7 @@ generator.generate({
       controllerFileNameSuffix: ['.controller.ts'],
       classValidatorShim: true,
       pathToSource: __dirname,
+      controllerKeyOfComment: 'description',
       introspectComments: true,
     }),
   ],

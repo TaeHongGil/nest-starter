@@ -3,6 +3,9 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import ServerConfig from '@root/core/config/server.config';
 import { ValidationError } from 'class-validator';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { AppModule } from './app.module';
 import { GlobalExceptionsFilter } from './core/error/GlobalExceptionsFilter';
 import { ResponseInterceptor } from './core/interceptor/response.interceptor';
@@ -10,12 +13,17 @@ import { MongoService } from './core/mongo/mongo.service';
 import { RedisService } from './core/redis/redis.service';
 import { ServerLogger } from './core/server-log/server.log.service';
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('UTC');
+
 async function bootstrap(): Promise<void> {
   await ServerConfig.init();
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableVersioning({
     type: VersioningType.URI,
+    defaultVersion: ServerConfig.version,
   });
   await onBeforeModuleInit(app);
   setHelmet(app);
@@ -55,6 +63,9 @@ async function onBeforeModuleInit(app: NestExpressApplication): Promise<{ redisS
 
 function setHelmet(app: NestExpressApplication): void {
   if (ServerConfig.dev === true) {
+    app.enableCors({
+      origin: '*',
+    });
     return;
   }
   /**

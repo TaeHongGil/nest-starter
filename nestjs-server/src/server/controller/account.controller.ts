@@ -14,7 +14,7 @@ import { AccountService } from '../service/account/account.service';
 /**
  * 게임 계정 및 인증 처리
  */
-@Controller({ path: 'account', version: '1' })
+@Controller('account')
 export class AccountController {
   constructor(
     private readonly accountService: AccountService,

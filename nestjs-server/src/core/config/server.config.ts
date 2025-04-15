@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export class ServerConfig {
+  static version: string = '1';
   static serverType: string = 'local';
   static port: number = 80;
   static dev: boolean = true;

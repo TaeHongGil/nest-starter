@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "docker compose down && docker compose up -d",
       "options": {
-        "cwd": "${workspaceFolder}/docker-local-db"
+        "cwd": "${workspaceFolder}/../docker-local-db"
       }
     },
     {
@@ -14,7 +14,7 @@
       "type": "shell",
       "command": "docker compose down",
       "options": {
-        "cwd": "${workspaceFolder}/docker-local-db"
+        "cwd": "${workspaceFolder}/../docker-local-db"
       }
     }
   ]

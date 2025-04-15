@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtPayload } from 'jsonwebtoken';
 import ServerConfig from '../config/server.config';
@@ -7,10 +7,8 @@ import CryptUtil from '../utils/crypt.utils';
 import { SessionUser } from './auth.schema';
 import { AuthService } from './auth.service';
 
-/**
- * Auth Guard
- */
 @Injectable()
+@SetMetadata('swagger/summary', '인증필요')
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly authService: AuthService,
@@ -41,6 +39,7 @@ export class AuthGuard implements CanActivate {
 }
 
 @Injectable()
+@SetMetadata('swagger/summary', '미인증')
 export class NoAuthGuard implements CanActivate {
   constructor(private readonly authService: AuthService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {

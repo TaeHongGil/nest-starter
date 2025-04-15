@@ -1,13 +1,14 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import ServerConfig from '@root/core/config/server.config';
 import { AppService } from './app.service';
 
 @Controller('')
-@ApiTags('App')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  /**
+   * 하트비트
+   */
   @Get('/')
   healthCheck(): any {
     return {
@@ -15,10 +16,12 @@ export class AppController {
     };
   }
 
+  /**
+   * 서버 정보
+   */
   @Get('/info')
   getInfo(): any {
     return {
-      serverType: ServerConfig.serverType,
       platform: ServerConfig.platform,
     };
   }

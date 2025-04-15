@@ -19,22 +19,23 @@ class SwaggerConfig {
     this.options = {
       includeModules: [AppModule, ServerModule],
       config: {
-        token: { api: ['/v1/account/guest/login', '/v1/account/platform/login'], body: 'data.jwt.access_token' },
+        version: `v${ServerConfig.version}`,
+        token: {
+          [`v${ServerConfig.version}/account/guest/login`]: 'data.jwt.access_token',
+          [`v${ServerConfig.version}/account/platform/login`]: 'data.jwt.access_token',
+        },
         header: {},
       },
     };
-
     const address = ServerConfig.swagger.servers;
     if (address) {
-      for (const zone of Object.keys(this.servers)) {
-        this.servers[zone] = address[zone] || '';
+      for (const server_type of Object.keys(this.servers)) {
+        this.servers[server_type] = address[server_type] || '';
       }
     }
     if (ServerConfig.serverType == SERVER_TYPE.LOCAL) {
       this.servers.local = `http://localhost:${ServerConfig.port}`;
     }
-
-    return;
   }
 }
 
@@ -52,7 +53,8 @@ export interface SwaggerOptions {
    * header: 추가할 기본 헤더 (Authorization 제외)
    */
   config?: {
-    token?: { api: string[]; body: string };
+    version?: string;
+    token?: Record<string, string>;
     header?: Record<string, any>;
   };
 }

@@ -49,7 +49,7 @@ export class AccountRepository implements OnModuleInit {
     const accountWithLoginDate = {
       useridx: account.useridx,
       nickname: account.nickname,
-      login_date: new Date().toISOString(),
+      login_date: new Date().toDateString(),
     };
     await client.set(ServerRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: LOGIN_STATE.EXPIRES_SEC });
 
