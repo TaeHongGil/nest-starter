@@ -3,6 +3,8 @@ import HttpUtil from '@root/common/util/http.util';
 import { observer } from 'mobx-react';
 import { SwaggerProps } from '../../Swagger';
 
+const IGNORED_KEYS = ['type', 'description', '$ref', 'properties', 'items', 'required', 'default', 'allOf'];
+
 const QueryTable = observer(({ store }: SwaggerProps) => {
   const schmea = store.getCurrentPathInfo();
 
@@ -51,7 +53,7 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
           },
         }}
       />
-      <Typography color="white" variant="subtitle1" marginTop={1}>
+      <Typography variant="subtitle1" marginTop={1}>
         Query Parameters
       </Typography>
       <Table>
@@ -61,6 +63,7 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
             <TableCell>Data</TableCell>
             <TableCell>Type</TableCell>
             <TableCell>Description</TableCell>
+            <TableCell>Details</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -68,14 +71,17 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
             if (data.in !== 'query') return null;
             return (
               <TableRow key={data.name}>
-                <TableCell>{data.name}</TableCell>
+                <TableCell>
+                  {data.name}
+                  {data.required ? <span style={{ color: 'red' }}>*</span> : ''}
+                </TableCell>
                 <TableCell>
                   <TextField
                     className="query-text-field"
                     variant="outlined"
                     size="small"
                     fullWidth
-                    placeholder="Enter value"
+                    placeholder={`Enter value ${data.required ? '(required)' : ''}`}
                     value={store.requestQuery[data.name] || ''}
                     type={data.schema.type === 'number' ? 'number' : 'text'}
                     onChange={(e) => handleInputChange(data.name, e.target.value, data.schema.type)}
@@ -83,6 +89,13 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
                 </TableCell>
                 <TableCell>{data.schema.type}</TableCell>
                 <TableCell>{data.description}</TableCell>
+                <TableCell>
+                  {Object.entries(data.schema)
+                    .filter(([key]) => !IGNORED_KEYS.includes(key))
+                    .map(([key, value]) => (
+                      <div key={key}>{`${key}: ${value}`}</div>
+                    ))}
+                </TableCell>
               </TableRow>
             );
           })}

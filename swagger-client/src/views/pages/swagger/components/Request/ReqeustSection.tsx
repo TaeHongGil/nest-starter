@@ -9,7 +9,6 @@ import { useState } from 'react';
 import Split from 'react-split';
 import { SwaggerProps } from '../../Swagger';
 import { MethodTag } from '../MethodTag';
-import QuerySchemaTable from './QuerySchemaTable';
 import QueryTable from './QueryTable';
 import SchemaTable from './SchemaTable';
 
@@ -17,6 +16,8 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
   const [requestActiveTab, setRequestActiveTab] = useState<string>('1');
   const path = store.pathData.path;
   const method = store.pathData.method;
+  const isGet = method === METHOD_TYPE.GET;
+
   const handleChange = (event: React.SyntheticEvent, tab: string) => {
     setRequestActiveTab(tab);
   };
@@ -46,7 +47,7 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
           <span>{path}</span>
         </div>
         <div>
-          {method !== METHOD_TYPE.GET && (
+          {!isGet && (
             <Button
               color="primary"
               variant="contained"
@@ -88,13 +89,19 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
           <TabContext value={requestActiveTab}>
             <TabList onChange={handleChange} textColor="inherit">
               <Tab label="Schema" value="0" />
-              {method === METHOD_TYPE.GET ? <Tab label="Query" value="1" /> : <Tab label="Request Body" value="1" />}
+              {isGet ? <Tab label="Query" value="1" /> : <Tab label="Request Body" value="1" />}
             </TabList>
             <div style={{ flex: 1, overflow: 'hidden' }}>
               <TabPanel value="0" className="swagger-panel">
-                {method === METHOD_TYPE.GET ? <QuerySchemaTable store={store} /> : <SchemaTable store={store} />}
+                {isGet ? (
+                  <Typography variant="subtitle1" padding={2}>
+                    not found data
+                  </Typography>
+                ) : (
+                  <SchemaTable store={store} />
+                )}
               </TabPanel>
-              {method === METHOD_TYPE.GET ? (
+              {isGet ? (
                 <TabPanel value="1" className="swagger-panel">
                   <QueryTable store={store} />
                 </TabPanel>

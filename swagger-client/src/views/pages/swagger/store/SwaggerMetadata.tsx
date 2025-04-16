@@ -13,6 +13,7 @@ class SwaggerMetadata {
 
   constructor(metadata: any) {
     window.metadata = metadata;
+    console.log(metadata);
     const spec = metadata.spec;
     this.schema = spec.components?.schemas;
     this.paths = spec.paths;

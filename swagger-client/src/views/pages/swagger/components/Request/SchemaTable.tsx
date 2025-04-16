@@ -16,7 +16,6 @@ const SchemaTableContent: React.FC<{ name: string; schema: any; getType: (detail
       <TableHead>
         <TableRow>
           <TableCell>Name</TableCell>
-          <TableCell>Required</TableCell>
           <TableCell>Type</TableCell>
           <TableCell>Description</TableCell>
           <TableCell>Details</TableCell>
@@ -32,8 +31,10 @@ const SchemaTableContent: React.FC<{ name: string; schema: any; getType: (detail
 
           return (
             <TableRow key={propName}>
-              <TableCell>{propName}</TableCell>
-              <TableCell>{schema.required?.includes(propName) || propDetails.required ? 'true' : 'false'}</TableCell>
+              <TableCell>
+                {propName}
+                {schema.required?.includes(propName) || propDetails.required ? <span style={{ color: 'red' }}>*</span> : ''}
+              </TableCell>
               <TableCell className={childSchemaName ? 'ref-text' : ''}>{type + '[]'.repeat(depth)}</TableCell>
               <TableCell>{CommonUtil.findAllValuesByKey(propDetails, 'description')}</TableCell>
               <TableCell>
