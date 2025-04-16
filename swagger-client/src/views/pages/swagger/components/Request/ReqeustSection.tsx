@@ -99,7 +99,7 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
                   <QueryTable store={store} />
                 </TabPanel>
               ) : (
-                <TabPanel value="1" className="swagger-panel">
+                <TabPanel value="1" className="swagger-panel cusror-text">
                   <ReactCodeMirror value={store.requestBody} extensions={[json5(), EditorView.lineWrapping, linter(json5ParseLinter())]} onChange={(value) => store.updateRequestBody(value)} />
                 </TabPanel>
               )}

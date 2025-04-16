@@ -153,7 +153,7 @@ export class SwaggerStore {
   formatRequestBody(): string {
     try {
       const parsed = JSON5.parse(this.requestBody);
-      const formattedLines = this.addComment(parsed, this.getCurrentSchmea().schema);
+      const formattedLines = this.addComment(parsed, this.getCurrentSchmea()?.schema);
       this.updateRequestBody(formattedLines);
       return formattedLines;
     } catch (e: any) {

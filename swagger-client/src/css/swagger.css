@@ -109,6 +109,10 @@
   overflow-y: auto;
 }
 
+.cusror-text {
+  cursor: text;
+}
+
 .gutter.gutter-horizontal {
   background-color: #e7e7e7;
   transition: background-color 0.3s ease;
@@ -147,4 +151,8 @@
 
 .ͼm {
   color: #000299;
+}
+
+.ͼ1.cm-focused {
+  outline: none;
 }

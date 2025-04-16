@@ -68,10 +68,10 @@ const ResponseSection = observer(({ store }: SwaggerResponseProps) => {
             <Tab label="Body" value="body" />
           </TabList>
           <div style={{ flex: 1, overflow: 'hidden' }}>
-            <TabPanel value="headers" className="swagger-panel">
+            <TabPanel value="headers" className="swagger-panel cusror-text">
               <ReactCodeMirror value={store.getCurrentData().response.headers || 'not found data'} extensions={[json(), EditorView.lineWrapping]} readOnly />
             </TabPanel>
-            <TabPanel value="body" className="swagger-panel">
+            <TabPanel value="body" className="swagger-panel cusror-text">
               <ReactCodeMirror value={store.getCurrentData().response.body || 'not found data'} extensions={[json(), EditorView.lineWrapping]} readOnly />
             </TabPanel>
           </div>

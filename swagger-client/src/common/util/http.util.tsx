@@ -44,7 +44,7 @@ class HttpUtil {
    */
   static previewUrl(url: string, params?: Record<string, any>): string {
     const queryString = qs.stringify(params || {}, { arrayFormat: 'repeat' });
-    return `${ServerConfig.url}${url}?${queryString}`;
+    return `${ServerConfig.url}${url}${queryString ? `?${queryString}` : ''}`;
   }
 }
 
