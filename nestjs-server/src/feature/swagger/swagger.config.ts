@@ -1,9 +1,7 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
-import { AppModule } from '@root/app.module';
 import ServerConfig from '@root/core/config/server.config';
 import { SERVER_TYPE } from '@root/core/define/define';
-import { ServerModule } from '@root/server/server.module';
 
 @Injectable()
 class SwaggerConfig {
@@ -17,7 +15,6 @@ class SwaggerConfig {
 
   static init(): void {
     this.options = {
-      includeModules: [AppModule, ServerModule],
       config: {
         version: `v${ServerConfig.version}`,
         token: {
@@ -43,11 +40,6 @@ class SwaggerConfig {
  * Swagger 옵션
  */
 export interface SwaggerOptions {
-  /**
-   * API 생성할 모듈
-   */
-  includeModules: Type[];
-
   /**
    * token: 인증토큰 받아올 api 및 body주소
    * header: 추가할 기본 헤더 (Authorization 제외)

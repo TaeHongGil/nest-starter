@@ -6,8 +6,8 @@ import { CacheService } from '@root/core/cache/cache.service';
 import { CUSTOM_METADATA } from '@root/core/define/define';
 import ServerError from '@root/core/error/server.error';
 import { MongoTransaction } from '@root/core/mongo/mongo.service';
-import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../common/request.dto';
-import { ResCreateUser as ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../common/response.dto';
+import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../dto/common.request.dto';
+import { ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../dto/common.response.dto';
 import { AccountPlatformService } from '../service/account/account.platform.service';
 import { AccountService } from '../service/account/account.service';
 

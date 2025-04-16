@@ -3,7 +3,7 @@ import { CoreRedisKeys } from '@root/core/define/core.redis.key';
 import { LOGIN_STATE } from '@root/core/define/define';
 import { MongoService } from '@root/core/mongo/mongo.service';
 import { RedisService } from '@root/core/redis/redis.service';
-import { ServerRedisKeys } from '@root/server/define/server.redis.key';
+import { CommonRedisKeys } from '@root/server/common/define/common.redis.key';
 import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
 import { DBAccount, DBAccountSchema } from './account.schema';
@@ -51,14 +51,14 @@ export class AccountRepository implements OnModuleInit {
       nickname: account.nickname,
       login_date: new Date().toDateString(),
     };
-    await client.set(ServerRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: LOGIN_STATE.EXPIRES_SEC });
+    await client.set(CommonRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: LOGIN_STATE.EXPIRES_SEC });
 
     return true;
   }
 
   async deleteLoginState(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
-    await client.del(ServerRedisKeys.getUserStateKey(useridx));
+    await client.del(CommonRedisKeys.getUserStateKey(useridx));
 
     return true;
   }
@@ -66,6 +66,6 @@ export class AccountRepository implements OnModuleInit {
   async refreshLoginState(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
 
-    return await client.expire(ServerRedisKeys.getUserStateKey(useridx), LOGIN_STATE.EXPIRES_SEC);
+    return await client.expire(CommonRedisKeys.getUserStateKey(useridx), LOGIN_STATE.EXPIRES_SEC);
   }
 }

@@ -5,7 +5,7 @@ import { PLATFORM, ROLE } from '@root/core/define/define';
 import ServerError from '@root/core/error/server.error';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import StringUtil from '@root/core/utils/string.utils';
-import { ReqGuestLogin } from '@root/server/common/request.dto';
+import { ReqGuestLogin } from '@root/server/common/dto/common.request.dto';
 import { AccountRepository } from './account.repository';
 import { DBAccount } from './account.schema';
 

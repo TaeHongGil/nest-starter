@@ -7,11 +7,11 @@ import ServerConfig from '@root/core/config/server.config';
 import { SERVER_TYPE } from '@root/core/define/define';
 import { ServerLogger } from '@root/core/server-log/server.log.service';
 import SwaggerConfig from './swagger.config';
-import { SwaggerUtilService } from './swagger.utils.service';
+import { SwaggerUtil } from './swagger.utils';
 
 @Injectable()
 export class SwaggerService {
-  constructor(readonly swaggerUtilService: SwaggerUtilService) {}
+  constructor(readonly swaggerUtil: SwaggerUtil) {}
 
   metadata: Record<string, any>;
   document: OpenAPIObject;
@@ -41,7 +41,7 @@ export class SwaggerService {
       const metadataCache: Promise<Record<string, any>> = metadata();
       const resolvedMetadata = await metadata();
       this.metadata = resolvedMetadata;
-      this.tags = this.swaggerUtilService.applyDecorators(resolvedMetadata);
+      this.tags = this.swaggerUtil.applyDecorators(resolvedMetadata);
       await SwaggerModule.loadPluginMetadata(async () => metadataCache);
     } catch (error) {
       ServerLogger.error('Swagger Metadata Error:', error);
@@ -64,7 +64,6 @@ export class SwaggerService {
     //spec생성
 
     this.document = SwaggerModule.createDocument(app, documentOptions, {
-      include: SwaggerConfig.options.includeModules,
       extraModels: [...modelMetadata],
       deepScanRoutes: true,
     });

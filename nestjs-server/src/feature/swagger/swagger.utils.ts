@@ -4,10 +4,9 @@ import { ModulesContainer, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TagObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
-import SwaggerConfig from './swagger.config';
 
 @Injectable()
-export class SwaggerUtilService {
+export class SwaggerUtil {
   constructor(
     private readonly modulesContainer: ModulesContainer,
     private readonly reflector: Reflector,
@@ -15,14 +14,9 @@ export class SwaggerUtilService {
 
   applyDecorators(metadata: Record<string, any>): TagObject[] {
     const controllerMetadata = metadata['@nestjs/swagger']['controllers'].map((controller: any[]) => controller[1]).reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
-    const includeModules = SwaggerConfig.options.includeModules.map((x) => x.name);
     const controllers = [...this.modulesContainer.values()]
       .flatMap((module) => {
-        if (includeModules.includes(module.metatype?.name)) {
-          return [...module.controllers.values()];
-        }
-
-        return [];
+        return [...module.controllers.values()];
       })
       .filter((wrapper) => wrapper.instance);
 

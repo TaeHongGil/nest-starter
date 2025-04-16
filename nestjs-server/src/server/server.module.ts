@@ -1,11 +1,9 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import { CoreModule } from '@root/core/core.module';
 import { ServerLogger } from '@root/core/server-log/server.log.service';
-import path from 'path';
-import { AccountModule } from './service/account/account.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
-  imports: [AccountModule, CoreModule.registerController(ServerModule, path.join(__dirname, 'controller'), '.controller')],
+  imports: [CommonModule],
   controllers: [],
   providers: [],
   exports: [],

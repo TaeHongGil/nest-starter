@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { JwtInfo } from '@root/server/common/response.dto';
+import { JwtInfo } from '@root/server/common/dto/common.response.dto';
 import { Request } from 'express';
 import ServerConfig from '../config/server.config';
 import ServerError from '../error/server.error';

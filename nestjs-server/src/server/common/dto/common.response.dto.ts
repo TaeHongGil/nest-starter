@@ -46,7 +46,7 @@ export class JwtInfo {
   refresh_token: string;
 }
 
-export class ResCreateUser {
+export class ResCreateGuest {
   /**
    * 유저 닉네임
    */

@@ -4,10 +4,10 @@ import { SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
 import ServerError from '@root/core/error/server.error';
+import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';
-import CryptUtil from '../../core/utils/crypt.utils';
-import { ReqTokenRefresh } from '../common/request.dto';
-import { ResTokenRefresh } from '../common/response.dto';
+import { ReqTokenRefresh } from '../dto/common.request.dto';
+import { ResTokenRefresh } from '../dto/common.response.dto';
 
 /**
  * 게임 계정 및 인증 처리
