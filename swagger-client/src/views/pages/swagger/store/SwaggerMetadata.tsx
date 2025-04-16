@@ -1,15 +1,26 @@
 import { METHOD_TYPE } from '@root/common/define/common.define';
 import CommonUtil from '@root/common/util/common.util';
 
+/**
+ * Swagger 옵션
+ */
+export interface SwaggerOptions {
+  version?: string;
+  token?: Record<string, string>;
+  header?: Record<string, any>;
+}
+
 export interface PathData {
   method: METHOD_TYPE;
   path: string;
 }
 
 class SwaggerMetadata {
-  schema: Record<string, any> = {};
-  paths: Record<string, Record<string, any>> = {};
-  apis: Record<string, PathData[]> = {};
+  schema: Record<string, any>;
+  paths: Record<string, Record<string, any>>;
+  apis: Record<string, PathData[]>;
+  servers: Record<string, string> = {};
+  config: SwaggerOptions;
 
   constructor(metadata: any) {
     window.metadata = metadata;
@@ -18,6 +29,8 @@ class SwaggerMetadata {
     this.schema = spec.components?.schemas;
     this.paths = spec.paths;
     this.apis = this.initApis();
+    this.servers = metadata.servers;
+    this.config = metadata.config;
   }
 
   private initApis(): Record<string, PathData[]> {

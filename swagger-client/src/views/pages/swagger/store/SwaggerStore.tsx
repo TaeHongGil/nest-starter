@@ -37,8 +37,7 @@ export class SwaggerStore {
   requestBody: string;
   requestQuery: Record<string, any>;
   pathData: PathData;
-  activeGameUrl: string;
-  gameUrls: string[];
+  activeServer: string;
 
   refreshTrigger = 0;
 
@@ -50,36 +49,29 @@ export class SwaggerStore {
     this.currentApi = {};
     this.history = {};
     this.globalHeader = {};
-    this.gameUrls = [];
-    this.activeGameUrl = '';
+    this.activeServer = '';
     this.requestBody = '';
     this.requestQuery = {};
     this.pathData = { method: METHOD_TYPE.GET, path: '' };
   }
 
   async init(metadata?: any) {
-    const currentApi = await this.loadLocalStorage<SwaggerCurrentApi>('api', {});
-    const history = await this.loadLocalStorage<SwaggerHistory>('history', {});
-    const globalHeader = await this.loadLocalStorage<SwaggerGlobalHeader>('global_header', {
-      Authorization: '',
-      Version: '0.1.0',
-      BundleVersion: '0.1.0',
-      Platform: '2',
-      seqid: '0',
-      seqcount: '0',
-    });
-    const gameUrls = await this.loadLocalStorage<string[]>('game_urls', [ServerConfig.url]);
-    const activeGameUrl = await this.loadLocalStorage<string>('active_game_url', gameUrls[0]);
-    const path = await this.loadLocalStorage<PathData>('path', { method: METHOD_TYPE.GET, path: '' });
     runInAction(() => {
       if (metadata) {
         this.metadata = new SwaggerMetadata(metadata);
       }
+    });
+    const currentApi = await this.loadLocalStorage<SwaggerCurrentApi>('api', {});
+    const history = await this.loadLocalStorage<SwaggerHistory>('history', {});
+    const globalHeader = await this.loadLocalStorage<SwaggerGlobalHeader>('global_header', this.metadata?.config.header ?? {});
+    const activeServer = await this.loadLocalStorage<string>('active_server', Object.keys(this.metadata?.servers ?? {}).find((key) => this.metadata?.servers[key]) ?? 'local');
+    const path = await this.loadLocalStorage<PathData>('path', { method: METHOD_TYPE.GET, path: `/${this.metadata?.config.version}` });
+
+    runInAction(() => {
       this.currentApi = currentApi;
       this.history = history;
       this.globalHeader = globalHeader;
-      this.gameUrls = gameUrls;
-      this.activeGameUrl = activeGameUrl;
+      this.activeServer = activeServer;
       this.pathData = path;
     });
     const data = this.getCurrentData();
@@ -135,14 +127,15 @@ export class SwaggerStore {
     }
 
     try {
-      const result = await HttpUtil.request(method, path, params, this.globalHeader);
+      const baseUrl = this.metadata?.servers?.[this.activeServer] ?? 'local';
+      const result = await HttpUtil.request(baseUrl, method, path, params, this.globalHeader);
       console.log(result);
 
       const data: SwaggerData = {
         request: { body: this.formatRequestBody(), query: this.requestQuery },
         response: { headers: JSON.stringify(result.headers, null, 2), body: JSON.stringify(result.data, null, 2) },
       };
-      await this.setAuthorization(result.data);
+      await this.setAuthorization(path, result.data);
       await this.updateHistory(data);
       await this.updateCurrentApiData(data);
     } catch (error: any) {
@@ -177,7 +170,7 @@ export class SwaggerStore {
 
   async loadMetadataAsync(): Promise<any> {
     try {
-      const result = await HttpUtil.request(METHOD_TYPE.GET, `${ServerConfig.server_version}/swagger`);
+      const result = await HttpUtil.request(ServerConfig.url, METHOD_TYPE.GET, `${ServerConfig.server_version}/swagger`);
       return result.data;
     } catch (error) {
       console.error('Failed to load metadata:', error);
@@ -192,8 +185,8 @@ export class SwaggerStore {
       else if (data.type == 'array') result[field] = [];
       else if (data.type == 'boolean') result[field] = false;
       else if (data.type == 'number') result[field] = 0;
-      else if (data.type == 'string') result[field] = '';
-      else if (data.type == 'date-time') result[field] = new Date().toISOString();
+      else if (data.type == 'string') result[field] = 'string';
+      else if (data.type == 'date-time') result[field] = new Date().toString();
       else if (data.type == 'object') result[field] = {};
       else {
         CommonUtil.findAllValuesByKey(data, '$ref').forEach((ref: string) => {
@@ -207,7 +200,7 @@ export class SwaggerStore {
 
   toSchemaString(schema: any): string {
     if (!schema || !schema.properties) {
-      return '{}';
+      return '{\n}';
     }
     const resultObject = this.toSchemaObject(schema);
     return this.addComment(resultObject, schema);
@@ -261,11 +254,11 @@ export class SwaggerStore {
     });
   }
 
-  async updateGameUrl(url: string) {
+  async updateActiveServer(server: string) {
     runInAction(() => {
-      this.activeGameUrl = url;
+      this.activeServer = server;
     });
-    await this.saveLocalStorage('active_game_url', this.activeGameUrl);
+    await this.saveLocalStorage('active_server', this.activeServer);
   }
 
   async updateHistory(data: SwaggerData): Promise<void> {
@@ -305,13 +298,20 @@ export class SwaggerStore {
     await this.saveLocalStorage('global_header', this.globalHeader);
   }
 
-  async setAuthorization(data: any) {
-    if (!data?.content?.login_result?.token) {
+  async setAuthorization(path: string, data: any) {
+    if (!this.metadata?.config?.token) {
       return;
     }
-    runInAction(() => {
-      this.globalHeader.Authorization = `Bearer ${data?.content?.login_result?.token}`;
-    });
-    await this.updateGlobalHeader(this.globalHeader);
+
+    const tokenPath = this.metadata.config.token[path];
+    if (tokenPath) {
+      const token = tokenPath.split('.').reduce((obj, key) => obj?.[key], data);
+      if (token) {
+        runInAction(() => {
+          this.globalHeader.Authorization = `Bearer ${token}`;
+        });
+        await this.updateGlobalHeader(this.globalHeader);
+      }
+    }
   }
 }

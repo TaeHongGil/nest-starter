@@ -24,7 +24,7 @@ export class ServerConfig {
 
   static swagger: SwaggerConfig = {
     active: false,
-    servers: [],
+    servers: {},
   };
 
   static paths: PathConfig = {
@@ -98,7 +98,7 @@ export interface ServiceConfig {
  */
 export interface SwaggerConfig {
   active: boolean;
-  servers: string[];
+  servers: Record<string, string>;
 }
 
 /**

@@ -1,3 +1,6 @@
+import { DialogHelper } from '@root/components/context/Dialog.context';
+import { LoadingHelper } from '@root/components/context/Loading.context';
+import { ToastHelper } from '@root/components/context/Toast.context';
 import { ReactNode } from 'react';
 
 /**
@@ -5,31 +8,36 @@ import { ReactNode } from 'react';
  */
 class MessageUtil {
   static error(message: string, delay = 3000): string {
-    // ToastHelper.addToast(message, COLOR_TYPE.DANGER, delay);
+    ToastHelper.addToast(message, 'error', delay);
     return message;
   }
 
   static info(message: string, delay = 3000): string {
-    // ToastHelper.addToast(message, COLOR_TYPE.INFO, delay);
+    ToastHelper.addToast(message, 'info', delay);
     return message;
   }
 
-  static success(message: string, delay = 1000): string {
-    // ToastHelper.addToast(message, COLOR_TYPE.SUCCESS, delay);
+  static success(message: string, delay = 2000): string {
+    ToastHelper.addToast(message, 'success', delay);
     return message;
   }
 
-  static async dialogAsync(message: string | ReactNode, alert?: string): Promise<boolean | undefined> {
-    const option = alert ? { alert } : {};
-    return true;
+  static async dialogAsync(title: string, message: string | ReactNode): Promise<boolean | undefined> {
+    const result = await DialogHelper.showDialog(title, message);
+    return result;
   }
 
-  static loadingDialog(isShow: boolean, element?: Element) {
-    // if (isShow) {
-    //   LoadingHelper.showLoading(element);
-    // } else {
-    //   LoadingHelper.hideLoading();
-    // }
+  static async formDialogAsync(title: string, initialData: Record<string, string>): Promise<Record<string, string> | undefined> {
+    const result = await DialogHelper.showFormDialog(title, initialData);
+    return result;
+  }
+
+  static loadingProgress(isShow: boolean) {
+    if (isShow) {
+      LoadingHelper.showLoading();
+    } else {
+      LoadingHelper.hideLoading();
+    }
   }
 }
 

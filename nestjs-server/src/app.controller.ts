@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { All, Controller, Get, HttpCode, Req, Version, VERSION_NEUTRAL } from '@nestjs/common';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import ServerConfig from '@root/core/config/server.config';
 import { AppService } from './app.service';
 
@@ -24,5 +25,13 @@ export class AppController {
     return {
       platform: ServerConfig.platform,
     };
+  }
+
+  @All('/favicon.ico')
+  @Version(VERSION_NEUTRAL)
+  @HttpCode(204)
+  @ApiExcludeEndpoint()
+  favicon(@Req() request: Request) {
+    return {};
   }
 }

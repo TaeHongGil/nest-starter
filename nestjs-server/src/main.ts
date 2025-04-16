@@ -37,7 +37,7 @@ async function bootstrap(): Promise<void> {
 
         return;
       }
-      const appUrl = `http://localhost:${ServerConfig.port}`;
+      const appUrl = `http://localhost:${ServerConfig.port}/v${ServerConfig.version}`;
       process.stdout.write('\x1b[2J\x1b[0f');
       console.log('\x1b[36m%s\x1b[0m', data);
       console.log(`Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
@@ -104,8 +104,6 @@ function setAplication(app: NestExpressApplication): void {
     return new BadRequestException(msg);
   };
   const reflector = app.get(Reflector);
-  app.useStaticAssets(ServerConfig.paths.ui.public);
-  app.setBaseViewsDir(ServerConfig.paths.ui.view);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
   app.useGlobalFilters(new GlobalExceptionsFilter());
   app.useGlobalInterceptors(new ResponseInterceptor(reflector));
