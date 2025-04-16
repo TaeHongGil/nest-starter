@@ -1,4 +1,5 @@
 import { METHOD_TYPE } from '@root/common/define/common.define';
+import CommonUtil from '@root/common/util/common.util';
 
 export interface PathData {
   method: METHOD_TYPE;
@@ -6,16 +7,15 @@ export interface PathData {
 }
 
 class SwaggerMetadata {
-  schema: Record<string, any>;
-  paths: Record<string, Record<string, any>>;
-  apis: Record<string, PathData[]>;
+  schema: Record<string, any> = {};
+  paths: Record<string, Record<string, any>> = {};
+  apis: Record<string, PathData[]> = {};
 
   constructor(metadata: any) {
     window.metadata = metadata;
     const spec = metadata.spec;
     this.schema = spec.components?.schemas;
     this.paths = spec.paths;
-    6;
     this.apis = this.initApis();
   }
 
@@ -26,7 +26,7 @@ class SwaggerMetadata {
       for (const [method, methodData] of Object.entries(methods)) {
         const ref = methodData.requestBody?.content?.['application/json']?.schema?.['$ref'];
         if (ref) {
-          const name = this.getSchemaName(ref);
+          const name = SwaggerMetadata.getSchemaName(ref);
           methodData.defaultSchema = {
             name,
             schema: this.getSchema(name),
@@ -49,13 +49,13 @@ class SwaggerMetadata {
   }
 
   getDefaultSchema(method: string, path: string): any {
-    return this.getPath(method, path)?.defaultSchema?.schema;
+    return this.getPath(method, path)?.defaultSchema;
   }
 
   getChildSchema(method: string, path: string): any {
     const result: Record<string, any> = {};
-    SwaggerMetadata.findAllValuesByKey(this.getDefaultSchema(method, path), '$ref').forEach((ref) => {
-      const name = this.getSchemaName(ref);
+    CommonUtil.findAllValuesByKey(this.getDefaultSchema(method, path).schema, '$ref').forEach((ref) => {
+      const name = SwaggerMetadata.getSchemaName(ref);
       result[name] = this.getSchema(name);
     });
     return result;
@@ -65,31 +65,12 @@ class SwaggerMetadata {
     return this.apis;
   }
 
-  getSchemaName(ref: string): string {
+  static getSchemaName(ref: string): string {
     return ref.split('/').pop() || '';
   }
 
   getSchema(name: string): any {
     return this.schema[name];
-  }
-
-  private static findAllValuesByKey(object: any, target: string): any[] {
-    const result: any[] = [];
-
-    function traverse(node: any) {
-      if (Array.isArray(node)) {
-        node.forEach(traverse);
-      } else if (node !== null && typeof node === 'object') {
-        Object.entries(node).forEach(([key, value]) => {
-          if (key === target) {
-            result.push(value);
-          }
-          traverse(value);
-        });
-      }
-    }
-    traverse(object);
-    return result;
   }
 }
 

@@ -1,7 +1,7 @@
 import { json } from '@codemirror/lang-json';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { ButtonGroup, Card, Menu, MenuItem, Button as MuiButton, Tab } from '@mui/material';
-import NGSCommonUtil from '@root/common/util/common.util';
+import { ButtonGroup, Card, Divider, Menu, MenuItem, Button as MuiButton, Tab, Typography } from '@mui/material';
+import CommonUtil from '@root/common/util/common.util';
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { observer } from 'mobx-react';
 import { useState } from 'react';
@@ -30,7 +30,7 @@ const ResponseSection = observer(({ store }: SwaggerResponseProps) => {
   return (
     <Card>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px' }}>
-        Response
+        <Typography>Response</Typography>
         <ButtonGroup variant="contained" size="small" disableElevation disableFocusRipple disableRipple>
           <MuiButton color="info" onClick={handleMenuOpen} className="text-white">
             History
@@ -53,25 +53,26 @@ const ResponseSection = observer(({ store }: SwaggerResponseProps) => {
           <MuiButton
             color="primary"
             onClick={() => {
-              NGSCommonUtil.copyToClipboard(store.getCurrentData().response.body);
+              CommonUtil.copyToClipboard(store.getCurrentData().response.body);
             }}
           >
             Copy
           </MuiButton>
         </ButtonGroup>
       </div>
+      <Divider />
       <div style={{ height: '95%', display: 'flex', flexDirection: 'column' }}>
         <TabContext value={responseActiveTab}>
-          <TabList onChange={handleChange} className="swagger-tab-list" textColor="inherit">
+          <TabList onChange={handleChange} textColor="inherit">
             <Tab label="Header" value="headers" />
             <Tab label="Body" value="body" />
           </TabList>
           <div style={{ flex: 1, overflow: 'hidden' }}>
             <TabPanel value="headers" className="swagger-panel">
-              <ReactCodeMirror value={store.getCurrentData().response.headers || 'not found data'} theme="dark" extensions={[json(), EditorView.lineWrapping]} readOnly />
+              <ReactCodeMirror value={store.getCurrentData().response.headers || 'not found data'} extensions={[json(), EditorView.lineWrapping]} readOnly />
             </TabPanel>
             <TabPanel value="body" className="swagger-panel">
-              <ReactCodeMirror value={store.getCurrentData().response.body || 'not found data'} theme="dark" extensions={[json(), EditorView.lineWrapping]} readOnly />
+              <ReactCodeMirror value={store.getCurrentData().response.body || 'not found data'} extensions={[json(), EditorView.lineWrapping]} readOnly />
             </TabPanel>
           </div>
         </TabContext>

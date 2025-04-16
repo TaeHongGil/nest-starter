@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import Split from 'react-split';
 import { SwaggerProps } from '../Swagger';
 import ApiListSection from './ApiListSection';
-import ReqeustSection from './ReqeustSection';
+import ReqeustSection from './Request/ReqeustSection';
 import ResponseSection from './ResponseSection';
 
 const SwaggerBody = observer(({ store }: SwaggerProps) => (

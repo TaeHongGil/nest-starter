@@ -7,9 +7,11 @@ import { json5, json5ParseLinter } from 'codemirror-json5';
 import { observer } from 'mobx-react';
 import { useState } from 'react';
 import Split from 'react-split';
-import { SwaggerProps } from '../Swagger';
-import { MethodTag } from './MethodTag';
+import { SwaggerProps } from '../../Swagger';
+import { MethodTag } from '../MethodTag';
+import QuerySchemaTable from './QuerySchemaTable';
 import QueryTable from './QueryTable';
+import SchemaTable from './SchemaTable';
 
 const ReqeustSection = observer(({ store }: SwaggerProps) => {
   const [requestActiveTab, setRequestActiveTab] = useState<string>('1');
@@ -84,13 +86,13 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
       <Split direction="vertical" style={{ height: '95%' }} expandToMin={true} gutterSize={5} sizes={[70, 30]}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <TabContext value={requestActiveTab}>
-            <TabList onChange={handleChange} className="swagger-tab-list" textColor="inherit">
+            <TabList onChange={handleChange} textColor="inherit">
               <Tab label="Schema" value="0" />
               {method === METHOD_TYPE.GET ? <Tab label="Query" value="1" /> : <Tab label="Request Body" value="1" />}
             </TabList>
             <div style={{ flex: 1, overflow: 'hidden' }}>
               <TabPanel value="0" className="swagger-panel">
-                <ReactCodeMirror height="100%" value={store.getSchemaString()} basicSetup={{ tabSize: 4 }} theme="dark" extensions={[json5(), EditorView.lineWrapping]} readOnly />
+                {method === METHOD_TYPE.GET ? <QuerySchemaTable store={store} /> : <SchemaTable store={store} />}
               </TabPanel>
               {method === METHOD_TYPE.GET ? (
                 <TabPanel value="1" className="swagger-panel">
@@ -98,13 +100,7 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
                 </TabPanel>
               ) : (
                 <TabPanel value="1" className="swagger-panel">
-                  <ReactCodeMirror
-                    value={store.requestBody}
-                    basicSetup={{ tabSize: 4 }}
-                    theme="dark"
-                    extensions={[json5(), EditorView.lineWrapping, linter(json5ParseLinter())]}
-                    onChange={(value) => store.updateRequestBody(value)}
-                  />
+                  <ReactCodeMirror value={store.requestBody} extensions={[json5(), EditorView.lineWrapping, linter(json5ParseLinter())]} onChange={(value) => store.updateRequestBody(value)} />
                 </TabPanel>
               )}
             </div>

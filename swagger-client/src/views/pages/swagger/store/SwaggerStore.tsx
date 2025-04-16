@@ -1,7 +1,8 @@
 import ServerConfig from '@root/common/config/server.config';
 import { METHOD_TYPE } from '@root/common/define/common.define';
+import CommonUtil from '@root/common/util/common.util';
 import HttpUtil from '@root/common/util/http.util';
-import NGSMessage from '@root/common/util/message.util';
+import MessageUtil from '@root/common/util/message.util';
 import dayjs from 'dayjs';
 import JSON5 from 'json5';
 import localForage from 'localforage';
@@ -120,7 +121,7 @@ export class SwaggerStore {
 
   async sendRequest(): Promise<void> {
     if (!this.pathData || !this.requestBody) {
-      NGSMessage.error('Path and body are required to send a request.');
+      MessageUtil.error('Path and body are required to send a request.');
       return;
     }
     const method = this.pathData.method;
@@ -129,7 +130,7 @@ export class SwaggerStore {
     try {
       params = method == METHOD_TYPE.GET ? this.requestQuery : JSON5.parse(this.requestBody);
     } catch (error: any) {
-      NGSMessage.error(`Invalid JSON format: ${error.message}`);
+      MessageUtil.error(`Invalid JSON format: ${error.message}`);
       return;
     }
 
@@ -139,24 +140,24 @@ export class SwaggerStore {
 
       const data: SwaggerData = {
         request: { body: this.formatRequestBody(), query: this.requestQuery },
-        response: { headers: JSON.stringify(result.headers, null, 4), body: JSON.stringify(result.data, null, 4) },
+        response: { headers: JSON.stringify(result.headers, null, 2), body: JSON.stringify(result.data, null, 2) },
       };
       await this.setAuthorization(result.data);
       await this.updateHistory(data);
       await this.updateCurrentApiData(data);
     } catch (error: any) {
-      NGSMessage.error(`Request failed: ${error.message}`);
+      MessageUtil.error(`Request failed: ${error.message}`);
     }
   }
 
   formatRequestBody(): string {
     try {
       const parsed = JSON5.parse(this.requestBody);
-      const formattedLines = this.addComment(parsed, this.getCurrentSchmea());
+      const formattedLines = this.addComment(parsed, this.getCurrentSchmea().schema);
       this.updateRequestBody(formattedLines);
       return formattedLines;
     } catch (e: any) {
-      NGSMessage.error('Failed to format JSON.');
+      MessageUtil.error('Failed to format JSON.');
       console.error(e);
       return this.requestBody;
     }
@@ -193,10 +194,13 @@ export class SwaggerStore {
       else if (data.type == 'number') result[field] = 0;
       else if (data.type == 'string') result[field] = '';
       else if (data.type == 'date-time') result[field] = new Date().toISOString();
-      else if (data.$ref) {
-        data.schema = this.metadata?.getSchema(this.metadata?.getSchemaName(data.$ref));
-        result[field] = this.toSchemaObject(data.schema);
-      } else if (data.type == 'object') result[field] = {};
+      else if (data.type == 'object') result[field] = {};
+      else {
+        CommonUtil.findAllValuesByKey(data, '$ref').forEach((ref: string) => {
+          const schema = this.metadata?.getSchema(SwaggerMetadata.getSchemaName(ref));
+          result[field] = this.toSchemaObject(schema);
+        });
+      }
     }
     return result;
   }
@@ -210,24 +214,15 @@ export class SwaggerStore {
   }
 
   addComment(object: any, schema: any): string {
-    const required = schema?.required ?? [];
     const properties = schema?.properties ?? {};
     const lines: string[] = [];
 
-    const formatValue = (value: any, data: any): string => {
-      if (data?.schema && typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        return this.addComment(value, data.schema).replace(/\n/g, '\n    ');
-      }
-      return JSON.stringify(value, null, 4).replace(/\n/g, '\n    ');
-    };
-
     lines.push('{');
     Object.entries(object).forEach(([key, value]) => {
-      const data = properties[key];
-      const jsonValue = formatValue(value, data);
-      const isOptional = required.includes(key) ? '' : ' (Optional)';
-      const comment = data?.description ? `//${isOptional} ${data.description}` : '';
-      lines.push(`    "${key}": ${jsonValue},  ${comment}`);
+      const description = CommonUtil.findAllValuesByKey(properties[key], 'description').join();
+      const jsonValue = JSON.stringify(value, null, 2).replace(/\n/g, '\n  ');
+      const comment = description ? `// ${description}` : '';
+      lines.push(`  "${key}": ${jsonValue}, ${comment}`);
     });
     lines.push('}');
 
@@ -244,23 +239,10 @@ export class SwaggerStore {
 
   getCurrentData(): SwaggerData {
     const data: SwaggerData = this.currentApi[this.getApiKey()] ?? {
-      request: { body: this.toSchemaString(this.getCurrentSchmea()), query: {} },
+      request: { body: this.toSchemaString(this.getCurrentSchmea()?.schema), query: {} },
       response: { headers: '', body: '' },
     };
     return data;
-  }
-
-  getSchemaString(): string {
-    const schema = this.getCurrentPathInfo();
-    if (!schema || !schema.defaultSchema) {
-      return 'not found data';
-    }
-    const entries = [
-      [schema.defaultSchema.name, schema.defaultSchema.schema.properties],
-      ...Object.entries(this.metadata?.getChildSchema(this.pathData.method, this.pathData.path) ?? {}).map(([name, data]) => [name, data]),
-    ];
-    const result = entries.map(([name, properties]) => `class ${name} ${JSON5.stringify(properties, { quote: '"', space: 4 })}`);
-    return result.join('\n');
   }
 
   getHistory(): SwaggerHistoryData[] {

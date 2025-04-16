@@ -46,18 +46,16 @@ export class SwaggerUtilService {
         if (descriptor) {
           const methodMetadata = Reflect.getMetadata(METHOD_METADATA, method);
           if (methodMetadata != undefined) {
-            const descriptions = controllerMetadata?.[controllerName]?.[methodName]?.['description'];
-            if (descriptions) {
-              const methodInterceptorMetadata = this.reflector.get(GUARDS_METADATA, method) || [];
-              const interceptorsMetadata = [...controllerInterceptorMetadata, ...methodInterceptorMetadata];
-              const interceptors = this.getInterceptors(interceptorsMetadata);
-              const operation = {
-                ...this.reflector.get('swagger/apiOperation', method),
-                description: descriptions,
-                security: interceptors,
-              };
-              applyDecorators(ApiOperation(operation))(prototype, methodName, descriptor);
-            }
+            const description = controllerMetadata?.[controllerName]?.[methodName]?.['description'];
+            const methodInterceptorMetadata = this.reflector.get(GUARDS_METADATA, method) || [];
+            const interceptorsMetadata = [...controllerInterceptorMetadata, ...methodInterceptorMetadata];
+            const interceptors = this.getInterceptors(interceptorsMetadata);
+            const operation = {
+              ...this.reflector.get('swagger/apiOperation', method),
+              description,
+              security: interceptors,
+            };
+            applyDecorators(ApiOperation(operation))(prototype, methodName, descriptor);
           }
         }
       });

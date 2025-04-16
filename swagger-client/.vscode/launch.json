@@ -3,7 +3,7 @@
   "configurations": [
     {
       "type": "node",
-      "name": "React Management Run",
+      "name": "React Run",
       "request": "launch",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "start"],

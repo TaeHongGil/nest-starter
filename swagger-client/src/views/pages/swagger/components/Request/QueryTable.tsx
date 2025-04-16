@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import HttpUtil from '@root/common/util/http.util';
 import { observer } from 'mobx-react';
-import { SwaggerProps } from '../Swagger';
+import { SwaggerProps } from '../../Swagger';
 
 const QueryTable = observer(({ store }: SwaggerProps) => {
   const schmea = store.getCurrentPathInfo();
@@ -36,11 +36,10 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
   };
 
   return (
-    <TableContainer className="query-table-container">
+    <TableContainer className="request-table-container">
       <TextField
         label={'URL PREVIEW'}
         variant="filled"
-        className="query-text-field"
         multiline
         minRows={3}
         maxRows={3}
@@ -58,10 +57,10 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell className="query-table-header">Name</TableCell>
-            <TableCell className="query-table-header">Data</TableCell>
-            <TableCell className="query-table-header">Type</TableCell>
-            <TableCell className="query-table-header">Description</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Data</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>Description</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -69,8 +68,8 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
             if (data.in !== 'query') return null;
             return (
               <TableRow key={data.name}>
-                <TableCell className="query-table-cell">{data.name}</TableCell>
-                <TableCell className="query-table-cell">
+                <TableCell>{data.name}</TableCell>
+                <TableCell>
                   <TextField
                     className="query-text-field"
                     variant="outlined"
@@ -82,8 +81,8 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
                     onChange={(e) => handleInputChange(data.name, e.target.value, data.schema.type)}
                   />
                 </TableCell>
-                <TableCell className="query-table-cell">{data.schema.type}</TableCell>
-                <TableCell className="query-table-cell">{data.description}</TableCell>
+                <TableCell>{data.schema.type}</TableCell>
+                <TableCell>{data.description}</TableCell>
               </TableRow>
             );
           })}

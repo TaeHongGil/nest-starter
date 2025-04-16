@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 /**
  * Context-related utilities (Toast, Modal, etc.)
  */
-class NGSMessage {
+class MessageUtil {
   static error(message: string, delay = 3000): string {
     // ToastHelper.addToast(message, COLOR_TYPE.DANGER, delay);
     return message;
@@ -33,4 +33,4 @@ class NGSMessage {
   }
 }
 
-export default NGSMessage;
+export default MessageUtil;

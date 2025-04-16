@@ -103,32 +103,10 @@
   height: 100%;
 }
 
-.swagger-tabs {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  background-color: #282c34;
-}
-
-.ͼw {
-  color: #7c8dab;
-}
-
 .swagger-panel {
   height: 100%;
   padding: 0px !important;
   overflow-y: auto;
-  background: #282c34;
-}
-
-.swagger-tab-list {
-  background: #282c34 !important;
-  color: white !important;
-}
-
-.MuiTabs-indicator {
-  background-color: white !important;
 }
 
 .gutter.gutter-horizontal {
@@ -159,20 +137,14 @@
   background-color: #999;
 }
 
-.query-table-container {
-  color: white !important;
+.request-table-container {
   padding: 20px;
 }
 
-.query-table-header {
-  font-weight: bold !important;
-  color: white !important;
+.ref-text {
+  color: #0046ff !important;
 }
 
-.query-table-cell {
-  color: white !important;
-}
-
-.query-text-field {
-  background-color: white;
+.ͼm {
+  color: #000299;
 }
