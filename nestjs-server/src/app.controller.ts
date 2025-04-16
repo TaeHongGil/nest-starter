@@ -1,14 +1,16 @@
-import { All, Controller, Get, HttpCode, Req, Version, VERSION_NEUTRAL } from '@nestjs/common';
+import { All, Controller, Get, HttpCode, Version, VERSION_NEUTRAL } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import ServerConfig from '@root/core/config/server.config';
 import { AppService } from './app.service';
+import { SkipResponseInterceptor } from './core/interceptor/response.interceptor';
 
 @Controller('')
+@SkipResponseInterceptor()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   /**
-   * 하트비트
+   * 헬스체크
    */
   @Get('/')
   healthCheck(): any {
@@ -31,7 +33,7 @@ export class AppController {
   @Version(VERSION_NEUTRAL)
   @HttpCode(204)
   @ApiExcludeEndpoint()
-  favicon(@Req() request: Request) {
+  favicon() {
     return {};
   }
 }
