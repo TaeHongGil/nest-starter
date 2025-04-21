@@ -35,13 +35,14 @@ export class MongoService implements OnModuleDestroy {
 
   async onBeforeModuleInit(): Promise<void> {
     const dbs = ServerConfig.db.mongo;
+    const db_name = ConnectKeys.getGlobalKey();
     for (const db of dbs) {
       if (db.active == false) {
         continue;
       }
       const host = `mongodb://${db.hosts.join(',')}/?replicaSet=${db.replica_set}`;
       const ucon = mongoose.createConnection(host, {
-        dbName: db.db_name,
+        dbName: db_name,
         user: db.user_name,
         pass: db.password,
         authSource: db.auth_source,
@@ -50,8 +51,8 @@ export class MongoService implements OnModuleDestroy {
         tls: db.use_tls,
         autoIndex: true,
       });
-      MongoService._connectionMap.set(db.db_name, ucon); // 정적 필드 사용
-      ServerLogger.log('mongo', `Connecting to a MongoDB instance. host=${host} db=${db.db_name}`);
+      MongoService._connectionMap.set(db_name, ucon);
+      ServerLogger.log('mongo', `Connecting to a MongoDB instance. host=${host} db=${db_name}`);
     }
   }
 

@@ -128,7 +128,6 @@ export interface MongoConfig {
   hosts: string[];
   replica_set: string;
   auth_source: string;
-  db_name: string;
   user_name: string;
   password: string;
   min_pool_size: number;
@@ -143,7 +142,6 @@ export interface RedisConfig {
   active: boolean;
   host: string;
   port: number;
-  db_name: string;
   user_name: string;
   password: string;
   tls: boolean;
