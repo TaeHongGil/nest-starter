@@ -1,9 +1,10 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { ServerLogger } from '@root/core/server-log/server.log.service';
 import { CommonModule } from './common/common.module';
+import { ProjectModule } from './project/project.module';
 
 @Module({
-  imports: [CommonModule],
+  imports: [CommonModule, ProjectModule],
   controllers: [],
   providers: [],
   exports: [],

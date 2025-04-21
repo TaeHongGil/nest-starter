@@ -12,7 +12,7 @@ import { AccountPlatformService } from '../service/account/account.platform.serv
 import { AccountService } from '../service/account/account.service';
 
 /**
- * 게임 계정 및 인증 처리
+ * 계정 컨트롤러
  */
 @Controller('account')
 export class AccountController {

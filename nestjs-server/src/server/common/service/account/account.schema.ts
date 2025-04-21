@@ -3,7 +3,7 @@ import { ROLE } from '@root/core/define/define';
 import { Expose } from 'class-transformer';
 
 @Schema({
-  collection: 'user_account',
+  collection: 'account',
   versionKey: false,
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 })
@@ -24,7 +24,7 @@ export class DBAccount {
   @Expose()
   platform: string;
 
-  @Prop({ type: 'string', enum: Object.values(ROLE), index: true })
+  @Prop({ type: 'string', enum: Object.values(ROLE) })
   @Expose()
   role: ROLE;
 
@@ -37,4 +37,4 @@ export class DBAccount {
   updated_at?: Date;
 }
 
-export const DBAccountSchema = SchemaFactory.createForClass(DBAccount).index({ expires_at: 1 }, { expireAfterSeconds: 0 });
+export const DBAccountSchema = SchemaFactory.createForClass(DBAccount);

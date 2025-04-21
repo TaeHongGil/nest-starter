@@ -10,7 +10,7 @@ import { ReqTokenRefresh } from '../dto/common.request.dto';
 import { ResTokenRefresh } from '../dto/common.response.dto';
 
 /**
- * 게임 계정 및 인증 처리
+ * 인증 컨트롤러
  */
 @Controller('auth')
 export class AuthController {
