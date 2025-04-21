@@ -1,10 +1,12 @@
 class ServerConfig {
   static url: string;
+  static server_name: string;
   static server_type: string;
   static server_port: string;
   static server_version: string;
 
   static init(): boolean {
+    this.server_name = import.meta.env.VITE_SERVER_NAME;
     this.server_type = import.meta.env.VITE_SERVER_TYPE;
     this.server_port = import.meta.env.VITE_SERVER_PORT;
     this.server_version = 'v' + import.meta.env.VITE_SERVER_VERSION;

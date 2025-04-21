@@ -7,17 +7,20 @@ import path from 'path';
 import { defineConfig, ViteDevServer } from 'vite';
 
 export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
-  if (mode === 'development' && process.env.server_type) {
-    const server_type = process.env.server_type;
-    const configPath = path.join(__dirname, '../', 'nestjs-server', 'src', 'env', `${server_type}-config.json`);
+  const server_type = process.env.server_type;
+  const configPath = path.join(__dirname, '../', 'nestjs-server', 'src', 'env', `${server_type}-config.json`);
 
-    if (fs.existsSync(configPath)) {
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-      process.env.VITE_SERVER_TYPE = server_type;
-      process.env.VITE_SERVER_PORT = config.port ?? '0';
-      process.env.VITE_SERVER_VERSION = config.version ?? '1';
-    }
+  if (!fs.existsSync(configPath)) {
+    console.error(`Config file not found: ${configPath}`);
+    process.exit(1);
   }
+
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+  process.env.VITE_SERVER_TYPE = server_type;
+  process.env.VITE_SERVER_NAME = config.service?.name ?? 'Nest';
+  process.env.VITE_SERVER_PORT = config.port ?? '0';
+  process.env.VITE_SERVER_VERSION = config.version ?? '1';
+
   return {
     plugins: [
       react(),
