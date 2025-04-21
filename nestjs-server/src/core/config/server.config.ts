@@ -75,7 +75,7 @@ export class ServerConfig {
       }
 
       if (key in config) {
-        if (key in forceConfig) {
+        if (forceConfig && key in forceConfig) {
           this[key] = forceConfig[key];
         } else {
           this[key] = config[key];
