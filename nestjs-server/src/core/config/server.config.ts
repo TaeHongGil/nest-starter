@@ -4,6 +4,7 @@ import * as path from 'path';
 export class ServerConfig {
   static version: string = '1';
   static serverType: string = 'local';
+  static throttler: ThorttlerConfig[] = [];
   static port: number = 80;
   static dev: boolean = true;
   static service: ServiceConfig = {
@@ -174,6 +175,15 @@ export interface PlatformConfig {
   naver: {
     client_id: string;
   };
+}
+
+/**
+ * 플랫폼 설정
+ */
+export interface ThorttlerConfig {
+  name: string;
+  ttl: number;
+  limit: number;
 }
 
 export default ServerConfig;
