@@ -30,7 +30,6 @@ interface SwaggerHistoryData {
 }
 
 export class SwaggerStore {
-  metadata?: SwaggerMetadata;
   currentApi: SwaggerCurrentApi;
   history: SwaggerHistory;
   globalHeader: SwaggerGlobalHeader;
@@ -42,9 +41,7 @@ export class SwaggerStore {
   refreshTrigger = 0;
 
   constructor() {
-    makeAutoObservable(this, {
-      metadata: false,
-    });
+    makeAutoObservable(this);
 
     this.currentApi = {};
     this.history = {};
@@ -55,17 +52,12 @@ export class SwaggerStore {
     this.pathData = { method: METHOD_TYPE.GET, path: '' };
   }
 
-  async init(metadata?: any) {
-    runInAction(() => {
-      if (metadata) {
-        this.metadata = new SwaggerMetadata(metadata);
-      }
-    });
+  async init() {
     const currentApi = await this.loadLocalStorage<SwaggerCurrentApi>('api', {});
     const history = await this.loadLocalStorage<SwaggerHistory>('history', {});
-    const globalHeader = await this.loadLocalStorage<SwaggerGlobalHeader>('global_header', this.metadata?.config.header ?? {});
-    const activeServer = await this.loadLocalStorage<string>('active_server', Object.keys(this.metadata?.servers ?? {}).find((key) => this.metadata?.servers[key]) ?? 'local');
-    const path = await this.loadLocalStorage<PathData>('path', { method: METHOD_TYPE.GET, path: `/${this.metadata?.config.version}` });
+    const globalHeader = await this.loadLocalStorage<SwaggerGlobalHeader>('global_header', SwaggerMetadata.config.header ?? {});
+    const activeServer = await this.loadLocalStorage<string>('active_server', Object.keys(SwaggerMetadata.servers ?? {}).find((key) => SwaggerMetadata.servers[key]) ?? 'local');
+    const path = await this.loadLocalStorage<PathData>('path', { method: METHOD_TYPE.GET, path: `/${SwaggerMetadata.config.version}` });
 
     runInAction(() => {
       this.currentApi = currentApi;
@@ -127,7 +119,7 @@ export class SwaggerStore {
     }
 
     try {
-      const baseUrl = this.metadata?.servers?.[this.activeServer] ?? 'local';
+      const baseUrl = SwaggerMetadata.servers[this.activeServer] ?? 'local';
       const result = await HttpUtil.request(baseUrl, method, path, params, this.globalHeader);
       console.log(result);
 
@@ -190,7 +182,7 @@ export class SwaggerStore {
       else if (data.type == 'object') result[field] = {};
       else {
         CommonUtil.findAllValuesByKey(data, '$ref').forEach((ref: string) => {
-          const schema = this.metadata?.getSchema(SwaggerMetadata.getSchemaName(ref));
+          const schema = SwaggerMetadata.getSchema(SwaggerMetadata.getSchemaName(ref));
           result[field] = this.toSchemaObject(schema);
         });
       }
@@ -223,11 +215,11 @@ export class SwaggerStore {
   }
 
   getCurrentSchmea() {
-    return this.metadata?.getDefaultSchema(this.pathData.method, this.pathData.path);
+    return SwaggerMetadata.getDefaultSchema(this.pathData.method, this.pathData.path);
   }
 
   getCurrentPathInfo() {
-    return this.metadata?.getPath(this.pathData.method, this.pathData.path);
+    return SwaggerMetadata.getPath(this.pathData.method, this.pathData.path);
   }
 
   getCurrentData(): SwaggerData {
@@ -299,11 +291,11 @@ export class SwaggerStore {
   }
 
   async setAuthorization(path: string, data: any) {
-    if (!this.metadata?.config?.token) {
+    if (!SwaggerMetadata.config?.token) {
       return;
     }
 
-    const tokenPath = this.metadata.config.token[path];
+    const tokenPath = SwaggerMetadata.config.token[path];
     if (tokenPath) {
       const token = tokenPath.split('.').reduce((obj, key) => obj?.[key], data);
       if (token) {

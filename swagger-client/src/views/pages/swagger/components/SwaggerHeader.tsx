@@ -4,6 +4,7 @@ import MessageUtil from '@root/common/util/message.util';
 import { observer } from 'mobx-react';
 import React from 'react';
 import { SwaggerProps } from '../Swagger';
+import SwaggerMetadata from '../store/SwaggerMetadata';
 
 const ServerSelect: React.FC<{ store: SwaggerProps['store']; open: boolean; onClose: () => void }> = observer(({ store, open, onClose }) => {
   const [selectedServer, setSelectedServer] = React.useState<string>(store.activeServer);
@@ -12,7 +13,7 @@ const ServerSelect: React.FC<{ store: SwaggerProps['store']; open: boolean; onCl
     <Dialog onClose={onClose} open={open} fullWidth maxWidth="md" slots={{ transition: React.Fragment }} slotProps={{ transition: { timeout: 0 } }}>
       <DialogTitle>Select Server</DialogTitle>
       <List>
-        {Object.entries(store.metadata?.servers ?? {}).map(([server, url]) => {
+        {Object.entries(SwaggerMetadata.servers ?? {}).map(([server, url]) => {
           if (!url) {
             return null;
           }
@@ -46,7 +47,7 @@ const ServerSelect: React.FC<{ store: SwaggerProps['store']; open: boolean; onCl
 });
 
 const SwaggerHeader = observer(({ store }: SwaggerProps) => {
-  document.title = `${ServerConfig.server_name.toUpperCase()} - ${ServerConfig.server_type.toUpperCase()} API DOCUMENT ${store.metadata?.config.version}`;
+  document.title = `${ServerConfig.server_name.toUpperCase()} - ${ServerConfig.server_type.toUpperCase()} API DOCUMENT ${SwaggerMetadata.config.version}`;
   const [serverDialogOpen, setServerDialogOpen] = React.useState(false);
 
   const setGlobalHeader = async () => {

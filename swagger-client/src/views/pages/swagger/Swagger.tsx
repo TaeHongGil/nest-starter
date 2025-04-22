@@ -4,6 +4,7 @@ import { useLocalObservable } from 'mobx-react';
 import { useEffect, useState } from 'react';
 import SwaggerBody from './components/SwaggerBody';
 import SwaggerHeader from './components/SwaggerHeader';
+import SwaggerMetadata from './store/SwaggerMetadata';
 import { SwaggerStore } from './store/SwaggerStore';
 
 const SwaggerNotFoundScreen = () => (
@@ -38,13 +39,14 @@ const Swagger = () => {
       if (!metadata?.spec) {
         return;
       }
-      await store.init(metadata);
+      SwaggerMetadata.init(metadata);
+      await store.init();
       setInit(true);
     };
     initialize();
   }, []);
 
-  if (!init || !store.metadata || Object.keys(store.metadata).length === 0) {
+  if (!init || !SwaggerMetadata || Object.keys(SwaggerMetadata).length === 0) {
     return <SwaggerNotFoundScreen />;
   }
 

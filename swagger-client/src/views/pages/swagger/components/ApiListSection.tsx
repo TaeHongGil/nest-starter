@@ -4,7 +4,7 @@ import { Card, CardContent, Collapse, IconButton, List, ListItemButton, ListSubh
 import { METHOD_TYPE } from '@root/common/define/common.define';
 import { observer } from 'mobx-react';
 import { useState } from 'react';
-import { PathData } from '../store/SwaggerMetadata';
+import SwaggerMetadata, { PathData } from '../store/SwaggerMetadata';
 import { SwaggerStore } from '../store/SwaggerStore';
 import { MethodTag } from './MethodTag';
 
@@ -55,7 +55,7 @@ const ApiListSection = observer(({ store }: ApiListProps) => {
     <Card>
       <CardContent style={{ padding: 0, overflowY: 'auto' }}>
         <List>
-          {Object.entries(store.metadata?.getApis() ?? {}).map(([category, pathData]) => (
+          {Object.entries(SwaggerMetadata.getApis() ?? {}).map(([category, pathData]) => (
             <ApiCategory key={`${category}`} category={category} datas={pathData} currentPath={currentPath} store={store} />
           ))}
         </List>

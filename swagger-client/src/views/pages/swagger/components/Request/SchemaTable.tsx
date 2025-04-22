@@ -77,7 +77,7 @@ const SchemaTable = observer(({ store }: SwaggerProps) => {
         <SchemaTableContent name={name} schema={schema} getType={getType} />
         {childSchemas.map((ref) => {
           const childSchemaName = SwaggerMetadata.getSchemaName(ref);
-          const childSchema = store.metadata?.getSchema(childSchemaName);
+          const childSchema = SwaggerMetadata.getSchema(childSchemaName);
           if (childSchema) {
             return <SchemaTableContent key={childSchemaName} name={childSchemaName} schema={childSchema} getType={getType} />;
           }

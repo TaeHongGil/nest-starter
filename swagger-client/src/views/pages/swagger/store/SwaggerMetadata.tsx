@@ -16,34 +16,34 @@ export interface PathData {
 }
 
 class SwaggerMetadata {
-  schema: Record<string, any>;
-  paths: Record<string, Record<string, any>>;
-  apis: Record<string, PathData[]>;
-  servers: Record<string, string> = {};
-  config: SwaggerOptions;
+  static schema: Record<string, any>;
+  static paths: Record<string, Record<string, any>>;
+  static apis: Record<string, PathData[]>;
+  static servers: Record<string, string> = {};
+  static config: SwaggerOptions;
 
-  constructor(metadata: any) {
+  static init(metadata: any) {
     window.metadata = metadata;
     console.log(metadata);
     const spec = metadata.spec;
-    this.schema = spec.components?.schemas;
-    this.paths = spec.paths;
-    this.apis = this.initApis();
-    this.servers = metadata.servers;
-    this.config = metadata.config;
+    SwaggerMetadata.schema = spec.components?.schemas;
+    SwaggerMetadata.paths = spec.paths;
+    SwaggerMetadata.apis = SwaggerMetadata.initApis();
+    SwaggerMetadata.servers = metadata.servers;
+    SwaggerMetadata.config = metadata.config;
   }
 
-  private initApis(): Record<string, PathData[]> {
+  private static initApis(): Record<string, PathData[]> {
     const apis: Record<string, PathData[]> = {};
 
-    for (const [path, methods] of Object.entries(this.paths)) {
+    for (const [path, methods] of Object.entries(SwaggerMetadata.paths)) {
       for (const [method, methodData] of Object.entries(methods)) {
         const ref = methodData.requestBody?.content?.['application/json']?.schema?.['$ref'];
         if (ref) {
           const name = SwaggerMetadata.getSchemaName(ref);
           methodData.defaultSchema = {
             name,
-            schema: this.getSchema(name),
+            schema: SwaggerMetadata.getSchema(name),
           };
         }
 
@@ -58,33 +58,33 @@ class SwaggerMetadata {
     return apis;
   }
 
-  getPath(method: string, path: string): any {
-    return this.paths[path]?.[method.toLowerCase()];
+  static getPath(method: string, path: string): any {
+    return SwaggerMetadata.paths[path]?.[method.toLowerCase()];
   }
 
-  getDefaultSchema(method: string, path: string): any {
-    return this.getPath(method, path)?.defaultSchema;
+  static getDefaultSchema(method: string, path: string): any {
+    return SwaggerMetadata.getPath(method, path)?.defaultSchema;
   }
 
-  getChildSchema(method: string, path: string): any {
+  static getChildSchema(method: string, path: string): any {
     const result: Record<string, any> = {};
-    CommonUtil.findAllValuesByKey(this.getDefaultSchema(method, path).schema, '$ref').forEach((ref) => {
+    CommonUtil.findAllValuesByKey(SwaggerMetadata.getDefaultSchema(method, path).schema, '$ref').forEach((ref) => {
       const name = SwaggerMetadata.getSchemaName(ref);
-      result[name] = this.getSchema(name);
+      result[name] = SwaggerMetadata.getSchema(name);
     });
     return result;
   }
 
-  getApis(): Record<string, PathData[]> {
-    return this.apis;
+  static getApis(): Record<string, PathData[]> {
+    return SwaggerMetadata.apis;
   }
 
   static getSchemaName(ref: string): string {
     return ref.split('/').pop() || '';
   }
 
-  getSchema(name: string): any {
-    return this.schema[name];
+  static getSchema(name: string): any {
+    return SwaggerMetadata.schema[name];
   }
 }
 
