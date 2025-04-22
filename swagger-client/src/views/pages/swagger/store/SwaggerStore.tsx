@@ -1,6 +1,5 @@
 import ServerConfig from '@root/common/config/server.config';
 import { METHOD_TYPE } from '@root/common/define/common.define';
-import CommonUtil from '@root/common/util/common.util';
 import HttpUtil from '@root/common/util/http.util';
 import MessageUtil from '@root/common/util/message.util';
 import dayjs from 'dayjs';
@@ -124,27 +123,15 @@ export class SwaggerStore {
       console.log(result);
 
       const data: SwaggerData = {
-        request: { body: this.formatRequestBody(), query: this.requestQuery },
+        request: { body: SwaggerMetadata.formatJson(this.requestBody, this.getCurrentSchmea()?.schema), query: this.requestQuery },
         response: { headers: JSON.stringify(result.headers, null, 2), body: JSON.stringify(result.data, null, 2) },
       };
+      this.updateRequestBody(data.request.body);
       await this.setAuthorization(path, result.data);
       await this.updateHistory(data);
       await this.updateCurrentApiData(data);
     } catch (error: any) {
       MessageUtil.error(`Request failed: ${error.message}`);
-    }
-  }
-
-  formatRequestBody(): string {
-    try {
-      const parsed = JSON5.parse(this.requestBody);
-      const formattedLines = this.addComment(parsed, this.getCurrentSchmea()?.schema);
-      this.updateRequestBody(formattedLines);
-      return formattedLines;
-    } catch (e: any) {
-      MessageUtil.error('Failed to format JSON.');
-      console.error(e);
-      return this.requestBody;
     }
   }
 
@@ -169,51 +156,6 @@ export class SwaggerStore {
     }
   }
 
-  toSchemaObject(schema: any): Record<string, any> {
-    const result: Record<string, any> = {};
-    for (const field in schema.properties) {
-      const data = schema.properties[field];
-      if (data.default != undefined) result[field] = data.default;
-      else if (data.type == 'array') result[field] = [];
-      else if (data.type == 'boolean') result[field] = false;
-      else if (data.type == 'number') result[field] = 0;
-      else if (data.type == 'string') result[field] = 'string';
-      else if (data.type == 'date-time') result[field] = new Date().toString();
-      else if (data.type == 'object') result[field] = {};
-      else {
-        CommonUtil.findAllValuesByKey(data, '$ref').forEach((ref: string) => {
-          const schema = SwaggerMetadata.getSchema(SwaggerMetadata.getSchemaName(ref));
-          result[field] = this.toSchemaObject(schema);
-        });
-      }
-    }
-    return result;
-  }
-
-  toSchemaString(schema: any): string {
-    if (!schema || !schema.properties) {
-      return '{\n}';
-    }
-    const resultObject = this.toSchemaObject(schema);
-    return this.addComment(resultObject, schema);
-  }
-
-  addComment(object: any, schema: any): string {
-    const properties = schema?.properties ?? {};
-    const lines: string[] = [];
-
-    lines.push('{');
-    Object.entries(object).forEach(([key, value]) => {
-      const description = CommonUtil.findAllValuesByKey(properties[key], 'description').join();
-      const jsonValue = JSON.stringify(value, null, 2).replace(/\n/g, '\n  ');
-      const comment = description ? `// ${description}` : '';
-      lines.push(`  "${key}": ${jsonValue}, ${comment}`);
-    });
-    lines.push('}');
-
-    return lines.join('\n');
-  }
-
   getCurrentSchmea() {
     return SwaggerMetadata.getDefaultSchema(this.pathData.method, this.pathData.path);
   }
@@ -224,7 +166,7 @@ export class SwaggerStore {
 
   getCurrentData(): SwaggerData {
     const data: SwaggerData = this.currentApi[this.getApiKey()] ?? {
-      request: { body: this.toSchemaString(this.getCurrentSchmea()?.schema), query: {} },
+      request: { body: SwaggerMetadata.toSchemaString(this.getCurrentSchmea()?.schema), query: {} },
       response: { headers: '', body: '' },
     };
     return data;

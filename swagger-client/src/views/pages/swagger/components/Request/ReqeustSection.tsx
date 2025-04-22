@@ -7,10 +7,11 @@ import { json5, json5ParseLinter } from 'codemirror-json5';
 import { observer } from 'mobx-react';
 import { useState } from 'react';
 import Split from 'react-split';
+import SwaggerMetadata from '../../store/SwaggerMetadata';
 import { SwaggerProps } from '../../Swagger';
 import { MethodTag } from '../MethodTag';
+import SchemaTable from '../SchemaTable';
 import QueryTable from './QueryTable';
-import SchemaTable from './SchemaTable';
 
 const ReqeustSection = observer(({ store }: SwaggerProps) => {
   const [requestActiveTab, setRequestActiveTab] = useState<string>('1');
@@ -54,7 +55,7 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
               size="small"
               sx={{ marginRight: 1 }}
               onClick={async () => {
-                store.formatRequestBody();
+                store.updateRequestBody(SwaggerMetadata.formatJson(store.requestBody, store.getCurrentSchmea()?.schema));
               }}
               disableElevation
               disableFocusRipple
@@ -98,7 +99,10 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
                     not found data
                   </Typography>
                 ) : (
-                  <SchemaTable store={store} />
+                  (() => {
+                    const currentSchema = store.getCurrentSchmea();
+                    return <SchemaTable name={currentSchema?.name} schema={currentSchema?.schema} />;
+                  })()
                 )}
               </TabPanel>
               {isGet ? (

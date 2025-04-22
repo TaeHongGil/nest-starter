@@ -9,6 +9,10 @@ class CommonUtil {
   };
 
   static findAllValuesByKey(object: any, target: string): any[] {
+    if (!object || typeof object !== 'object') {
+      return [];
+    }
+
     const result: any[] = [];
 
     function traverse(node: any) {

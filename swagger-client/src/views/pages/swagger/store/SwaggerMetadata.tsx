@@ -1,5 +1,7 @@
 import { METHOD_TYPE } from '@root/common/define/common.define';
 import CommonUtil from '@root/common/util/common.util';
+import MessageUtil from '@root/common/util/message.util';
+import JSON5 from 'json5';
 
 /**
  * Swagger 옵션
@@ -85,6 +87,81 @@ class SwaggerMetadata {
 
   static getSchema(name: string): any {
     return SwaggerMetadata.schema[name];
+  }
+
+  static formatJson(jsonString: string, schema: any, targetPath: string = ''): string {
+    try {
+      if (!jsonString || !schema) {
+        return jsonString;
+      }
+      const parsed = JSON5.parse(jsonString);
+      const format = SwaggerMetadata.addComment(parsed, schema, targetPath);
+      return format;
+    } catch (e: any) {
+      MessageUtil.error('Failed to format JSON.');
+      console.error(e);
+      return jsonString;
+    }
+  }
+
+  static toSchemaObject(schema: any): Record<string, any> {
+    const result: Record<string, any> = {};
+    for (const field in schema.properties) {
+      const data = schema.properties[field];
+      if (data.default != undefined) result[field] = data.default;
+      else if (data.type == 'array') result[field] = [];
+      else if (data.type == 'boolean') result[field] = false;
+      else if (data.type == 'number') result[field] = 0;
+      else if (data.type == 'string') result[field] = 'string';
+      else if (data.type == 'date-time') result[field] = new Date().toString();
+      else if (data.type == 'object') result[field] = {};
+      else {
+        CommonUtil.findAllValuesByKey(data, '$ref').forEach((ref: string) => {
+          const schema = SwaggerMetadata.getSchema(SwaggerMetadata.getSchemaName(ref));
+          result[field] = SwaggerMetadata.toSchemaObject(schema);
+        });
+      }
+    }
+    return result;
+  }
+
+  static toSchemaString(schema: any): string {
+    if (!schema || !schema.properties) {
+      return '{\n}';
+    }
+    const resultObject = SwaggerMetadata.toSchemaObject(schema);
+    return SwaggerMetadata.addComment(resultObject, schema);
+  }
+
+  static addComment(object: any, schema: any, targetPath: string = ''): string {
+    const lines: string[] = [];
+
+    const traverse = (obj: any, currentPath: string[], depth: number = 1): string[] => {
+      const result: string[] = [];
+      Object.entries(obj).forEach(([key, value]) => {
+        const isObject = typeof value === 'object' && !Array.isArray(value);
+        const isTarget = currentPath.join('.') === targetPath;
+
+        const description = isTarget ? schema?.properties?.[key]?.description : '';
+        const comment = description ? ` // ${description}` : '';
+
+        if (isObject) {
+          result.push(`${'  '.repeat(depth)}"${key}": {`);
+          result.push(...traverse(value, [...currentPath, key], depth + 1));
+          result.push(`${'  '.repeat(depth)}}${comment ? ',' + comment : ','}`);
+        } else {
+          const valueStr = JSON.stringify(value, null, 2).replaceAll(/\n/g, '\n' + '  '.repeat(depth));
+          result.push(`${'  '.repeat(depth)}"${key}": ${valueStr}${comment ? ',' + comment : ','}`);
+        }
+      });
+      return result;
+    };
+
+    lines.push(`{`);
+    lines.push(...traverse(object, []));
+    lines.push(`}`);
+
+    return lines.join('\n');
   }
 }
 

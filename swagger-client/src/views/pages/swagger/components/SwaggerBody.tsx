@@ -3,7 +3,7 @@ import Split from 'react-split';
 import { SwaggerProps } from '../Swagger';
 import ApiListSection from './ApiListSection';
 import ReqeustSection from './Request/ReqeustSection';
-import ResponseSection from './ResponseSection';
+import ResponseSection from './Response/ResponseSection';
 
 const SwaggerBody = observer(({ store }: SwaggerProps) => (
   <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
