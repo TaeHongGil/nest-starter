@@ -55,11 +55,11 @@
         "hosts": ["localhost:27017"],
         "replica_set": "rs0",
         "auth_source": "admin",
-        "db_name": "nest_local_global",
+        "db_name": "global",
         "user_name": "test_user",
         "password": "asdfqwerzxcvqwer1234",
         "min_pool_size": 0,
-        "max_pool_size": 1,
+        "max_pool_size": 10,
         "use_tls": false
       }
     ],
@@ -68,7 +68,7 @@
         "active": true,
         "host": "localhost",
         "port": 6379,
-        "db_name": "nest_local_global",
+        "db_name": "global",
         "user_name": "test_user",
         "password": "asdfqwerzxcvqwer1234",
         "tls": false,

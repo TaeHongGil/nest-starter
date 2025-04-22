@@ -16,6 +16,7 @@ export class RedisService implements OnModuleDestroy {
       if (db.active == false) {
         continue;
       }
+      const dbName = ConnectKeys.getKey(db.db_name);
       const protocol = db.tls === true ? 'rediss' : 'redis';
       const redisClientOptions = {
         url: `${protocol}://${db.host}:${db.port}`,
@@ -31,15 +32,15 @@ export class RedisService implements OnModuleDestroy {
       const redisClient: RedisClientType = createClient(redisClientOptions);
       try {
         await redisClient.connect();
-        ServerLogger.log(`[redis.${db.db_name}] ${db.host}:${db.port}/${db.db} connected`);
+        ServerLogger.log(`[redis.${dbName}] ${db.host}:${db.port}/${db.db} connected`);
       } catch (err) {
-        ServerLogger.error(`[redis.${db.db_name}] ${db.host}:${db.port}/${db.db} failed to connect. message=${err.message}`);
+        ServerLogger.error(`[redis.${dbName}] ${db.host}:${db.port}/${db.db} failed to connect. message=${err.message}`);
       }
       redisClient.on('error', (err) => {
-        ServerLogger.error(`[redis.${db.db_name}] error: ${err.message}`);
+        ServerLogger.error(`[redis.${dbName}] error: ${err.message}`);
       });
 
-      this._connectionMap.set(db.db_name, redisClient);
+      this._connectionMap.set(dbName, redisClient);
     }
   }
 
@@ -53,7 +54,7 @@ export class RedisService implements OnModuleDestroy {
   }
 
   getGlobalClient(): RedisClientType {
-    const con = this._connectionMap.get(ConnectKeys.getGlobalKey());
+    const con = this._connectionMap.get(ConnectKeys.getKey('global'));
 
     return con;
   }

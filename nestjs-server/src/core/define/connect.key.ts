@@ -6,10 +6,6 @@ export class ConnectKeys {
     return `${StringUtil.toSnakeCase(ServerConfig.service.name)}_${ServerConfig.serverType}`;
   }
 
-  static getGlobalKey(): string {
-    return `${this.getPrefix()}_global`;
-  }
-
   static getKey(key: string): string {
     return `${this.getPrefix()}_${key}`;
   }
