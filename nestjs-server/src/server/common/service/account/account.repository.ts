@@ -20,9 +20,9 @@ export class AccountRepository implements OnModuleInit {
 
   async findOne(filter: Partial<DBAccount>): Promise<DBAccount> {
     const session = MongoService.getCurrentSession();
-    const result = await this.model.findOne(filter).select('-_id').session(session).lean();
+    const result = await this.model.findOne(filter).session(session).lean();
 
-    return plainToInstance(DBAccount, result) || undefined;
+    return plainToInstance(DBAccount, result, { excludeExtraneousValues: true });
   }
 
   async delete(useridx: number): Promise<boolean> {
