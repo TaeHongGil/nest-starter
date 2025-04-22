@@ -48,8 +48,8 @@ export class AccountController {
     const res: ResLogin = {
       nickname: account.nickname,
       role: account.role,
+      jwt: await this.authService.createTokenInfoAsync(session.user),
     };
-    res.jwt = await this.authService.createTokenInfoAsync(session.user);
 
     return res;
   }
@@ -65,8 +65,8 @@ export class AccountController {
     const res: ResLogin = {
       nickname: account.nickname,
       role: account.role,
+      jwt: await this.authService.createTokenInfoAsync(session.user),
     };
-    res.jwt = await this.authService.createTokenInfoAsync(session.user);
 
     return res;
   }

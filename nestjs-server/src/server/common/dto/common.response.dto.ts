@@ -7,7 +7,7 @@ export class ResLogin {
   /**
    * jwt token 정보
    */
-  jwt?: JwtInfo;
+  jwt: JwtInfo;
 
   /**
    * 닉네임
