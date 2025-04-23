@@ -5,6 +5,12 @@
   "compilerOptions": {
     "builder": "swc",
     "typeCheck": true,
-    "watchAssets": true
+    "watchAssets": true,
+    "assets": [
+      {
+        "include": "./env/*.json",
+        "outDir": "./dist"
+      }
+    ]
   }
 }
