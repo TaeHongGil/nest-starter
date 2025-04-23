@@ -18,6 +18,17 @@
 2. **Environment Configuration**:
    - Set up environment variables in the `./src/env` file according to your setup
 
+## Local DB
+
+**Docker Setup for Local Database**:
+
+- ./docker-local-db
+- Modify the `docker-local-db/.env` and `src/env/local-config.json`
+- Start the docker daemon.
+- `Run Docker` from VS Code (Run And Debug)
+  - `./.vscode/launch.json`
+  - `./.vscode/tasks.json`
+
 ## Swagger Documentation
 
 - **Configuration**:

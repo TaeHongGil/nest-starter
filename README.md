@@ -15,15 +15,3 @@
 
 ![typescript](https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![react](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=white&style=for-the-badge)
-
-## Docker
-
-**Docker Setup for Local Database**:
-
-- ./docker-local-db
-- Modify the `docker-local-db/.env`
-- Start the docker daemon.
-- nestjs-server `Run Docker` from VS Code (Run And Debug)
-  - `./nestjs-server/.vscode/launch.json`
-  - `./nestjs-server/.vscode/tasks.json`
-- Add your database

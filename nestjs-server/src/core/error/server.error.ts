@@ -29,10 +29,6 @@ class ServerError {
     return new HttpException('password error', HttpStatus.BAD_REQUEST);
   }
 
-  static get MAIL_ERROR(): HttpException {
-    return new HttpException('unable to send mail', HttpStatus.NOT_FOUND);
-  }
-
   static get INVALID_TOKEN(): HttpException {
     return new HttpException('invalid or expired token', HttpStatus.UNAUTHORIZED);
   }
@@ -47,10 +43,6 @@ class ServerError {
 
   static get DUPLICATED_ID(): HttpException {
     return new HttpException('duplicated id', HttpStatus.CONFLICT);
-  }
-
-  static get DUPLICATED_EMAIL(): HttpException {
-    return new HttpException('duplicated email', HttpStatus.CONFLICT);
   }
 
   static get PLATFORM_LOGIN_FAILED(): HttpException {
