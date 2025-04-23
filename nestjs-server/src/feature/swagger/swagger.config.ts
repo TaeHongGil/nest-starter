@@ -8,6 +8,7 @@ import { SERVER_TYPE } from '@root/core/define/define';
  */
 export interface SwaggerOptions {
   /**
+   * version: api 버전
    * token: 인증토큰 받아올 api 및 body주소
    * header: 추가할 기본 헤더 (Authorization 제외)
    */
@@ -24,12 +25,14 @@ class SwaggerConfig {
   static servers: Record<string, string>;
 
   static init(): void {
+    const version = `v${ServerConfig.version}`;
     this.options = {
       config: {
-        version: `v${ServerConfig.version}`,
+        version: version,
         token: {
-          [`/v${ServerConfig.version}/account/guest/login`]: 'data.jwt.access_token',
-          [`/v${ServerConfig.version}/account/platform/login`]: 'data.jwt.access_token',
+          [`/${version}/account/guest/login`]: 'data.jwt.access_token',
+          [`/${version}/account/platform/login`]: 'data.jwt.access_token',
+          [`/${version}/auth/token`]: 'data.jwt.access_token',
         },
         header: {
           Authorization: `Bearer `,
