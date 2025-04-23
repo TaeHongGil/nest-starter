@@ -8,13 +8,17 @@ import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';
 import { ReqTokenRefresh } from '../dto/common.request.dto';
 import { ResTokenRefresh } from '../dto/common.response.dto';
+import { AccountService } from '../service/account/account.service';
 
 /**
  * 인증 컨트롤러
  */
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly accountService: AccountService,
+  ) {}
 
   /**
    * JWT 토큰 Refresh
@@ -35,7 +39,7 @@ export class AuthController {
     const result: ResTokenRefresh = {
       jwt: await this.authService.createTokenInfoAsync(user),
     };
-
+    await this.accountService.setLoginStateAsync(user.useridx);
     return result;
   }
 }

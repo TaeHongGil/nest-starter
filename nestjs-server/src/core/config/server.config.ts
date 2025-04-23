@@ -13,8 +13,8 @@ export class ServerConfig {
 
   static jwt: JwtConfig = {
     key: '',
-    ttl_access_msec: 0,
-    ttl_refresh_msec: 0,
+    ttl_access_sec: 0,
+    ttl_refresh_sec: 0,
     type: '',
   };
 
@@ -108,8 +108,8 @@ export interface SwaggerConfig {
 export interface JwtConfig {
   key: string;
   type: string;
-  ttl_access_msec: number;
-  ttl_refresh_msec: number;
+  ttl_access_sec: number;
+  ttl_refresh_sec: number;
 }
 
 /**

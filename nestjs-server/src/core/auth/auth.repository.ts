@@ -9,22 +9,20 @@ export class AuthRepository {
 
   async setRefreshTokenAsync(useridx: number, token: string): Promise<boolean> {
     const con = this.redis.getGlobalClient();
-    await con.pSetEx(CoreRedisKeys.getTokenKey(useridx), ServerConfig.jwt.ttl_refresh_msec, token);
-
-    return true;
+    await con.hSet(CoreRedisKeys.getSessionKey(), useridx.toString(), token);
+    const result = await con.hExpire(CoreRedisKeys.getSessionKey(), useridx.toString(), ServerConfig.jwt.ttl_refresh_sec);
+    return result[0] == 1;
   }
 
   async getRefreshTokenAsync(useridx: number): Promise<string> {
     const con = this.redis.getGlobalClient();
-    const token = await con.get(CoreRedisKeys.getTokenKey(useridx));
-
+    const token = await con.hGet(CoreRedisKeys.getSessionKey(), useridx.toString());
     return token;
   }
 
   async deleteRefreshTokenAsync(useridx: number): Promise<boolean> {
     const con = this.redis.getGlobalClient();
-    await con.del(CoreRedisKeys.getTokenKey(useridx));
-
+    await con.hDel(CoreRedisKeys.getSessionKey(), useridx.toString());
     return true;
   }
 }

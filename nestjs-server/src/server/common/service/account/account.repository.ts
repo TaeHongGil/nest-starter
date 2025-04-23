@@ -11,7 +11,7 @@ import { DBAccount, DBAccountSchema } from './account.schema';
 export class AccountRepository implements OnModuleInit {
   private model: Model<DBAccount>;
 
-  constructor(readonly redis: RedisService) {}
+  constructor(private readonly redis: RedisService) {}
 
   async onModuleInit(): Promise<void> {
     this.model = MongoService.getGlobalClient().model<DBAccount>(DBAccount.name, DBAccountSchema);
@@ -21,7 +21,6 @@ export class AccountRepository implements OnModuleInit {
   async findOne(filter: Partial<DBAccount>): Promise<DBAccount> {
     const session = MongoService.getCurrentSession();
     const result = await this.model.findOne(filter).session(session).lean();
-
     return plainToInstance(DBAccount, result, { excludeExtraneousValues: true });
   }
 
@@ -39,33 +38,33 @@ export class AccountRepository implements OnModuleInit {
 
   async increaseidx(): Promise<number> {
     const client = this.redis.getGlobalClient();
-    const useridx = await client.hIncrBy(CoreRedisKeys.getGlobalNumberKey(), 'useridx', 1);
-
-    return useridx;
+    return await client.hIncrBy(CoreRedisKeys.getGlobalNumberKey(), 'useridx', 1);
   }
 
-  async setLoginState(account: DBAccount): Promise<boolean> {
+  async setLoginStateAsync(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
-    const accountWithLoginDate = {
-      useridx: account.useridx,
-      nickname: account.nickname,
-      login_date: new Date().toDateString(),
-    };
-    await client.set(CommonRedisKeys.getUserStateKey(account.useridx), JSON.stringify(accountWithLoginDate), { EX: LOGIN_STATE.EXPIRES_SEC });
+    const key = CommonRedisKeys.getUserStateKey();
 
-    return true;
+    if (await client.hExists(key, useridx.toString())) {
+      return await this.updateLoginStateTTL(client, key, useridx.toString(), 'XX');
+    }
+
+    await client.hSet(key, useridx.toString(), new Date().toISOString());
+    return await this.updateLoginStateTTL(client, key, useridx.toString(), 'NX');
+  }
+
+  /**
+   * 공통 TTL 업데이트 메서드
+   */
+  private async updateLoginStateTTL(client: any, key: string, field: string, condition: 'XX' | 'NX'): Promise<boolean> {
+    const result = await client.hExpire(key, field, LOGIN_STATE.EXPIRES_SEC, condition);
+    return result[0] === 1;
   }
 
   async deleteLoginState(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
-    await client.del(CommonRedisKeys.getUserStateKey(useridx));
-
-    return true;
-  }
-
-  async refreshLoginState(useridx: number): Promise<boolean> {
-    const client = this.redis.getGlobalClient();
-
-    return await client.expire(CommonRedisKeys.getUserStateKey(useridx), LOGIN_STATE.EXPIRES_SEC);
+    const key = CommonRedisKeys.getUserStateKey();
+    const result = await client.hDel(key, useridx.toString());
+    return result > 0;
   }
 }

@@ -37,13 +37,17 @@ export class JwtInfo {
    */
   token_type: string;
   /**
-   * 만료시간(ms)
+   * 만료시간(sec)
    */
-  expires_in: number;
+  access_expire_sec: number;
   /**
    * refresh token
    */
   refresh_token: string;
+  /**
+   * 만료시간(sec)
+   */
+  refresh_expire_sec: number;
 }
 
 export class ResCreateGuest {

@@ -20,11 +20,11 @@ export class AuthService {
   }
 
   async createAccessTokenAsync(user: SessionUser): Promise<string> {
-    return CryptUtil.jwtEncode(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_access_msec);
+    return CryptUtil.jwtEncode(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_access_sec);
   }
 
   async createRefreshTokenAsync(user: SessionUser): Promise<string> {
-    const token = CryptUtil.jwtEncode(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_refresh_msec);
+    const token = CryptUtil.jwtEncode(user, ServerConfig.jwt.key, ServerConfig.jwt.ttl_refresh_sec);
     await this.authRepository.setRefreshTokenAsync(user.useridx, token);
 
     return token;
@@ -53,10 +53,11 @@ export class AuthService {
 
   async createTokenInfoAsync(user: SessionUser): Promise<JwtInfo> {
     return {
-      access_token: await this.createAccessTokenAsync(user),
       token_type: ServerConfig.jwt.type,
-      expires_in: ServerConfig.jwt.ttl_access_msec,
+      access_token: await this.createAccessTokenAsync(user),
+      access_expire_sec: ServerConfig.jwt.ttl_access_sec,
       refresh_token: await this.createRefreshTokenAsync(user),
+      refresh_expire_sec: ServerConfig.jwt.ttl_refresh_sec,
     };
   }
 }

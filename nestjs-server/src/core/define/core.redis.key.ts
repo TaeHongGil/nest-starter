@@ -6,20 +6,12 @@ export class CoreRedisKeys {
     return `${StringUtil.toSnakeCase(ServerConfig.service.name)}:${ServerConfig.serverType}`;
   }
 
-  static getSessionPrefix(): string {
+  static getSessionKey(): string {
     return `${CoreRedisKeys.getPrefix()}:user:session`;
-  }
-
-  static getSessionKey(sessionId: string): string {
-    return `${this.getSessionPrefix()}:${sessionId}`;
   }
 
   static getTokenDefaultKey(): string {
     return `${CoreRedisKeys.getPrefix()}:user:token:`;
-  }
-
-  static getTokenKey(useridx: number): string {
-    return `${this.getSessionPrefix()}:${useridx}`;
   }
 
   static getGlobalNumberKey(): string {

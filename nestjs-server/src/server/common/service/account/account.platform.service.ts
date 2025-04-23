@@ -96,7 +96,7 @@ export class AccountPlatformService {
       nickname: account.nickname,
       role: account.role,
     };
-    await this.accountService.setLoginStateAsync(account);
+    await this.accountService.setLoginStateAsync(account.useridx);
 
     return account;
   }

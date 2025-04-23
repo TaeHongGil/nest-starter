@@ -33,16 +33,12 @@ export class AccountService {
     return await this.repository.delete(useridx);
   }
 
-  async setLoginStateAsync(account: DBAccount): Promise<boolean> {
-    return await this.repository.setLoginState(account);
-  }
-
   async deleteLoginStateAsync(useridx: number): Promise<boolean> {
     return await this.repository.deleteLoginState(useridx);
   }
 
-  async refreshLoginStateAsync(useridx: number): Promise<boolean> {
-    return await this.repository.refreshLoginState(useridx);
+  async setLoginStateAsync(useridx: number): Promise<boolean> {
+    return await this.repository.setLoginStateAsync(useridx);
   }
 
   async checkNicknameAsync(nickname: string): Promise<boolean> {
@@ -81,7 +77,7 @@ export class AccountService {
       nickname: account.nickname,
     };
     session.user = user;
-    await this.setLoginStateAsync(account);
+    await this.setLoginStateAsync(account.useridx);
 
     return account;
   }

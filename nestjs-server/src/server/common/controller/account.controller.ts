@@ -124,17 +124,4 @@ export class AccountController {
 
     return { message: 'success' };
   }
-
-  /**
-   * 계정이 현재 접속중인지 확인
-   * 15분 동안 유지 된다.
-   */
-  @Post('/ping')
-  @UseGuards(AuthGuard)
-  @SetMetadata(CUSTOM_METADATA.NOT_VERIFIED, true)
-  async ping(@Session() session: SessionData): Promise<any> {
-    const result = await this.accountService.refreshLoginStateAsync(session.user.useridx);
-
-    return { result: result };
-  }
 }

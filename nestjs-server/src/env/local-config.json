@@ -17,8 +17,8 @@
     "active": false,
     "type": "Bearer",
     "key": "Insert Key",
-    "ttl_access_msec": 300000,
-    "ttl_refresh_msec": 3600000
+    "ttl_access_sec": 300,
+    "ttl_refresh_sec": 3600
   },
   "throttler": [
     {
