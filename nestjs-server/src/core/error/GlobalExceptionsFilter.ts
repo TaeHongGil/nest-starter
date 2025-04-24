@@ -11,6 +11,6 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     ServerLogger.error(`${request.method} ${request.path} \nStack: ${exception.stack}`);
-    response.json(CommonResponse.builder().setError(new Error(exception.message)).build());
+    response.json(CommonResponse.builder().setError(exception).build());
   }
 }

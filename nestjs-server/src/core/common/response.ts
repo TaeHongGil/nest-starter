@@ -32,9 +32,10 @@ export class CommonResponseBuilder {
   }
 
   setError(error: Error): this {
-    this.error = {};
-    this.error['message'] = error.message;
-
+    this.error = {
+      message: error.message,
+      statusCode: error['status'] || 500,
+    };
     return this;
   }
 
