@@ -33,7 +33,7 @@ export class AppController {
   @Version(VERSION_NEUTRAL)
   @HttpCode(204)
   @ApiExcludeEndpoint()
-  favicon() {
+  favicon(): any {
     return {};
   }
 }

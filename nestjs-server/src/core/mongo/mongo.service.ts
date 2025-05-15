@@ -1,6 +1,5 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import mongoose, { type Connection, ClientSession } from 'mongoose';
-import 'reflect-metadata'; // Reflect 메타데이터를 사용하기 위해 추가
 import ServerConfig from '../config/server.config';
 import { ConnectKeys } from '../define/connect.key';
 import ServerError from '../error/server.error';
@@ -24,6 +23,7 @@ export class MongoService implements OnModuleDestroy {
 
   static getGlobalClient(): Connection {
     const con = this._connectionMap.get(ConnectKeys.getKey('global'));
+
     return con;
   }
 
@@ -59,7 +59,7 @@ export class MongoService implements OnModuleDestroy {
         await this.reconnect(connection, host, dbName);
       });
 
-      connection.on('error', async (err) => {
+      connection.on('error', (err) => {
         ServerLogger.error(`[mongo.${dbName}] MongoDB connection error: ${err.message}`);
       });
     }
@@ -104,10 +104,10 @@ export class MongoService implements OnModuleDestroy {
  * MongoDB 트랜잭션 데코레이터
  */
 export function MongoTransaction() {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: any[]): Promise<any> {
       const connection = MongoService.getGlobalClient();
       if (!connection) {
         throw ServerError.MONGO_CONNECTION_NOT_FOUND;
@@ -120,13 +120,14 @@ export function MongoTransaction() {
       try {
         const result = await originalMethod.apply(this, args);
         await session.commitTransaction();
+
         return result;
       } catch (e) {
         await session.abortTransaction();
         ServerLogger.error('Mongo transaction error', e);
         throw ServerError.MONGO_COMMIT_FAILED;
       } finally {
-        session.endSession();
+        await session.endSession();
         MongoService.setCurrentSession(undefined);
       }
     };

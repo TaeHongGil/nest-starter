@@ -43,16 +43,3 @@ export enum ROLE {
   ADMIN = 'ADMIN',
   GUEST = 'GUEST',
 }
-
-export class BOARD_CONFIG {
-  static readonly COMMENT_MAX_DEPTH = 4;
-  static readonly COMMENT_MAX_PER_PAGE = 30;
-  static readonly COMMENT_MAX_CONTENT = 200;
-  static readonly POST_MAX_PER_PAGE = 20;
-  static readonly POST_MAX_TITLE = 30;
-  static readonly POST_MAX_CONTENT = 1000;
-}
-
-export enum CUSTOM_METADATA {
-  NOT_VERIFIED = 'NOT_VERIFIED',
-}

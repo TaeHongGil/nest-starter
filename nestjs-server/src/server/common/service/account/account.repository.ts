@@ -21,23 +21,27 @@ export class AccountRepository implements OnModuleInit {
   async findOne(filter: Partial<DBAccount>): Promise<DBAccount> {
     const session = MongoService.getCurrentSession();
     const result = await this.model.findOne(filter).session(session).lean();
+
     return plainToInstance(DBAccount, result, { excludeExtraneousValues: true });
   }
 
   async delete(useridx: number): Promise<boolean> {
     const session = MongoService.getCurrentSession();
     const result = await this.model.deleteOne({ useridx }).session(session).lean();
+
     return result.deletedCount > 0;
   }
 
   async upsert(account: DBAccount): Promise<DBAccount> {
     const session = MongoService.getCurrentSession();
     await this.model.findOneAndUpdate({ useridx: account.useridx }, account, { new: true, upsert: true }).session(session).lean();
+
     return account;
   }
 
   async increaseidx(): Promise<number> {
     const client = this.redis.getGlobalClient();
+
     return await client.hIncrBy(CoreRedisKeys.getGlobalNumberKey(), 'useridx', 1);
   }
 
@@ -50,6 +54,7 @@ export class AccountRepository implements OnModuleInit {
     }
 
     await client.hSet(key, useridx.toString(), new Date().toISOString());
+
     return await this.updateLoginStateTTL(client, key, useridx.toString(), 'NX');
   }
 
@@ -58,6 +63,7 @@ export class AccountRepository implements OnModuleInit {
    */
   private async updateLoginStateTTL(client: any, key: string, field: string, condition: 'XX' | 'NX'): Promise<boolean> {
     const result = await client.hExpire(key, field, LOGIN_STATE.EXPIRES_SEC, condition);
+
     return result[0] === 1;
   }
 
@@ -65,6 +71,7 @@ export class AccountRepository implements OnModuleInit {
     const client = this.redis.getGlobalClient();
     const key = CommonRedisKeys.getUserStateKey();
     const result = await client.hDel(key, useridx.toString());
+
     return result > 0;
   }
 }

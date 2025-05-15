@@ -40,6 +40,7 @@ export class AuthController {
       jwt: await this.authService.createTokenInfoAsync(user),
     };
     await this.accountService.setLoginStateAsync(user.useridx);
+
     return result;
   }
 }

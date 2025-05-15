@@ -85,8 +85,12 @@ export default defineConfig([
           ignoreIIFE: false,
         },
       ],
-
-      '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        {
+          checksVoidReturn: false,
+        },
+      ],
       '@typescript-eslint/promise-function-async': 'error',
 
       'padding-line-between-statements': [

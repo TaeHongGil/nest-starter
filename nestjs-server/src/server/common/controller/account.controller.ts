@@ -1,9 +1,8 @@
-import { Body, Controller, Delete, Get, Post, Query, Session, SetMetadata, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query, Session, UseGuards } from '@nestjs/common';
 import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
 import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
-import { CUSTOM_METADATA } from '@root/core/define/define';
 import ServerError from '@root/core/error/server.error';
 import { MongoTransaction } from '@root/core/mongo/mongo.service';
 import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../dto/common.request.dto';
@@ -81,6 +80,7 @@ export class AccountController {
     if (!account) {
       throw ServerError.USER_NOT_FOUND;
     }
+
     return { nickname: account.nickname };
   }
 
@@ -103,7 +103,6 @@ export class AccountController {
    */
   @Post('/logout')
   @UseGuards(AuthGuard)
-  @SetMetadata(CUSTOM_METADATA.NOT_VERIFIED, true)
   async logout(@Session() session: SessionData): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);
     await this.authService.deleteRefreshTokenAsync(session.user.useridx);

@@ -28,13 +28,13 @@ export class RedisService implements OnModuleDestroy {
           checkServerIdentity: (): any => undefined,
           reconnectStrategy: (_retries: number): number | Error => {
             ServerLogger.warn(`[redis.${dbName}] Reconnecting...`);
+
             return 3000;
           },
         },
       };
 
       const redisClient = createClient(redisClientOptions) as RedisClientType;
-      console.log(redisClient.eventNames());
       await redisClient.connect();
 
       this.connectionMap.set(dbName, redisClient);
@@ -67,6 +67,7 @@ export class RedisService implements OnModuleDestroy {
     if (!connection) {
       throw new Error(`Redis connection not found for global key: ${globalKey}`);
     }
+
     return connection;
   }
 
@@ -76,6 +77,7 @@ export class RedisService implements OnModuleDestroy {
     if (!connection) {
       throw new Error(`Redis connection not found for key: ${connectionKey}`);
     }
+
     return connection;
   }
 }

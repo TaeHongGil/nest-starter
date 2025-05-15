@@ -36,6 +36,7 @@ export class CommonResponseBuilder {
       message: error.message,
       statusCode: error['status'] || 500,
     };
+
     return this;
   }
 
