@@ -7,7 +7,7 @@
   "configurations": [
     {
       "type": "node",
-      "name": "Local Run",
+      "name": "Local API Server Run",
       "request": "launch",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "start:debug"],
@@ -17,7 +17,24 @@
       "cwd": "${workspaceRoot}",
       "console": "integratedTerminal",
       "env": {
-        "server_type": "local"
+        "server_type": "local",
+        "mode": "api"
+      }
+    },
+    {
+      "type": "node",
+      "name": "Local Scoket Server Run",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:debug"],
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "envFile": "${workspaceFolder}/.env/.env",
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
+      "env": {
+        "server_type": "local",
+        "mode": "socket"
       }
     },
     {

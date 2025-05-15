@@ -1,5 +1,5 @@
 import { Controller, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@root/core/auth/auth.guard';
+import { AuthGuard } from '@root/core/guard/auth.guard';
 import { UserService } from '../service/user/user.service';
 
 /**

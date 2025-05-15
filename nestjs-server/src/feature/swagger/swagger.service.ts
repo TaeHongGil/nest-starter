@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { OpenAPIObject, TagObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { TagObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 
 import ServerConfig from '@root/core/config/server.config';
 import { SERVER_TYPE } from '@root/core/define/define';
 import { ServerLogger } from '@root/core/server-log/server.log.service';
-import SwaggerConfig from './swagger.config';
+import { SwaggerDocument } from './swagger.dto';
 import { SwaggerUtil } from './swagger.utils';
 
 @Injectable()
@@ -14,10 +14,10 @@ export class SwaggerService {
   constructor(readonly swaggerUtil: SwaggerUtil) {}
 
   metadata: Record<string, any>;
-  document: OpenAPIObject;
+  document: SwaggerDocument;
   tags: TagObject[];
 
-  getDocument(): OpenAPIObject {
+  getDocument(): SwaggerDocument {
     return this.document;
   }
 
@@ -32,7 +32,6 @@ export class SwaggerService {
     if (ServerConfig.serverType == SERVER_TYPE.LIVE) {
       return;
     }
-    SwaggerConfig.init();
     let metadata: () => Promise<Record<string, any>>;
     const path = './metadata';
     try {
@@ -63,10 +62,12 @@ export class SwaggerService {
 
     //spec생성
 
-    this.document = SwaggerModule.createDocument(app, documentOptions, {
+    const swagger = SwaggerModule.createDocument(app, documentOptions, {
       extraModels: [...modelMetadata],
       deepScanRoutes: true,
     });
-    this.document.tags = this.getTags();
+    swagger.tags = this.getTags();
+
+    this.document = { ...swagger, socket: this.swaggerUtil.addSocketMetadata(this.metadata) };
   }
 }

@@ -13,6 +13,8 @@ export class SwaggerController {
 
   @Get('/')
   getMetadata(): any {
-    return { spec: this.swaggerService.getDocument(), config: SwaggerConfig.options.config, servers: SwaggerConfig.servers };
+    const config = new SwaggerConfig();
+
+    return { spec: this.swaggerService.getDocument(), config: config.options.config, servers: config.servers };
   }
 }

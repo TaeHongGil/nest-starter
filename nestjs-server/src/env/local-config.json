@@ -3,11 +3,15 @@
   "service": {
     "name": "Nest"
   },
-  "port": 80,
+  "port": {
+    "http": 20000,
+    "socket": 30000
+  },
   "dev": true,
   "swagger": {
     "active": true,
     "servers": {
+      "local": "http://localhost:20000",
       "dev": "",
       "qa": "",
       "live": ""

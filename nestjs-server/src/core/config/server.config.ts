@@ -4,8 +4,13 @@ import * as path from 'path';
 export class ServerConfig {
   static version: string = '1';
   static serverType: string = 'local';
+  static mode: string = 'api';
   static throttler: ThorttlerConfig[] = [];
-  static port: number = 80;
+  static port: PortConfig = {
+    http: 4000,
+    socket: 5000,
+  };
+
   static dev: boolean = true;
   static service: ServiceConfig = {
     name: '',
@@ -52,6 +57,7 @@ export class ServerConfig {
   static async init(): Promise<void> {
     global.ServerConfig = ServerConfig;
     this.serverType = process.env.server_type;
+    this.mode = process.env.mode;
     this.paths.root = path.join(process.cwd(), 'src');
     this.paths.env = path.join(this.paths.root, 'env');
     this.paths.ui.public = path.join(this.paths.root, 'ui', 'public');
@@ -60,7 +66,7 @@ export class ServerConfig {
   }
 
   static async _load(): Promise<void> {
-    const excludes = ['name', 'prototype', 'length', 'serverType', 'paths'];
+    const excludes = ['name', 'prototype', 'length', 'serverType', 'paths', 'mode'];
     const configPath = path.join(this.paths.env, `${this.serverType}-config.json`);
     const forceConfigPath = path.join(this.paths.env, `force-config.json`);
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -92,6 +98,14 @@ export class ServerConfig {
  */
 export interface ServiceConfig {
   name: string;
+}
+
+/**
+ * 포트 설정
+ */
+export interface PortConfig {
+  http: number;
+  socket: number;
 }
 
 /**

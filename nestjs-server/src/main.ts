@@ -1,15 +1,18 @@
-import { BadRequestException, ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
-import { NestFactory, Reflector } from '@nestjs/core';
+import { applyDecorators, ClassSerializerInterceptor, UseFilters, UseGuards, UsePipes, VersioningType } from '@nestjs/common';
+import { ModulesContainer, NestFactory, Reflector } from '@nestjs/core';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import ServerConfig from '@root/core/config/server.config';
-import { ValidationError } from 'class-validator';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { AppModule } from './app.module';
-import { GlobalExceptionsFilter } from './core/error/GlobalExceptionsFilter';
+import { GlobalExceptionsFilter, SocketGlobalExceptionFilter } from './core/error/global.exception.filter';
+import { SocketThrottlerGuard } from './core/guard/throttle.guard';
 import { ResponseInterceptor } from './core/interceptor/response.interceptor';
 import { MongoService } from './core/mongo/mongo.service';
+import { GlobalValidationPipe } from './core/pipe/GlobalValidationPipe';
+import { RedisIoAdapter } from './core/redis/redis.adapter';
 import { RedisService } from './core/redis/redis.service';
 import { ServerLogger } from './core/server-log/server.log.service';
 
@@ -23,12 +26,18 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: ServerConfig.version,
+    defaultVersion: ServerConfig.mode != 'socket' ? ServerConfig.version : undefined,
   });
   await onBeforeModuleInit(app);
   setHelmet(app);
-  setAplication(app);
-  await app.listen(ServerConfig.port);
+  if (ServerConfig.mode == 'socket') {
+    setSocketServer(app);
+    await app.listen(ServerConfig.port.socket);
+  } else {
+    setAPIServer(app);
+    await app.listen(ServerConfig.port.http);
+  }
+
   if (ServerConfig.serverType == 'local') {
     const figlet = (await import('figlet')).default;
     figlet(ServerConfig.service.name.toUpperCase(), (err, data) => {
@@ -37,10 +46,14 @@ async function bootstrap(): Promise<void> {
 
         return;
       }
-      const appUrl = `http://localhost:${ServerConfig.port}/v${ServerConfig.version}`;
+      const port = ServerConfig.mode == 'socket' ? ServerConfig.port.socket : ServerConfig.port.http;
+      const mode = ServerConfig.mode == 'socket' ? 'Socket' : 'API';
+      const version = ServerConfig.mode == 'socket' ? '' : `v${ServerConfig.version}`;
+
+      const appUrl = `http://localhost:${port}/${version}`;
       process.stdout.write('\x1b[2J\x1b[0f');
       console.log('\x1b[36m%s\x1b[0m', data);
-      console.log(`Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
+      console.log(`${mode} Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
     });
   }
 }
@@ -65,6 +78,7 @@ function setHelmet(app: NestExpressApplication): void {
     app.enableCors({
       origin: '*',
     });
+
     return;
   }
   /**
@@ -93,29 +107,38 @@ function setHelmet(app: NestExpressApplication): void {
   // app.use(helmet.xssFilter());
 }
 
-function setAplication(app: NestExpressApplication): void {
-  const callError = (validationErrors: ValidationError[] = []): Error => {
-    let msg = '';
-    for (const error of validationErrors) {
-      msg = JSON.stringify(error.constraints);
-      break;
-    }
-
-    return new BadRequestException(msg);
-  };
+function setAPIServer(app: NestExpressApplication): void {
   const reflector = app.get(Reflector);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
   app.useGlobalFilters(new GlobalExceptionsFilter());
   app.useGlobalInterceptors(new ResponseInterceptor(reflector));
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true, // validation을 위한 decorator가 붙어있지 않은 속성들은 제거
-      forbidNonWhitelisted: true, // whitelist 설정을 켜서 걸러질 속성이 있다면 아예 요청 자체를 막도록 (400 에러)
-      transform: true, // 요청에서 넘어온 자료들의 형변환
-      enableDebugMessages: true,
-      exceptionFactory: callError,
-    }),
-  );
+  app.useGlobalPipes(new GlobalValidationPipe());
+}
+
+/**
+ * useGlobal 사용이 불가하여 직접 설정
+ */
+function setSocketServer(app: NestExpressApplication): void {
+  const modulesContainer = app.get(ModulesContainer);
+  const providers = [...modulesContainer.values()]
+    .flatMap((module) => {
+      return [...module.providers.values()];
+    })
+    .filter((wrapper) => wrapper.instance);
+  const uniqueProviders = Array.from(new Map(providers.map((wrapper) => [wrapper.instance.constructor, wrapper])).values());
+  uniqueProviders.forEach((wrapper: InstanceWrapper) => {
+    const { instance } = wrapper;
+    const provider = instance.constructor;
+    const gateWay = Reflect.getMetadata('websockets:is_gateway', provider);
+    if (!gateWay) {
+      return;
+    }
+    applyDecorators(UsePipes(new GlobalValidationPipe()))(provider);
+    applyDecorators(UseFilters(new SocketGlobalExceptionFilter()))(provider);
+    applyDecorators(UseGuards(SocketThrottlerGuard))(provider);
+  });
+
+  app.useWebSocketAdapter(new RedisIoAdapter(app));
 }
 
 bootstrap().catch((err) => {

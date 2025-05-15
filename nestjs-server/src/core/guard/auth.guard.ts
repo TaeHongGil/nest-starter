@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, Injectable, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtPayload } from 'jsonwebtoken';
+import { SessionUser } from '../auth/auth.schema';
+import { AuthService } from '../auth/auth.service';
 import ServerConfig from '../config/server.config';
 import ServerError from '../error/server.error';
 import CryptUtil from '../utils/crypt.utils';
-import { SessionUser } from './auth.schema';
-import { AuthService } from './auth.service';
 
 @Injectable()
 @SetMetadata('swagger/summary', '인증필요')
@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
 
-    const jwtInfo = CryptUtil.jwtVerify(this.authService.getAuthToken(request), ServerConfig.jwt.key) as JwtPayload;
+    const jwtInfo = CryptUtil.jwtVerify(this.authService.getRequestToken(request), ServerConfig.jwt.key) as JwtPayload;
     if (!jwtInfo) {
       throw ServerError.INVALID_TOKEN;
     }
@@ -45,7 +45,7 @@ export class NoAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-    const token = this.authService.getAuthToken(request);
+    const token = this.authService.getRequestToken(request);
     let user: SessionUser;
     if (token) {
       const jwtInfo = CryptUtil.jwtVerify(token, ServerConfig.jwt.key) as JwtPayload;

@@ -5,8 +5,8 @@ const generator = new PluginMetadataGenerator();
 generator.generate({
   visitors: [
     new ReadonlyVisitor({
-      dtoFileNameSuffix: ['.dto.ts', '.schema.ts'],
-      controllerFileNameSuffix: ['.controller.ts'],
+      dtoFileNameSuffix: ['.schema.ts', '.dto.ts'],
+      controllerFileNameSuffix: ['.controller.ts', '.gateway.ts'],
       classValidatorShim: true,
       pathToSource: __dirname,
       controllerKeyOfComment: 'description',

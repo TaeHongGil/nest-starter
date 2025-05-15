@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Post, Query, Session, UseGuards } from '@nestjs/common';
-import { AuthGuard, NoAuthGuard } from '@root/core/auth/auth.guard';
 import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
 import ServerError from '@root/core/error/server.error';
+import { AuthGuard, NoAuthGuard } from '@root/core/guard/auth.guard';
 import { MongoTransaction } from '@root/core/mongo/mongo.service';
 import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../dto/common.request.dto';
 import { ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../dto/common.response.dto';

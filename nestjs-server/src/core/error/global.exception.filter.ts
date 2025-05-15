@@ -1,4 +1,5 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
+import { BaseWsExceptionFilter } from '@nestjs/websockets';
 import { Request, Response } from 'express';
 import { CommonResponse } from '../common/response';
 import { ServerLogger } from '../server-log/server.log.service';
@@ -12,5 +13,17 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
 
     ServerLogger.error(`${request.method} ${request.path} \nStack: ${exception.stack}`);
     response.json(CommonResponse.builder().setError(exception).build());
+  }
+}
+
+@Catch(HttpException)
+export class SocketGlobalExceptionFilter extends BaseWsExceptionFilter<HttpException> {
+  catch(exception: HttpException, host: ArgumentsHost): void {
+    const ws = host.switchToWs();
+    const socket = ws.getClient();
+    const data = ws.getData();
+
+    ServerLogger.error(`${data.title} ${data.emitName} \nStack: ${exception.stack}`);
+    socket.emit('exception', CommonResponse.builder().setError(exception).build());
   }
 }

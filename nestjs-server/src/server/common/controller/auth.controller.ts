@@ -1,9 +1,9 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { NoAuthGuard } from '@root/core/auth/auth.guard';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
 import ServerError from '@root/core/error/server.error';
+import { NoAuthGuard } from '@root/core/guard/auth.guard';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';
 import { ReqTokenRefresh } from '../dto/common.request.dto';

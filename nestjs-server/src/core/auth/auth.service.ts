@@ -39,13 +39,18 @@ export class AuthService {
     return true;
   }
 
-  getAuthToken(req: Request): string {
+  getRequestToken(req: Request): string {
     const headerToken: string = req.get('Authorization');
-    if (!headerToken) {
+
+    return this.getToken(headerToken);
+  }
+
+  getToken(token: string): string {
+    if (!token) {
       return undefined;
     }
-    if (headerToken.startsWith(`${ServerConfig.jwt.type} `)) {
-      return headerToken.substring(7, headerToken.length);
+    if (token.startsWith(`${ServerConfig.jwt.type} `)) {
+      return token.substring(7, token.length);
     } else {
       return undefined;
     }

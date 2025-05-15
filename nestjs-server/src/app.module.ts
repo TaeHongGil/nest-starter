@@ -12,11 +12,11 @@ import { ServerModule } from './server/server.module';
   imports: [ThrottlerModule.forRootAsync({ useFactory: async () => ServerConfig.throttler }), CoreModule, ServerModule, FeatureModule],
   controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    AppService,
   ],
 })
 export class AppModule {}
