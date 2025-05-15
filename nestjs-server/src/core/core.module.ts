@@ -18,24 +18,25 @@ export class CoreModule implements OnModuleInit {
     ServerLogger.log(`CoreModule.onModuleInit`);
   }
 
-  static registerController(t: Type<any>, controller_path: string, end_with_file_name: string): DynamicModule {
-    const controllersPath = controller_path;
-    const controllerFiles = readdirSync(controllersPath).filter((file) => file.endsWith(`${end_with_file_name}.js`) || file.endsWith(`${end_with_file_name}.ts`));
-    const controllers: any[] = controllerFiles.map((file) => {
+  static registerDynamic(t: Type<any>, target_path: string, end_with_file_name: string, type: 'controllers' | 'providers' | 'imports'): DynamicModule {
+    const files = readdirSync(target_path).filter((file) => file.endsWith(`${end_with_file_name}.js`) || file.endsWith(`${end_with_file_name}.ts`));
+    const classes: any[] = files.map((file) => {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const controllerModule = require(path.join(controllersPath, file));
-      const controllerClass = Object.values(controllerModule).find((item) => typeof item === 'function');
+      const mod = require(path.join(target_path, file));
+      const clazz = Object.values(mod).find((item) => typeof item === 'function');
 
-      return controllerClass;
+      return clazz;
     });
 
-    for (const ct of controllers) {
-      ServerLogger.log(`Added ${t.name} Controller = ${ct.name}`);
+    for (const c of classes) {
+      ServerLogger.log(`Added ${t.name} ${type} = ${c.name}`);
     }
 
-    return {
+    const result: DynamicModule = {
       module: t,
-      controllers: controllers,
     };
+    result[type] = classes;
+
+    return result;
   }
 }

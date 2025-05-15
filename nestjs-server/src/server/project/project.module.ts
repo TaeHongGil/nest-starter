@@ -5,7 +5,7 @@ import path from 'path';
 import { UserModule } from './service/user/user.module';
 
 @Module({
-  imports: [UserModule, CoreModule.registerController(ProjectModule, path.join(__dirname, 'controller'), '.controller')],
+  imports: [UserModule, CoreModule.registerDynamic(ProjectModule, path.join(__dirname, 'controller'), '.controller', 'controllers')],
   providers: [],
   exports: [],
 })

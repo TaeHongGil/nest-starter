@@ -5,7 +5,7 @@ import path from 'path';
 import { AccountModule } from './service/account/account.module';
 
 @Module({
-  imports: [AccountModule, CoreModule.registerController(CommonModule, path.join(__dirname, 'controller'), '.controller')],
+  imports: [AccountModule, CoreModule.registerDynamic(CommonModule, path.join(__dirname, 'controller'), '.controller', 'controllers')],
   controllers: [],
   providers: [],
   exports: [],
