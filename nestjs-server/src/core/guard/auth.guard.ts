@@ -25,18 +25,21 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
 
-    const jwtInfo = CryptUtil.jwtVerify(this.authService.getRequestToken(request), ServerConfig.jwt.key) as JwtPayload;
+    const token = this.authService.getRequestToken(request);
     let user: SessionUser;
+    let jwtInfo: JwtPayload;
+    if (token) {
+      jwtInfo = CryptUtil.jwtVerify(token, ServerConfig.jwt.key) as JwtPayload;
+      if (jwtInfo) {
+        user = {
+          useridx: jwtInfo['useridx'],
+          role: jwtInfo['role'],
+          nickname: jwtInfo['nickname'],
+        };
+      }
+    }
     if (!jwtInfo && !isPublic) {
       throw ServerError.INVALID_TOKEN;
-    }
-
-    if (jwtInfo) {
-      user = {
-        useridx: jwtInfo['useridx'],
-        role: jwtInfo['role'],
-        nickname: jwtInfo['nickname'],
-      };
     }
     request.session = {
       user,
