@@ -7,8 +7,13 @@ import ServerConfig from '../config/server.config';
 import ServerError from '../error/server.error';
 import CryptUtil from '../utils/crypt.utils';
 
+export const IS_PUBLIC_KEY = 'isPublic';
+
+export function NoAuthGuard(): ClassDecorator & MethodDecorator {
+  return SetMetadata(IS_PUBLIC_KEY, true);
+}
+
 @Injectable()
-@SetMetadata('swagger/summary', '인증필요')
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly authService: AuthService,
@@ -16,51 +21,27 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [context.getHandler(), context.getClass()]);
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
 
     const jwtInfo = CryptUtil.jwtVerify(this.authService.getRequestToken(request), ServerConfig.jwt.key) as JwtPayload;
-    if (!jwtInfo) {
+    let user: SessionUser;
+    if (!jwtInfo && !isPublic) {
       throw ServerError.INVALID_TOKEN;
     }
-    const user: SessionUser = {
-      useridx: jwtInfo['useridx'],
-      role: jwtInfo['role'],
-      nickname: jwtInfo['nickname'],
-    };
-    request.session = {
-      user: user,
-      request: request,
-      response: response,
-    };
 
-    return true;
-  }
-}
-
-@Injectable()
-@SetMetadata('swagger/summary', '미인증')
-export class NoAuthGuard implements CanActivate {
-  constructor(private readonly authService: AuthService) {}
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
-    const token = this.authService.getRequestToken(request);
-    let user: SessionUser;
-    if (token) {
-      const jwtInfo = CryptUtil.jwtVerify(token, ServerConfig.jwt.key) as JwtPayload;
-      if (jwtInfo) {
-        user = {
-          useridx: jwtInfo['useridx'],
-          role: jwtInfo['role'],
-          nickname: jwtInfo['nickname'],
-        };
-      }
+    if (jwtInfo) {
+      user = {
+        useridx: jwtInfo['useridx'],
+        role: jwtInfo['role'],
+        nickname: jwtInfo['nickname'],
+      };
     }
     request.session = {
-      user: user,
-      request: request,
-      response: response,
+      user,
+      request,
+      response,
     };
 
     return true;

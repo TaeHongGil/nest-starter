@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Post, Query, Session, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query, Session } from '@nestjs/common';
 import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
 import ServerError from '@root/core/error/server.error';
-import { AuthGuard, NoAuthGuard } from '@root/core/guard/auth.guard';
+import { NoAuthGuard } from '@root/core/guard/auth.guard';
 import { MongoTransaction } from '@root/core/mongo/mongo.service';
 import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../dto/common.request.dto';
 import { ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../dto/common.response.dto';
@@ -26,7 +26,7 @@ export class AccountController {
    * 게스트 계정을 생성한다.
    */
   @Post('/guest/create')
-  @UseGuards(NoAuthGuard)
+  @NoAuthGuard()
   async createGuestAccount(@Session() session: SessionData, @Body() param: ReqCreateGuest): Promise<ResCreateGuest> {
     const guestAccount = await this.accountService.createGuestAccountAsync(param.device_id);
     const res: ResCreateGuest = {
@@ -41,7 +41,7 @@ export class AccountController {
    * 로그인
    */
   @Post('/guest/login')
-  @UseGuards(NoAuthGuard)
+  @NoAuthGuard()
   async login(@Session() session: SessionData, @Body() param: ReqGuestLogin): Promise<ResLogin> {
     const account = await this.accountService.loginAsync(session, param);
     const res: ResLogin = {
@@ -57,7 +57,7 @@ export class AccountController {
    * 플랫폼 로그인
    */
   @Post('/platform/login')
-  @UseGuards(NoAuthGuard)
+  @NoAuthGuard()
   async paltformlogin(@Session() session: SessionData, @Body() param: ReqPlatformLogin): Promise<ResLogin> {
     const platformId = await this.accountPlatformService.getPlatformIdAsync(param.platform, param.token);
     const account = await this.accountPlatformService.platformLogin(session, param.platform, platformId);
@@ -74,7 +74,6 @@ export class AccountController {
    * 계정 정보
    */
   @Get('/get')
-  @UseGuards(AuthGuard)
   async getAccount(@Session() session: SessionData): Promise<ResGetAccount> {
     const account = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
     if (!account) {
@@ -88,7 +87,7 @@ export class AccountController {
    * 닉네임 중복 검사
    */
   @Get('/check/nickname')
-  @UseGuards(NoAuthGuard)
+  @NoAuthGuard()
   async checkNickname(@Session() session: SessionData, @Query() req: ReqCheckNickname): Promise<ResDuplicatedCheck> {
     if (!req.nickname || !req.nickname.trim()) {
       throw ServerError.BAD_REQUEST;
@@ -102,7 +101,6 @@ export class AccountController {
    * 로그아웃
    */
   @Post('/logout')
-  @UseGuards(AuthGuard)
   async logout(@Session() session: SessionData): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);
     await this.authService.deleteRefreshTokenAsync(session.user.useridx);
@@ -114,7 +112,6 @@ export class AccountController {
    * 계정삭제
    */
   @Delete('/delete')
-  @UseGuards(AuthGuard)
   @MongoTransaction()
   async deleteAccount(@Session() session: SessionData): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);

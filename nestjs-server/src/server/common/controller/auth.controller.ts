@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
@@ -24,7 +24,7 @@ export class AuthController {
    * JWT 토큰 Refresh
    */
   @Post('/token')
-  @UseGuards(NoAuthGuard)
+  @NoAuthGuard()
   async tokenRefresh(@Body() param: ReqTokenRefresh): Promise<any> {
     const jwtInfo = CryptUtil.jwtVerify(param.refresh_token, ServerConfig.jwt.key) as JwtPayload;
     if (!jwtInfo) {
