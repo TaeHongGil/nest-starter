@@ -12,40 +12,63 @@ export interface SwaggerOptions {
   header?: Record<string, any>;
 }
 
-export interface PathData {
+export interface PathInfo {
   method: METHOD_TYPE;
   path: string;
+}
+
+export interface EventInfo {
+  namespace: string;
+  event: string;
+}
+
+export interface ServerUrl {
+  api: string;
+  socket: string;
+}
+
+export interface DefaultSchema {
+  name?: string;
+  schema?: any;
 }
 
 class SwaggerMetadata {
   static schema: Record<string, any>;
   static paths: Record<string, Record<string, any>>;
-  static apis: Record<string, PathData[]>;
-  static servers: Record<string, string> = {};
+  static apis: Record<string, PathInfo[]>;
+  static servers: Record<string, ServerUrl> = {};
+  static namespaces: Record<string, string[]> = {};
+  static sockets: Record<string, Record<string, any>> = {};
   static config: SwaggerOptions;
+  static init: boolean = false;
 
-  static init(metadata: any) {
+  static initialize(metadata: any): void {
     window.metadata = metadata;
     console.log(metadata);
     const spec = metadata.spec;
-    SwaggerMetadata.schema = spec.components?.schemas;
-    SwaggerMetadata.paths = spec.paths;
-    SwaggerMetadata.apis = SwaggerMetadata.initApis();
-    SwaggerMetadata.servers = metadata.servers;
-    SwaggerMetadata.config = metadata.config;
+    this.schema = spec.components?.schemas;
+    this.servers = metadata.servers;
+    this.config = metadata.config;
+
+    this.paths = spec.paths;
+    this.apis = this.initApis();
+
+    this.sockets = spec.sockets;
+    this.namespaces = this.initSockets();
+    this.init = true;
   }
 
-  private static initApis(): Record<string, PathData[]> {
-    const apis: Record<string, PathData[]> = {};
+  private static initApis(): Record<string, PathInfo[]> {
+    const apis: Record<string, PathInfo[]> = {};
 
-    for (const [path, methods] of Object.entries(SwaggerMetadata.paths)) {
+    for (const [path, methods] of Object.entries(this.paths)) {
       for (const [method, methodData] of Object.entries(methods)) {
         const ref = methodData.requestBody?.content?.['application/json']?.schema?.['$ref'];
         if (ref) {
-          const name = SwaggerMetadata.getSchemaName(ref);
+          const name = this.getSchemaName(ref);
           methodData.defaultSchema = {
             name,
-            schema: SwaggerMetadata.getSchema(name),
+            schema: this.getSchema(name),
           };
         }
 
@@ -60,25 +83,42 @@ class SwaggerMetadata {
     return apis;
   }
 
+  private static initSockets(): Record<string, string[]> {
+    const namespaces: Record<string, string[]> = {};
+
+    for (const [namespace, event] of Object.entries(this.sockets)) {
+      for (const [eventName, eventInfo] of Object.entries(event)) {
+        const ref = eventInfo.requestBody?.content?.['application/json']?.schema?.['$ref'];
+        if (ref) {
+          const name = this.getSchemaName(ref);
+          eventInfo.defaultSchema = {
+            name,
+            schema: this.getSchema(name),
+          };
+        }
+
+        if (!namespaces[namespace]) namespaces[namespace] = [];
+        namespaces[namespace].push(eventName);
+      }
+    }
+
+    return namespaces;
+  }
+
   static getPath(method: string, path: string): any {
-    return SwaggerMetadata.paths[path]?.[method.toLowerCase()];
+    return this.paths[path]?.[method.toLowerCase()];
   }
 
-  static getDefaultSchema(method: string, path: string): any {
-    return SwaggerMetadata.getPath(method, path)?.defaultSchema;
+  static getEvent(namespace: string, event: string): any {
+    return this.sockets[namespace]?.[event];
   }
 
-  static getChildSchema(method: string, path: string): any {
-    const result: Record<string, any> = {};
-    CommonUtil.findAllValuesByKey(SwaggerMetadata.getDefaultSchema(method, path).schema, '$ref').forEach((ref) => {
-      const name = SwaggerMetadata.getSchemaName(ref);
-      result[name] = SwaggerMetadata.getSchema(name);
-    });
-    return result;
+  static getApis(): Record<string, PathInfo[]> {
+    return this.apis;
   }
 
-  static getApis(): Record<string, PathData[]> {
-    return SwaggerMetadata.apis;
+  static getEvents(): Record<string, string[]> {
+    return this.namespaces;
   }
 
   static getSchemaName(ref: string): string {
@@ -86,7 +126,7 @@ class SwaggerMetadata {
   }
 
   static getSchema(name: string): any {
-    return SwaggerMetadata.schema[name];
+    return this.schema[name];
   }
 
   static formatJson(jsonString: string, schema: any, targetPath: string = ''): string {
@@ -95,11 +135,13 @@ class SwaggerMetadata {
         return jsonString;
       }
       const parsed = JSON5.parse(jsonString);
-      const format = SwaggerMetadata.addComment(parsed, schema, targetPath);
+      const format = this.addComment(parsed, schema, targetPath);
+
       return format;
     } catch (e: any) {
       MessageUtil.error('Failed to format JSON.');
       console.error(e);
+
       return jsonString;
     }
   }
@@ -117,11 +159,12 @@ class SwaggerMetadata {
       else if (data.type == 'object') result[field] = {};
       else {
         CommonUtil.findAllValuesByKey(data, '$ref').forEach((ref: string) => {
-          const schema = SwaggerMetadata.getSchema(SwaggerMetadata.getSchemaName(ref));
-          result[field] = SwaggerMetadata.toSchemaObject(schema);
+          const schema = this.getSchema(this.getSchemaName(ref));
+          result[field] = this.toSchemaObject(schema);
         });
       }
     }
+
     return result;
   }
 
@@ -129,8 +172,9 @@ class SwaggerMetadata {
     if (!schema || !schema.properties) {
       return '{\n}';
     }
-    const resultObject = SwaggerMetadata.toSchemaObject(schema);
-    return SwaggerMetadata.addComment(resultObject, schema);
+    const resultObject = this.toSchemaObject(schema);
+
+    return this.addComment(resultObject, schema);
   }
 
   static addComment(object: any, schema: any, targetPath: string = ''): string {
@@ -154,6 +198,7 @@ class SwaggerMetadata {
           result.push(`${'  '.repeat(depth)}"${key}": ${valueStr}${comment ? ',' + comment : ','}`);
         }
       });
+
       return result;
     };
 

@@ -3,18 +3,27 @@ import { GUARDS_METADATA, METHOD_METADATA } from '@nestjs/common/constants';
 import { ModulesContainer } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { TagObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
-import { SocketMetadata } from './swagger.dto';
+import { OperationObject, TagObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import path from 'path';
 import { ParameterMetadataAccessor } from './utils/parameter-metadata-accessor';
 
 @Injectable()
 export class SwaggerUtil {
   constructor(private readonly modulesContainer: ModulesContainer) {}
 
-  addSocketMetadata(metadata: Record<string, any>): SocketMetadata {
-    const result: SocketMetadata = {
-      events: {},
-    };
+  loadSocketMetadata(): Record<string, Record<string, OperationObject>> {
+    const filePath = path.join(__dirname, '..', '..', '..', 'src', 'feature', 'swagger', 'socket-metadata.json');
+    if (!existsSync(filePath)) {
+      return undefined;
+    }
+    const data = readFileSync(filePath, 'utf-8');
+
+    return JSON.parse(data);
+  }
+
+  saveSocketMetadata(metadata: Record<string, any>): void {
+    const result: Record<string, Record<string, OperationObject>> = {};
 
     const controllerMetadata = metadata['@nestjs/swagger']['controllers'].map((gateway: any[]) => gateway[1]).reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
     const providers = [...this.modulesContainer.values()]
@@ -34,23 +43,52 @@ export class SwaggerUtil {
       const prototype = Object.getPrototypeOf(instance);
       const option = Reflect.getMetadata('websockets:gateway_options', provider);
       const providerName = provider.name;
+      if (option.namespace) {
+        result[option.namespace] = {};
+      }
       Object.getOwnPropertyNames(prototype).forEach((methodName) => {
         const method = prototype[methodName];
         if (typeof prototype[methodName] === 'function') {
           const isSubscribe = Reflect.getMetadata('websockets:message_mapping', method);
           if (isSubscribe) {
-            const params = paramsAccesor.explore(prototype, undefined, method);
+            const metadata = controllerMetadata?.[providerName]?.[methodName];
+            const params = Object.values(paramsAccesor.explore(prototype, undefined, method));
             const message = Reflect.getMetadata('message', method);
-            result.events[message] = {
-              description: controllerMetadata?.[providerName]?.[methodName]?.['description'],
-              responses: {},
+            result[option.namespace][message] = {
+              description: metadata?.['description'],
+              requestBody:
+                params && params.length > 0
+                  ? {
+                      content: {
+                        'application/json': {
+                          schema: {
+                            $ref: `#/components/schemas/${params[0].type.name}`,
+                          },
+                        },
+                      },
+                    }
+                  : undefined,
+              responses: metadata
+                ? {
+                    '200': {
+                      description: metadata?.['description'],
+                      content: {
+                        'application/json': {
+                          schema: {
+                            $ref: `#/components/schemas/${metadata?.type?.name}`,
+                          },
+                        },
+                      },
+                    },
+                  }
+                : {},
             };
           }
         }
       });
     });
-
-    return result;
+    const filePath = path.join(__dirname, '..', '..', '..', 'src', 'feature', 'swagger', 'socket-metadata.json');
+    writeFileSync(filePath, JSON.stringify(result, null, 2), 'utf-8');
   }
 
   applyDecorators(metadata: Record<string, any>): TagObject[] {
@@ -83,13 +121,9 @@ export class SwaggerUtil {
             const methodMetadata = Reflect.getMetadata(METHOD_METADATA, method);
             if (methodMetadata != undefined) {
               const description = controllerMetadata?.[controllerName]?.[methodName]?.['description'];
-              const methodGuardMetadata = Reflect.getMetadata(GUARDS_METADATA, method) || [];
-              const interceptorsMetadata = [...controllerGuardMetadata, ...methodGuardMetadata];
-              const interceptors = this.getGuard(interceptorsMetadata);
               const operation = {
                 ...Reflect.getMetadata('swagger/apiOperation', method),
                 description,
-                security: interceptors,
               };
               applyDecorators(ApiOperation(operation))(prototype, methodName, descriptor);
             }
@@ -103,16 +137,5 @@ export class SwaggerUtil {
 
   private getControllerTag(name: string): string {
     return name.replace('Controller', '').replace(/([a-z])([A-Z])/g, '$1 $2');
-  }
-
-  private getGuard(interceptorsMetadata: any[]): string[] {
-    const interceptors = interceptorsMetadata.reduce((acc, interceptor) => {
-      const summary = Reflect.getMetadata('swagger/summary', interceptor);
-      acc.add(summary);
-
-      return acc;
-    }, new Set<string>());
-
-    return Array.from(interceptors);
   }
 }

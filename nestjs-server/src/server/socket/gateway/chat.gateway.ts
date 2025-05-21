@@ -1,24 +1,19 @@
-import { ConnectedSocket, MessageBody, OnGatewayInit, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { SocketAuthService } from '../../../core/auth/socket.auth.service';
-import { SocketEvent } from '../define/socket.define';
-import { ReqSendMessage } from '../dto/socket.request.dto';
-import { ResSendMessage } from '../dto/socket.response.dto';
+import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
 
-@WebSocketGateway({ namespace: '/chat' })
-export class ChatGateway implements OnGatewayInit {
-  constructor(private readonly socketAuthService: SocketAuthService) {}
+import { SocketEvent } from '../define/ws.define';
+import { ReqSendMessage } from '../dto/ws.request.dto';
+import { ResSendMessage } from '../dto/ws.response.dto';
+import { BaseGateway } from './base.gateway';
 
-  afterInit(server: Server): void {
-    server.use(this.socketAuthService.socketGuard());
-  }
-
+@WebSocketGateway({ namespace: '/chat', cors: { origin: '*' } })
+export class ChatGateway extends BaseGateway {
   /**
    * 메세지 전송
    */
-  @SubscribeMessage(SocketEvent.Chat)
+  @SubscribeMessage(SocketEvent.SendMessage)
   handleMessage(@ConnectedSocket() client: Socket, @MessageBody() req: ReqSendMessage): ResSendMessage {
-    client.broadcast.emit(SocketEvent.Chat, req.message);
+    this.server.emit(SocketEvent.SendMessage, req.message);
 
     return { result: true };
   }

@@ -18,7 +18,8 @@ class ServerConfig {
   }
 
   static getURL(port?: string): string {
-    let host = window.location.hostname;
+    const host = window.location.hostname;
+
     return `${window.location.protocol}//${host}:${port ?? window.location.port}`;
   }
 }

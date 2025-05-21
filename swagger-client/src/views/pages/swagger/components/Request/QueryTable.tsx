@@ -1,30 +1,30 @@
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import HttpUtil from '@root/common/util/http.util';
 import { observer } from 'mobx-react';
-import { SwaggerProps } from '../../Swagger';
+import { protocolStore } from '../../store/ProtocolStore';
 
 const IGNORED_KEYS = ['type', 'description', '$ref', 'properties', 'items', 'required', 'default', 'allOf'];
 
-const QueryTable = observer(({ store }: SwaggerProps) => {
-  const schmea = store.getCurrentPathInfo();
+const QueryTable = observer(() => {
+  const httpStore = protocolStore.httpStore;
+  const schmea = httpStore.getRequestSchema()?.schema;
 
   const sortQueryBySchema = (query: Record<string, any>, schema: any): Record<string, any> =>
     Object.keys(query)
       .sort((a, b) => {
         const indexA = schema?.parameters.findIndex((param: any) => param.name === a) ?? -1;
         const indexB = schema?.parameters.findIndex((param: any) => param.name === b) ?? -1;
+
         return indexA - indexB;
       })
-      .reduce(
-        (acc, key) => {
-          acc[key] = query[key];
-          return acc;
-        },
-        {} as Record<string, any>
-      );
+      .reduce<Record<string, any>>((acc, key) => {
+        acc[key] = query[key];
 
-  const handleInputChange = (name: string, value: any, type: string) => {
-    const updatedQuery = { ...store.requestQuery };
+        return acc;
+      }, {});
+
+  const handleInputChange = (name: string, value: any, type: string): void => {
+    const updatedQuery = { ...httpStore.requestQuery };
     if (!value) {
       delete updatedQuery[name];
     } else if (type === 'array') {
@@ -34,7 +34,7 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
     }
 
     const sortedQuery = sortQueryBySchema(updatedQuery, schmea);
-    store.updateRequestQuery(sortedQuery);
+    httpStore.setRequestQuery(sortedQuery);
   };
 
   return (
@@ -46,7 +46,7 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
         minRows={3}
         maxRows={3}
         fullWidth
-        value={HttpUtil.previewUrl(store.pathData.path, store.requestQuery)}
+        value={HttpUtil.previewUrl(httpStore.pathInfo.path, httpStore.requestQuery)}
         slotProps={{
           input: {
             readOnly: true,
@@ -69,6 +69,7 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
         <TableBody>
           {schmea?.parameters.map((data: any) => {
             if (data.in !== 'query') return null;
+
             return (
               <TableRow key={data.name}>
                 <TableCell>
@@ -82,7 +83,7 @@ const QueryTable = observer(({ store }: SwaggerProps) => {
                     size="small"
                     fullWidth
                     placeholder={`Enter value ${data.required ? '(required)' : ''}`}
-                    value={store.requestQuery[data.name] || ''}
+                    value={httpStore.requestQuery[data.name] || ''}
                     type={data.schema.type === 'number' ? 'number' : 'text'}
                     onChange={(e) => handleInputChange(data.name, e.target.value, data.schema.type)}
                   />

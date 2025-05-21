@@ -1,18 +1,49 @@
 import { observer } from 'mobx-react-lite';
 import Split from 'react-split';
-import { SwaggerProps } from '../Swagger';
-import ApiListSection from './ApiListSection';
+import { protocolStore } from '../store/ProtocolStore';
+import ApiListSection from './List/ApiListSection';
+import EventListSection from './List/EventListSection';
 import ReqeustSection from './Request/ReqeustSection';
+import SocketEmitSection from './Request/SocketEmitSection';
 import ResponseSection from './Response/ResponseSection';
+import SocketLogsSection from './Response/SocketLogsSection';
 
-const SwaggerBody = observer(({ store }: SwaggerProps) => (
-  <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
-    <Split key={store.refreshTrigger} className="split" style={{ height: '100%', width: '100%' }} expandToMin={true} gutterSize={5} sizes={[15, 42.5, 42.5]} minSize={[200, 400, 400]}>
-      <ApiListSection store={store} />
-      <ReqeustSection store={store}></ReqeustSection>
-      <ResponseSection store={store}></ResponseSection>
-    </Split>
-  </div>
-));
+const SwaggerBody = observer(() => {
+  const mode = protocolStore.mode;
+
+  return (
+    <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
+      {mode == 'api' ? (
+        <Split
+          key={`api-${protocolStore.httpStore.refreshTrigger}`}
+          className="split"
+          style={{ height: '100%', width: '100%' }}
+          expandToMin={true}
+          gutterSize={5}
+          sizes={[15, 42.5, 42.5]}
+          minSize={[200, 400, 400]}
+        >
+          <ApiListSection />
+          <ReqeustSection />
+          <ResponseSection />
+        </Split>
+      ) : (
+        <Split
+          key={`socket-${protocolStore.socketStore.refreshTrigger}`}
+          className="split"
+          style={{ height: '100%', width: '100%' }}
+          expandToMin={true}
+          gutterSize={5}
+          sizes={[15, 42.5, 42.5]}
+          minSize={[200, 400, 400]}
+        >
+          <EventListSection />
+          <SocketEmitSection />
+          <SocketLogsSection />
+        </Split>
+      )}
+    </div>
+  );
+});
 
 export default SwaggerBody;

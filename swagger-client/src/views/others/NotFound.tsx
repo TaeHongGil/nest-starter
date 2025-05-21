@@ -1,7 +1,8 @@
 import { Cancel as XCircleIcon } from '@mui/icons-material';
 import { Box, Typography } from '@mui/material';
+import { ReactElement } from 'react';
 
-export default function NotFound() {
+export default function NotFound(): ReactElement {
   return (
     <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
       <Box textAlign="center">

@@ -58,7 +58,7 @@ export class ServerConfig {
     global.ServerConfig = ServerConfig;
     this.serverType = process.env.server_type;
     this.mode = process.env.mode;
-    this.paths.root = path.join(process.cwd(), 'src');
+    this.paths.root = path.join(__dirname, '..', '..', '..', 'src');
     this.paths.env = path.join(this.paths.root, 'env');
     this.paths.ui.public = path.join(this.paths.root, 'ui', 'public');
     this.paths.ui.view = path.join(this.paths.root, 'ui', 'view');
@@ -108,12 +108,17 @@ export interface PortConfig {
   socket: number;
 }
 
+export interface ServerUrl {
+  api: string;
+  socket: string;
+}
+
 /**
  * 스웨거 설정
  */
 export interface SwaggerConfig {
   active: boolean;
-  servers: Record<string, string>;
+  servers: Record<string, ServerUrl>;
 }
 
 /**

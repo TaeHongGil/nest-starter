@@ -17,21 +17,24 @@ export class RedisService implements OnModuleDestroy {
       }
 
       const dbName = ConnectKeys.getKey(db.db_name);
+      const socketOptions: any = {
+        host: db.host,
+        port: db.port,
+        checkServerIdentity: (): any => undefined,
+        reconnectStrategy: (_retries: number): number | Error => {
+          ServerLogger.warn(`[redis.${dbName}] Reconnecting...`);
+
+          return 3000;
+        },
+      };
+      if (db.tls) {
+        socketOptions.tls = true;
+      }
       const redisClientOptions: RedisClientOptions = {
         username: db.user_name,
         password: db.password,
         database: db.db,
-        socket: {
-          host: db.host,
-          port: db.port,
-          tls: db.tls,
-          checkServerIdentity: (): any => undefined,
-          reconnectStrategy: (_retries: number): number | Error => {
-            ServerLogger.warn(`[redis.${dbName}] Reconnecting...`);
-
-            return 3000;
-          },
-        },
+        socket: socketOptions,
       };
 
       const redisClient = createClient(redisClientOptions) as RedisClientType;

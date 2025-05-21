@@ -1,60 +1,109 @@
-import eslintPluginTypeScript from '@typescript-eslint/eslint-plugin';
+import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
+import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
-import eslintPluginPrettier from 'eslint-plugin-prettier';
-import eslintPluginReact from 'eslint-plugin-react';
+import prettier from 'eslint-plugin-prettier';
+import promise from 'eslint-plugin-promise';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-export default [
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all,
+});
+
+export default defineConfig([
+  globalIgnores(['**/dist', '**/node_modules', '**/docker-local-db', '**/public', '**/ui', '**/metadata.ts']),
   {
-    files: ['**/*.ts', '**/*.tsx'],
+    extends: compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended', 'plugin:promise/recommended'),
+    plugins: {
+      '@typescript-eslint': typescriptEslint,
+      prettier,
+      promise,
+    },
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        ecmaVersion: 'latest',
+        project: 'tsconfig.json',
+        tsconfigRootDir: __dirname,
         sourceType: 'module',
       },
     },
-    plugins: {
-      react: eslintPluginReact,
-      '@typescript-eslint': eslintPluginTypeScript,
-      prettier: eslintPluginPrettier,
-    },
     rules: {
-      semi: ['error', 'always'],
-      'object-curly-spacing': ['error', 'always'],
-      'key-spacing': ['error', { beforeColon: false, afterColon: true }],
-      'arrow-body-style': ['error', 'as-needed'],
-      'eol-last': ['error', 'always'],
-      'no-trailing-spaces': 'error',
-      'react/prop-types': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },
-      ],
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/no-empty-function': 'off',
-      '@typescript-eslint/no-empty-interface': 'off',
       'prettier/prettier': [
         'error',
         {
+          printWidth: 200,
           singleQuote: true,
-          semi: true,
-          endOfLine: 'auto',
+          endOfLine: 'lf',
+          trailingComma: 'all',
+          tabWidth: 2,
+        },
+      ],
+      'no-var': 'error',
+      '@typescript-eslint/explicit-function-return-type': 'error',
+      '@typescript-eslint/explicit-module-boundary-types': [
+        'error',
+        {
+          allowArgumentsExplicitlyTypedAsAny: true,
+        },
+      ],
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-multiple-empty-lines': [
+        'error',
+        {
+          max: 1,
+        },
+      ],
+      'lines-between-class-members': [
+        'error',
+        'always',
+        {
+          exceptAfterSingleLine: true,
+        },
+      ],
+      '@typescript-eslint/no-floating-promises': [
+        'error',
+        {
+          ignoreVoid: false,
+          ignoreIIFE: false,
+        },
+      ],
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        {
+          checksVoidReturn: false,
+        },
+      ],
+      '@typescript-eslint/promise-function-async': 'error',
+      'padding-line-between-statements': [
+        'error',
+        {
+          blankLine: 'always',
+          prev: 'function',
+          next: 'function',
+        },
+        {
+          blankLine: 'always',
+          prev: '*',
+          next: 'return',
+        },
+        {
+          blankLine: 'always',
+          prev: 'export',
+          next: 'export',
+        },
+        {
+          blankLine: 'always',
+          prev: 'class',
+          next: 'class',
         },
       ],
     },
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
   },
-  {
-    files: ['vite.config.ts', '*.config.ts'],
-    rules: {
-      '@typescript-eslint/no-var-requires': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-    },
-  },
-];
+]);

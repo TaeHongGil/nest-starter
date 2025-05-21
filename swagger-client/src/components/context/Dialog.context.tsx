@@ -24,7 +24,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [isFormDialog, setIsFormDialog] = useState(false);
   const [resolvePromise, setResolvePromise] = useState<((value: any) => void) | undefined>(undefined);
 
-  const showDialog = (title: string, content: string | ReactNode): Promise<boolean> => {
+  const showDialog = async (title: string, content: string | ReactNode): Promise<boolean> => {
     setDialogTitle(title);
     setDialogContent(content);
     setIsFormDialog(false);
@@ -35,7 +35,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     });
   };
 
-  const showFormDialog = (title: string, initialData: Record<string, string>): Promise<Record<string, string> | undefined> => {
+  const showFormDialog = async (title: string, initialData: Record<string, string>): Promise<Record<string, string> | undefined> => {
     setDialogTitle(title);
     setFormData(initialData);
     setIsFormDialog(true);
@@ -46,7 +46,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     });
   };
 
-  const closeDialog = () => {
+  const closeDialog = (): void => {
     setOpen(false);
     setDialogTitle('');
     setDialogContent('');
@@ -54,7 +54,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setResolvePromise(undefined);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = (): void => {
     if (isFormDialog) {
       resolvePromise?.(formData);
       console.log(formData);
@@ -64,12 +64,12 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     closeDialog();
   };
 
-  const handleCancel = () => {
+  const handleCancel = (): void => {
     resolvePromise?.(isFormDialog ? undefined : false);
     closeDialog();
   };
 
-  const handleInputChange = (key: string, value: string) => {
+  const handleInputChange = (key: string, value: string): void => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 

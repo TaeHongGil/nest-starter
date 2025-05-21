@@ -11,10 +11,22 @@
   "swagger": {
     "active": true,
     "servers": {
-      "local": "http://localhost:20000",
-      "dev": "",
-      "qa": "",
-      "live": ""
+      "local": {
+        "api": "http://localhost:20000",
+        "socket": "http://localhost:30000"
+      },
+      "dev": {
+        "api": "",
+        "socket": ""
+      },
+      "qa": {
+        "api": "",
+        "socket": ""
+      },
+      "live": {
+        "api": "",
+        "socket": ""
+      }
     }
   },
   "jwt": {

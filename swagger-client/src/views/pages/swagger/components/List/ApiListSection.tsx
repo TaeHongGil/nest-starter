@@ -3,16 +3,13 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Card, CardContent, Collapse, IconButton, List, ListItemButton, ListSubheader, Typography } from '@mui/material';
 import { METHOD_TYPE } from '@root/common/define/common.define';
 import { observer } from 'mobx-react';
-import { useState } from 'react';
-import SwaggerMetadata, { PathData } from '../store/SwaggerMetadata';
-import { SwaggerStore } from '../store/SwaggerStore';
-import { MethodTag } from './MethodTag';
+import { ReactElement, useState } from 'react';
+import { HttpStore } from '../../store/HttpStore';
+import { protocolStore } from '../../store/ProtocolStore';
+import SwaggerMetadata, { PathInfo } from '../../store/SwaggerMetadata';
+import { MethodTag } from '../MethodTag';
 
-interface ApiListProps {
-  store: SwaggerStore;
-}
-
-const ApiPath = ({ method, path, isActive, onClick }: { method: METHOD_TYPE; path: string; isActive: boolean; onClick: () => void }) => (
+const ApiPath = ({ method, path, isActive, onClick }: { method: METHOD_TYPE; path: string; isActive: boolean; onClick: () => void }): ReactElement => (
   <ListItemButton onClick={onClick} className={`api-path ${isActive ? 'show' : ''}`}>
     <Typography variant="body2" className={`api-text`} padding={0}>
       <MethodTag method={method} sm />
@@ -21,8 +18,9 @@ const ApiPath = ({ method, path, isActive, onClick }: { method: METHOD_TYPE; pat
   </ListItemButton>
 );
 
-const ApiCategory = observer(({ category, datas, currentPath, store }: { category: string; datas: PathData[]; currentPath: PathData; store: SwaggerStore }) => {
+const ApiCategory = observer(({ category, datas, currentPath, store }: { category: string; datas: PathInfo[]; currentPath: PathInfo; store: HttpStore }) => {
   const [open, setOpen] = useState(datas.some((data) => data.path === currentPath.path && data.method === currentPath.method));
+
   return (
     <>
       <ListSubheader onClick={() => setOpen(!open)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', paddingRight: '0' }} className="api-groups">
@@ -40,7 +38,7 @@ const ApiCategory = observer(({ category, datas, currentPath, store }: { categor
             method={data.method}
             path={data.path}
             isActive={data.path === currentPath.path && data.method === currentPath.method}
-            onClick={() => store.updatePath(data)}
+            onClick={async () => store.setPathInfo(data)}
           />
         ))}
       </Collapse>
@@ -48,15 +46,16 @@ const ApiCategory = observer(({ category, datas, currentPath, store }: { categor
   );
 });
 
-const ApiListSection = observer(({ store }: ApiListProps) => {
-  const currentPath = store.pathData;
+const ApiListSection = observer(() => {
+  const httpSotre = protocolStore.httpStore;
+  const currentPath = httpSotre.pathInfo;
 
   return (
     <Card>
       <CardContent style={{ padding: 0, overflowY: 'auto' }}>
         <List>
           {Object.entries(SwaggerMetadata.getApis() ?? {}).map(([category, pathData]) => (
-            <ApiCategory key={`${category}`} category={category} datas={pathData} currentPath={currentPath} store={store} />
+            <ApiCategory key={`${category}`} category={category} datas={pathData} currentPath={currentPath} store={httpSotre} />
           ))}
         </List>
       </CardContent>

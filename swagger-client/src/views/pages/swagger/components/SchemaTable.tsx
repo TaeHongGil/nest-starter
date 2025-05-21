@@ -68,6 +68,7 @@ const SchemaTable = observer(({ name, schema }: { name: string; schema: any }) =
     if (detail?.type === 'array' && detail.items) {
       return getType(detail.items, depth + 1);
     }
+
     return { type: detail?.type, depth };
   };
 
@@ -81,6 +82,7 @@ const SchemaTable = observer(({ name, schema }: { name: string; schema: any }) =
           if (childSchema) {
             return <SchemaTableContent key={childSchemaName} name={childSchemaName} schema={childSchema} getType={getType} />;
           }
+
           return null;
         })}
       </TableContainer>

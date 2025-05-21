@@ -17,7 +17,7 @@ export class ToastHelper {
 const ToastProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { enqueueSnackbar } = useSnackbar();
 
-  const addToast = (message: string, type: BaseVariant, delay: number = 1000) => {
+  const addToast = (message: string, type: BaseVariant, delay: number = 1000): void => {
     enqueueSnackbar(message, {
       anchorOrigin: {
         vertical: 'bottom',

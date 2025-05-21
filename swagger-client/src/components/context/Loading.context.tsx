@@ -19,11 +19,11 @@ export class LoadingHelper {
 export const LoadingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [open, setOpen] = useState(false);
 
-  const showLoading = () => {
+  const showLoading = (): void => {
     setOpen(true);
   };
 
-  const hideLoading = () => {
+  const hideLoading = (): void => {
     setOpen(false);
   };
 

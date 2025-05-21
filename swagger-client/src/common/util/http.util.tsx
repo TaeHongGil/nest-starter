@@ -23,7 +23,7 @@ class HttpUtil {
 
       if (method === 'GET') {
         config.params = params;
-        config.paramsSerializer = (params) => qs.stringify(params, { arrayFormat: 'repeat' });
+        config.paramsSerializer = (params): string => qs.stringify(params, { arrayFormat: 'repeat' });
       } else {
         config.data = params;
       }
@@ -37,6 +37,7 @@ class HttpUtil {
 
       const response = await axios.request<T>(config);
       MessageUtil.success(`${url} Done`);
+
       return response;
     } catch (error: any) {
       MessageUtil.error(`Failed to request(${url}). please try again. err=${error.message}`);
@@ -54,6 +55,7 @@ class HttpUtil {
    */
   static previewUrl(url: string, params?: Record<string, any>): string {
     const queryString = qs.stringify(params || {}, { arrayFormat: 'repeat' });
+
     return `${ServerConfig.url}${url}${queryString ? `?${queryString}` : ''}`;
   }
 }

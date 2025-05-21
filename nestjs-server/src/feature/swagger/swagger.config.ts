@@ -1,12 +1,25 @@
 import { Injectable } from '@nestjs/common';
 
 import ServerConfig from '@root/core/config/server.config';
-import { SwaggerOptions } from './swagger.dto';
+/**
+ * Swagger 옵션
+ */
+export interface SwaggerOptions {
+  /**
+   * version: api 버전
+   * token: 인증토큰 받아올 api 및 body주소
+   * header: 추가할 기본 헤더 (Authorization 제외)
+   */
+  config?: {
+    version?: string;
+    token?: Record<string, string>;
+    header?: Record<string, any>;
+  };
+}
 
 @Injectable()
 class SwaggerConfig {
   options: SwaggerOptions;
-  servers: Record<string, string>;
 
   constructor() {
     const version = `v${ServerConfig.version}`;
@@ -23,7 +36,6 @@ class SwaggerConfig {
         },
       },
     };
-    this.servers = ServerConfig.swagger.servers;
   }
 }
 

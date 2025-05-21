@@ -42,24 +42,28 @@ export class CacheService {
           const result: T[] = [];
           for (const k of keys) {
             const redisData = await redis.get(k);
-            if (redisData) {
+            if (typeof redisData === 'string') {
               try {
                 result.push(JSON.parse(redisData));
               } catch {
                 result.push(redisData as any);
               }
+            } else if (redisData) {
+              result.push(redisData as any);
             }
           }
 
           return result.length > 0 ? result : undefined;
         } else {
           const redisData = await redis.get(CoreRedisKeys.getGlobalCacheKey(key));
-          if (redisData) {
+          if (typeof redisData === 'string') {
             try {
               return JSON.parse(redisData) as T;
             } catch {
               return redisData as any;
             }
+          } else if (redisData) {
+            return redisData as any;
           }
         }
       }

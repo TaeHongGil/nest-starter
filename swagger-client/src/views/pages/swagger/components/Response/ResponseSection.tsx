@@ -5,33 +5,27 @@ import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { json5 } from 'codemirror-json5';
 import { observer } from 'mobx-react';
 import { useState } from 'react';
+import { protocolStore } from '../../store/ProtocolStore';
 import SwaggerMetadata from '../../store/SwaggerMetadata';
-import { SwaggerStore } from '../../store/SwaggerStore';
 import SchemaTable from '../SchemaTable';
 
-interface SwaggerResponseProps {
-  store: SwaggerStore;
-}
-
-const ResponseSection = observer(({ store }: SwaggerResponseProps) => {
-  const pathInfo = store.getCurrentPathInfo();
-  const ref = CommonUtil.findAllValuesByKey(pathInfo?.responses, '$ref');
-  const name = ref.length > 0 ? SwaggerMetadata.getSchemaName(ref[0]) : '';
-  const schema = name ? SwaggerMetadata.getSchema(name) : undefined;
-  const response = store.getCurrentData().response;
-  const responseBody = SwaggerMetadata.formatJson(response.body, schema, 'data');
+const ResponseSection = observer(() => {
   const [responseActiveTab, setResponseActiveTab] = useState<string>('body');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const httpSotre = protocolStore.httpStore;
+  const responseSchema = httpSotre.getResponseSchema();
+  const response = httpSotre.getCurrentApi().response;
+  const responseBody = SwaggerMetadata.formatJson(response.body, responseSchema, 'data');
 
-  const handleChange = (event: React.SyntheticEvent, tab: string) => {
+  const handleChange = (event: React.SyntheticEvent, tab: string): void => {
     setResponseActiveTab(tab);
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>): void => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = (): void => {
     setAnchorEl(null);
   };
 
@@ -44,13 +38,13 @@ const ResponseSection = observer(({ store }: SwaggerResponseProps) => {
             History
           </MuiButton>
           <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-            {store.getHistory().map((item, index) => (
+            {httpSotre.getHistorys().map((item, index) => (
               <MenuItem
                 key={`${index}`}
                 onClick={async () => {
-                  await store.updateCurrentApiData(item.data);
-                  store.updateRequestBody(item.data.request.body);
-                  store.updateRequestQuery(item.data.request.query);
+                  await httpSotre.setApiData(item.data);
+                  httpSotre.setRequestBody(item.data.request.body);
+                  httpSotre.setRequestQuery(item.data.request.query);
                   handleMenuClose();
                 }}
               >
@@ -78,7 +72,7 @@ const ResponseSection = observer(({ store }: SwaggerResponseProps) => {
           </TabList>
           <div style={{ flex: 1, overflow: 'hidden' }}>
             <TabPanel value="schema" className="swagger-panel">
-              <SchemaTable name={name} schema={schema} />
+              <SchemaTable name={responseSchema.name ?? ''} schema={responseSchema.schema} />
             </TabPanel>
             <TabPanel value="headers" className="swagger-panel cusror-text">
               <ReactCodeMirror value={response.headers || 'not found data'} extensions={[json5(), EditorView.lineWrapping]} readOnly />

@@ -17,7 +17,7 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
 }
 
 @Catch(HttpException)
-export class SocketGlobalExceptionFilter extends BaseWsExceptionFilter<HttpException> {
+export class WsGlobalExceptionFilter extends BaseWsExceptionFilter<HttpException> {
   catch(exception: HttpException, host: ArgumentsHost): void {
     const ws = host.switchToWs();
     const socket = ws.getClient();

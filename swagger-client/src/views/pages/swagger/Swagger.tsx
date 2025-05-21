@@ -1,13 +1,16 @@
 import { Alert, Box, Card, CardContent, Typography } from '@mui/material';
+import ServerConfig from '@root/common/config/server.config';
+import { METHOD_TYPE } from '@root/common/define/common.define';
+import HttpUtil from '@root/common/util/http.util';
+import MessageUtil from '@root/common/util/message.util';
 import '@root/css/swagger.css';
-import { useLocalObservable } from 'mobx-react';
-import { useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import SwaggerBody from './components/SwaggerBody';
 import SwaggerHeader from './components/SwaggerHeader';
+import { protocolStore } from './store/ProtocolStore';
 import SwaggerMetadata from './store/SwaggerMetadata';
-import { SwaggerStore } from './store/SwaggerStore';
 
-const SwaggerNotFoundScreen = () => (
+const SwaggerNotFoundScreen = (): ReactElement => (
   <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
     <Card>
       <CardContent>
@@ -25,24 +28,31 @@ const SwaggerNotFoundScreen = () => (
   </Box>
 );
 
-export interface SwaggerProps {
-  store: SwaggerStore;
-}
-
-const Swagger = () => {
-  const store = useLocalObservable(() => new SwaggerStore());
+const Swagger = (): ReactElement => {
   const [init, setInit] = useState<boolean | undefined>(undefined);
 
+  const loadMetadataAsync = async (): Promise<any> => {
+    try {
+      const result = await HttpUtil.request(ServerConfig.url, METHOD_TYPE.GET, `${ServerConfig.server_version}/swagger`);
+
+      return result.data;
+    } catch (error: any) {
+      console.error('Failed to load metadata:', error);
+      MessageUtil.error(error.message);
+    }
+  };
+
   useEffect(() => {
-    const initialize = async () => {
-      const metadata = await store.loadMetadataAsync();
+    const initialize = async (): Promise<void> => {
+      const metadata = await loadMetadataAsync();
       if (!metadata?.spec) {
         return;
       }
-      SwaggerMetadata.init(metadata);
-      await store.init();
+      SwaggerMetadata.initialize(metadata);
       setInit(true);
+      await protocolStore.initialize();
     };
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     initialize();
   }, []);
 
@@ -52,9 +62,9 @@ const Swagger = () => {
 
   return (
     <div className="swagger-container">
-      <SwaggerHeader store={store} />
+      <SwaggerHeader />
       <div className="swagger-body">
-        <SwaggerBody store={store} />
+        <SwaggerBody />
       </div>
     </div>
   );

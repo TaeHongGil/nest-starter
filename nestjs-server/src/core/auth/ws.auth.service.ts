@@ -5,11 +5,12 @@ import ServerError from '@root/core/error/server.error';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';
 import { Server } from 'socket.io';
+import { CommonResponse } from '../common/response';
 
 type WsMiddleware = Parameters<Server['use']>[0];
 
 @Injectable()
-export class SocketAuthService {
+export class WsAuthService {
   constructor(private readonly authService: AuthService) {}
 
   socketGuard(): WsMiddleware {
@@ -18,7 +19,10 @@ export class SocketAuthService {
         const { Authorization } = socket.handshake.auth;
         const jwtInfo = CryptUtil.jwtVerify(this.authService.getToken(Authorization), ServerConfig.jwt.key) as JwtPayload;
         if (!jwtInfo) {
-          throw ServerError.INVALID_TOKEN;
+          const err = new Error('INVALID_TOKEN');
+          (err as any).data = CommonResponse.builder().setError(ServerError.INVALID_TOKEN).build();
+
+          return next(err);
         }
         next();
       } catch (err) {

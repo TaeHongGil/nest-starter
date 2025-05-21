@@ -20,56 +20,46 @@ export default defineConfig([
   globalIgnores(['**/dist', '**/node_modules', '**/docker-local-db', '**/public', '**/ui', '**/metadata.ts']),
   {
     extends: compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended', 'plugin:promise/recommended'),
-
     plugins: {
       '@typescript-eslint': typescriptEslint,
       prettier,
       promise,
     },
-
     languageOptions: {
       parser: tsParser,
-      ecmaVersion: 5,
-      sourceType: 'module',
-
       parserOptions: {
-        project: './tsconfig.json',
-        tsconfigRootDir: './',
+        project: 'tsconfig.json',
+        tsconfigRootDir: __dirname,
+        sourceType: 'module',
       },
     },
-
     rules: {
       'prettier/prettier': [
         'error',
         {
           printWidth: 200,
           singleQuote: true,
-          endOfLine: 'auto',
+          endOfLine: 'lf',
           trailingComma: 'all',
           tabWidth: 2,
         },
       ],
-
       'no-var': 'error',
       '@typescript-eslint/explicit-function-return-type': 'error',
-
       '@typescript-eslint/explicit-module-boundary-types': [
         'error',
         {
           allowArgumentsExplicitlyTypedAsAny: true,
         },
       ],
-
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
-
       'no-multiple-empty-lines': [
         'error',
         {
           max: 1,
         },
       ],
-
       'lines-between-class-members': [
         'error',
         'always',
@@ -77,7 +67,6 @@ export default defineConfig([
           exceptAfterSingleLine: true,
         },
       ],
-
       '@typescript-eslint/no-floating-promises': [
         'error',
         {
@@ -92,7 +81,6 @@ export default defineConfig([
         },
       ],
       '@typescript-eslint/promise-function-async': 'error',
-
       'padding-line-between-statements': [
         'error',
         {

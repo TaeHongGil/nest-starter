@@ -28,6 +28,5 @@
       "@views/*": ["./src/views/*"]
     },
     "types": ["vite/client"]
-  },
-  "include": ["src"]
+  }
 }

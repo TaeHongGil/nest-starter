@@ -5,26 +5,28 @@ import { METHOD_TYPE } from '@root/common/define/common.define';
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { json5, json5ParseLinter } from 'codemirror-json5';
 import { observer } from 'mobx-react';
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 import Split from 'react-split';
+import { protocolStore } from '../../store/ProtocolStore';
 import SwaggerMetadata from '../../store/SwaggerMetadata';
-import { SwaggerProps } from '../../Swagger';
 import { MethodTag } from '../MethodTag';
 import SchemaTable from '../SchemaTable';
 import QueryTable from './QueryTable';
 
-const ReqeustSection = observer(({ store }: SwaggerProps) => {
+const ReqeustSection = observer(() => {
   const [requestActiveTab, setRequestActiveTab] = useState<string>('1');
-  const path = store.pathData.path;
-  const method = store.pathData.method;
+  const httpSotre = protocolStore.httpStore;
+  const path = httpSotre.pathInfo.path;
+  const method = httpSotre.pathInfo.method;
   const isGet = method === METHOD_TYPE.GET;
+  const requestSchema = httpSotre.getRequestSchema();
 
-  const handleChange = (event: React.SyntheticEvent, tab: string) => {
+  const handleChange = (event: React.SyntheticEvent, tab: string): void => {
     setRequestActiveTab(tab);
   };
 
-  const renderDescription = (description: string) => {
-    const urlRegex = /http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$\-@\.&+:\/?_#]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+/g;
+  const renderDescription = (description: string): React.ReactNode => {
+    const urlRegex = /http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$\-@.&+:/?_#]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+/g;
     const matches = description.match(urlRegex) || [];
     const parts = description.split(urlRegex);
 
@@ -55,7 +57,7 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
               size="small"
               sx={{ marginRight: 1 }}
               onClick={async () => {
-                store.updateRequestBody(SwaggerMetadata.formatJson(store.requestBody, store.getCurrentSchmea()?.schema));
+                httpSotre.setRequestBody(SwaggerMetadata.formatJson(httpSotre.requestBody, requestSchema?.schema));
               }}
               disableElevation
               disableFocusRipple
@@ -68,7 +70,7 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
             <Button
               color="error"
               onClick={async () => {
-                await store.resetRequest();
+                await httpSotre.resetRequest();
               }}
             >
               Reset
@@ -76,7 +78,7 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
             <Button
               color="success"
               onClick={async () => {
-                await store.sendRequest();
+                await httpSotre.sendRequest();
               }}
             >
               Send
@@ -99,19 +101,16 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
                     not found data
                   </Typography>
                 ) : (
-                  (() => {
-                    const currentSchema = store.getCurrentSchmea();
-                    return <SchemaTable name={currentSchema?.name} schema={currentSchema?.schema} />;
-                  })()
+                  ((): ReactElement => <SchemaTable name={requestSchema?.name ?? ''} schema={requestSchema?.schema} />)()
                 )}
               </TabPanel>
               {isGet ? (
                 <TabPanel value="1" className="swagger-panel">
-                  <QueryTable store={store} />
+                  <QueryTable />
                 </TabPanel>
               ) : (
                 <TabPanel value="1" className="swagger-panel cusror-text">
-                  <ReactCodeMirror value={store.requestBody} extensions={[json5(), EditorView.lineWrapping, linter(json5ParseLinter())]} onChange={(value) => store.updateRequestBody(value)} />
+                  <ReactCodeMirror value={httpSotre.requestBody} extensions={[json5(), EditorView.lineWrapping, linter(json5ParseLinter())]} onChange={(value) => httpSotre.setRequestBody(value)} />
                 </TabPanel>
               )}
             </div>
@@ -123,7 +122,7 @@ const ReqeustSection = observer(({ store }: SwaggerProps) => {
           </Typography>
           <Divider />
           <Typography padding={2} whiteSpace={'pre-wrap'} height={'100%'} overflow={'auto'}>
-            {renderDescription(store.getCurrentPathInfo()?.description ?? '')}
+            {renderDescription(SwaggerMetadata.getPath(method, path)?.description ?? '')}
           </Typography>
         </div>
       </Split>
