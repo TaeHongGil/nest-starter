@@ -74,7 +74,19 @@ async function onBeforeModuleInit(app: NestExpressApplication): Promise<{ redisS
 
 function setHelmet(app: NestExpressApplication): void {
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: (origin, callback) => {
+      const allowedPatterns = [/^http:\/\/localhost:\d+$/, /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:\d+$/];
+      if (!origin) {
+        callback(null, true);
+
+        return;
+      }
+      if (allowedPatterns.some((pattern) => pattern.test(origin))) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'), false);
+      }
+    },
     credentials: true,
   });
   app.use(helmet());
