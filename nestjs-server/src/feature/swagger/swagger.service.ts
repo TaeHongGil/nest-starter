@@ -20,10 +20,6 @@ export class SwaggerService {
     return this.document;
   }
 
-  getTags(): TagObject[] {
-    return this.tags;
-  }
-
   private async loadMetadata(): Promise<void> {
     if (ServerConfig.serverType == SERVER_TYPE.LIVE) {
       return;
@@ -46,12 +42,11 @@ export class SwaggerService {
     if (!this.metadata) {
       return;
     }
+    this.swaggerUtil.applyDecorators(this.metadata);
     const documentOptions = new DocumentBuilder().build();
-    this.tags = this.swaggerUtil.applyDecorators(this.metadata);
     this.document = SwaggerModule.createDocument(app, documentOptions, {
-      deepScanRoutes: true,
+      autoTagControllers: true,
     });
-    this.document.tags = this.getTags();
   }
 
   async SocketServerInit(): Promise<void> {

@@ -1,9 +1,9 @@
 import { Injectable, applyDecorators } from '@nestjs/common';
-import { GUARDS_METADATA, METHOD_METADATA } from '@nestjs/common/constants';
+import { METHOD_METADATA } from '@nestjs/common/constants';
 import { ModulesContainer } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { OperationObject, TagObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { ApiOperation } from '@nestjs/swagger';
+import { OperationObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ParameterMetadataAccessor } from './utils/parameter-metadata-accessor';
@@ -91,7 +91,7 @@ export class SwaggerUtil {
     writeFileSync(filePath, JSON.stringify(result, null, 2), 'utf-8');
   }
 
-  applyDecorators(metadata: Record<string, any>): TagObject[] {
+  applyDecorators(metadata: Record<string, any>): void {
     const controllerMetadata = metadata['@nestjs/swagger']['controllers'].map((controller: any[]) => controller[1]).reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
     const controllers = [...this.modulesContainer.values()]
       .flatMap((module) => {
@@ -99,20 +99,12 @@ export class SwaggerUtil {
       })
       .filter((wrapper) => wrapper.instance);
 
-    const tags: TagObject[] = [];
     controllers.forEach((wrapper: InstanceWrapper) => {
       const { instance } = wrapper;
       const prototype = Object.getPrototypeOf(instance);
       const controller = instance.constructor;
       const controllerName = controller.name;
 
-      if (!Reflect.getMetadata('swagger/apiExcludeController', controller)) {
-        const tag = this.getControllerTag(controllerName);
-        ApiTags(tag)(controller);
-        tags.push({ name: tag });
-      }
-
-      const controllerGuardMetadata = Reflect.getMetadata(GUARDS_METADATA, controller) || [];
       Object.getOwnPropertyNames(prototype).forEach((methodName) => {
         const method = prototype[methodName];
         if (typeof method === 'function') {
@@ -131,8 +123,6 @@ export class SwaggerUtil {
         }
       });
     });
-
-    return tags;
   }
 
   private getControllerTag(name: string): string {
