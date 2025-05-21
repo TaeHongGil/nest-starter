@@ -3,7 +3,7 @@ import StringUtil from '../utils/string.utils';
 
 export class ConnectKeys {
   static getPrefix(): string {
-    return `${StringUtil.toSnakeCase(ServerConfig.service.name)}_${ServerConfig.serverType}`;
+    return `${StringUtil.toSnakeCase(ServerConfig.service.name)}:${ServerConfig.serverType}`;
   }
 
   static getKey(key: string): string {

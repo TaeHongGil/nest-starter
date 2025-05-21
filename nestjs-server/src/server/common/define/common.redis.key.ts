@@ -1,7 +1,7 @@
-import { CoreRedisKeys } from '@root/core/define/core.redis.key';
+import { ConnectKeys } from '@root/core/define/connect.key';
 
 export class CommonRedisKeys {
   static getUserStateKey(): string {
-    return `${CoreRedisKeys.getPrefix()}:user:state`;
+    return `${ConnectKeys.getPrefix()}:user:state`;
   }
 }

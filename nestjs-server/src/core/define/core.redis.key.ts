@@ -1,24 +1,15 @@
-import ServerConfig from '@root/core/config/server.config';
-import StringUtil from '../utils/string.utils';
+import { ConnectKeys } from './connect.key';
 
 export class CoreRedisKeys {
-  static getPrefix(): string {
-    return `${StringUtil.toSnakeCase(ServerConfig.service.name)}:${ServerConfig.serverType}`;
-  }
-
   static getSessionKey(): string {
-    return `${CoreRedisKeys.getPrefix()}:user:session`;
-  }
-
-  static getTokenDefaultKey(): string {
-    return `${CoreRedisKeys.getPrefix()}:user:token:`;
+    return `${ConnectKeys.getPrefix()}:user:session`;
   }
 
   static getGlobalNumberKey(): string {
-    return `${CoreRedisKeys.getPrefix()}:global:number`;
+    return `${ConnectKeys.getPrefix()}:global:number`;
   }
 
   static getGlobalCacheKey(key: string): string {
-    return `${CoreRedisKeys.getPrefix()}:cache:${key}`;
+    return `${ConnectKeys.getPrefix()}:cache:${key}`;
   }
 }
