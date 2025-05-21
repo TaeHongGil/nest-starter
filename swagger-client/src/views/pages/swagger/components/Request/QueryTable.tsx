@@ -2,12 +2,13 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextF
 import HttpUtil from '@root/common/util/http.util';
 import { observer } from 'mobx-react';
 import { protocolStore } from '../../store/ProtocolStore';
+import SwaggerMetadata from '../../store/SwaggerMetadata';
 
 const IGNORED_KEYS = ['type', 'description', '$ref', 'properties', 'items', 'required', 'default', 'allOf'];
 
 const QueryTable = observer(() => {
   const httpStore = protocolStore.httpStore;
-  const schmea = httpStore.getRequestSchema()?.schema;
+  const pathInfo = SwaggerMetadata.getPath(httpStore.pathInfo.method, httpStore.pathInfo.path);
 
   const sortQueryBySchema = (query: Record<string, any>, schema: any): Record<string, any> =>
     Object.keys(query)
@@ -33,7 +34,7 @@ const QueryTable = observer(() => {
       updatedQuery[name] = value;
     }
 
-    const sortedQuery = sortQueryBySchema(updatedQuery, schmea);
+    const sortedQuery = sortQueryBySchema(updatedQuery, pathInfo);
     httpStore.setRequestQuery(sortedQuery);
   };
 
@@ -67,7 +68,7 @@ const QueryTable = observer(() => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {schmea?.parameters.map((data: any) => {
+          {pathInfo?.parameters.map((data: any) => {
             if (data.in !== 'query') return null;
 
             return (
