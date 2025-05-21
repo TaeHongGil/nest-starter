@@ -61,8 +61,6 @@ export class AuthService {
       token_type: ServerConfig.jwt.type,
       access_token: await this.createAccessTokenAsync(user),
       access_expire_sec: ServerConfig.jwt.ttl_access_sec,
-      refresh_token: await this.createRefreshTokenAsync(user),
-      refresh_expire_sec: ServerConfig.jwt.ttl_refresh_sec,
     };
   }
 }

@@ -170,7 +170,7 @@ export class SocketStore {
       });
     });
     socket.on('connect_error', async (err: any) => {
-      await this.addLog('system', namespace, 'connect_error', ` ${JSON.stringify(err?.data, undefined, 2) ?? ''}`);
+      await this.addLog('system', namespace, 'connect_error', `${err.message}\n${JSON.stringify(err?.data, undefined, 2) ?? ''}`);
       const ioSocket: any = socket.io;
       if (ioSocket && ioSocket._reconnecting === false) {
         runInAction(() => {

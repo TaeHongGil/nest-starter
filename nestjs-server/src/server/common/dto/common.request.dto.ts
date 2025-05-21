@@ -32,12 +32,6 @@ export class ReqPlatformLogin {
   readonly platform: PLATFORM;
 }
 
-export class ReqTokenRefresh {
-  @IsString()
-  @IsNotEmpty()
-  readonly refresh_token: string;
-}
-
 export class ReqCheckNickname {
   /**
    * 닉네임

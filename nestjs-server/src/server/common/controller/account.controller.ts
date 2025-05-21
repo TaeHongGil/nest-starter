@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Post, Query, Session } from '@nestjs/com
 import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
+import ServerConfig from '@root/core/config/server.config';
 import ServerError from '@root/core/error/server.error';
 import { NoAuthGuard } from '@root/core/guard/auth.guard';
 import { MongoTransaction } from '@root/core/mongo/mongo.service';
@@ -44,13 +45,21 @@ export class AccountController {
   @NoAuthGuard()
   async login(@Session() session: SessionData, @Body() param: ReqGuestLogin): Promise<ResLogin> {
     const account = await this.accountService.loginAsync(session, param);
-    const res: ResLogin = {
+    const jwt = await this.authService.createTokenInfoAsync(session.user);
+    const refresh_token = await this.authService.createRefreshTokenAsync(session.user);
+    session.response.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      secure: ServerConfig.serverType != 'local',
+      path: '/',
+    });
+
+    const resData: ResLogin = {
       nickname: account.nickname,
       role: account.role,
-      jwt: await this.authService.createTokenInfoAsync(session.user),
+      jwt,
     };
 
-    return res;
+    return resData;
   }
 
   /**
@@ -61,10 +70,18 @@ export class AccountController {
   async paltformlogin(@Session() session: SessionData, @Body() param: ReqPlatformLogin): Promise<ResLogin> {
     const platformId = await this.accountPlatformService.getPlatformIdAsync(param.platform, param.token);
     const account = await this.accountPlatformService.platformLogin(session, param.platform, platformId);
+    const jwt = await this.authService.createTokenInfoAsync(session.user);
+    const refresh_token = await this.authService.createRefreshTokenAsync(session.user);
+    session.response.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      secure: ServerConfig.serverType != 'local',
+      path: '/',
+    });
+
     const res: ResLogin = {
       nickname: account.nickname,
       role: account.role,
-      jwt: await this.authService.createTokenInfoAsync(session.user),
+      jwt,
     };
 
     return res;

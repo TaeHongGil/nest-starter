@@ -1,12 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { SessionUser } from '@root/core/auth/auth.schema';
+import { Controller, Post, Session } from '@nestjs/common';
+import { SessionData, SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
 import ServerError from '@root/core/error/server.error';
 import { NoAuthGuard } from '@root/core/guard/auth.guard';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';
-import { ReqTokenRefresh } from '../dto/common.request.dto';
 import { ResTokenRefresh } from '../dto/common.response.dto';
 import { AccountService } from '../service/account/account.service';
 
@@ -25,8 +24,9 @@ export class AuthController {
    */
   @Post('/token')
   @NoAuthGuard()
-  async tokenRefresh(@Body() param: ReqTokenRefresh): Promise<any> {
-    const jwtInfo = CryptUtil.jwtVerify(param.refresh_token, ServerConfig.jwt.key) as JwtPayload;
+  async tokenRefresh(@Session() session: SessionData): Promise<ResTokenRefresh> {
+    const req_refresh_token = session.request.cookies.refresh_token;
+    const jwtInfo = CryptUtil.jwtVerify(req_refresh_token, ServerConfig.jwt.key) as JwtPayload;
     if (!jwtInfo) {
       throw ServerError.INVALID_TOKEN;
     }
@@ -35,12 +35,18 @@ export class AuthController {
       role: jwtInfo['role'],
       nickname: jwtInfo['nickname'],
     };
-    await this.authService.refreshTokenVerifyAsync(user.useridx, param.refresh_token);
-    const result: ResTokenRefresh = {
+    await this.authService.refreshTokenVerifyAsync(user.useridx, req_refresh_token);
+    await this.accountService.setLoginStateAsync(user.useridx);
+    const res_refresh_token = await this.authService.createRefreshTokenAsync(user);
+    session.response.cookie('refresh_token', res_refresh_token, {
+      httpOnly: true,
+      secure: ServerConfig.serverType !== 'local',
+      path: '/',
+    });
+
+    const res: ResTokenRefresh = {
       jwt: await this.authService.createTokenInfoAsync(user),
     };
-    await this.accountService.setLoginStateAsync(user.useridx);
-
-    return result;
+    return res;
   }
 }

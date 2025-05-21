@@ -2,9 +2,11 @@ import { ClassSerializerInterceptor, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import ServerConfig from '@root/core/config/server.config';
+import cookieParser from 'cookie-parser';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalExceptionsFilter } from './core/error/global.exception.filter';
 import { ResponseInterceptor } from './core/interceptor/response.interceptor';
@@ -71,37 +73,11 @@ async function onBeforeModuleInit(app: NestExpressApplication): Promise<{ redisS
 }
 
 function setHelmet(app: NestExpressApplication): void {
-  if (ServerConfig.dev === true) {
-    app.enableCors({
-      origin: '*',
-    });
-
-    return;
-  }
-  /**
-   * https://inpa.tistory.com/entry/NODE-%EB%B3%B4%EC%95%88-%F0%9F%93%9A-helmet-%EB%AA%A8%EB%93%88-%EC%82%AC%EC%9A%A9%EB%B2%95-%EC%9B%B9-%EB%B3%B4%EC%95%88%EC%9D%80-%EB%82%B4%EA%B0%80-%F0%9F%91%AE#helmet_default
-   */
-  // app.use(helmet.crossOriginEmbedderPolicy());
-  // app.use(helmet.crossOriginOpenerPolicy());
-  // app.use(helmet.crossOriginResourcePolicy());
-  // app.use(helmet.originAgentCluster());
-  // app.use(helmet.referrerPolicy());
-  // app.use(helmet.strictTransportSecurity());
-  // app.use(helmet.xContentTypeOptions());
-  // app.use(helmet.xDnsPrefetchControl());
-  // app.use(helmet.xDownloadOptions());
-  // app.use(helmet.xFrameOptions());
-  // app.use(helmet.xPermittedCrossDomainPolicies());
-  // app.use(helmet.xPoweredBy());
-  // app.use(helmet.xXssProtection());
-  // app.use(helmet.dnsPrefetchControl());
-  // app.use(helmet.frameguard());
-  // app.use(helmet.hidePoweredBy());
-  // app.use(helmet.hsts());
-  // app.use(helmet.ieNoOpen());
-  // app.use(helmet.noSniff());
-  // app.use(helmet.permittedCrossDomainPolicies());
-  // app.use(helmet.xssFilter());
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  });
+  app.use(helmet());
 }
 
 async function setAPIServer(app: NestExpressApplication): Promise<void> {
@@ -110,6 +86,7 @@ async function setAPIServer(app: NestExpressApplication): Promise<void> {
   app.useGlobalFilters(new GlobalExceptionsFilter());
   app.useGlobalInterceptors(new ResponseInterceptor(reflector));
   app.useGlobalPipes(new GlobalValidationPipe());
+  app.use(cookieParser());
 
   if (ServerConfig.dev) {
     const { SwaggerService } = await import('./feature/swagger/swagger.service');

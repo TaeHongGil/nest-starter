@@ -17,7 +17,7 @@ export class AuthRepository {
 
   async getRefreshTokenAsync(useridx: number): Promise<string> {
     const con = this.redis.getGlobalClient();
-    const token = await con.hGet(CoreRedisKeys.getSessionKey(), useridx.toString());
+    const token = (await con.hGet(CoreRedisKeys.getSessionKey(), useridx.toString())) as string;
 
     return token;
   }

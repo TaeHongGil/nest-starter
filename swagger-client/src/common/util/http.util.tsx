@@ -19,6 +19,7 @@ class HttpUtil {
         url,
         method,
         headers,
+        withCredentials: true,
       };
 
       if (method === 'GET') {
