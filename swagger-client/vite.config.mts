@@ -28,11 +28,12 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
       {
         name: 'vite-build-logger',
         apply: 'serve',
-        configureServer(server: ViteDevServer) {
+        configureServer(server: ViteDevServer): void {
           server.httpServer?.on('listening', () => {
             figlet('SWAGGER', (err, data) => {
               if (err) {
                 console.dir(err);
+
                 return;
               }
               console.log(`\x1b[36m${data}\x1b[0m\n`);
@@ -54,7 +55,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
       reportCompressedSize: false,
       rollupOptions: {
         output: {
-          manualChunks(id) {
+          manualChunks(id: string): string | undefined {
             if (id.includes('node_modules/dayjs')) return 'dayjs';
             if (id.includes('node_modules/@codemirror')) return 'codemirror';
           },
@@ -62,6 +63,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
       },
     },
     server: {
+      host: true,
       port: 3000,
     },
     css: {
