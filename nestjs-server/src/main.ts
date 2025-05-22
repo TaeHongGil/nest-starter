@@ -10,10 +10,8 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalExceptionsFilter } from './core/error/global.exception.filter';
 import { ResponseInterceptor } from './core/interceptor/response.interceptor';
-import { MongoService } from './core/mongo/mongo.service';
 import { GlobalValidationPipe } from './core/pipe/GlobalValidationPipe';
 import { RedisIoAdapter } from './core/redis/redis.adapter';
-import { RedisService } from './core/redis/redis.service';
 import { ServerLogger } from './core/server-log/server.log.service';
 
 dayjs.extend(utc);
@@ -23,20 +21,24 @@ dayjs.tz.setDefault('UTC');
 async function bootstrap(): Promise<void> {
   try {
     await ServerConfig.init();
-
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
     app.enableVersioning({
       type: VersioningType.URI,
-      defaultVersion: ServerConfig.mode != 'socket' ? ServerConfig.version : undefined,
+      defaultVersion: ServerConfig.mode == 'api' ? ServerConfig.version : undefined,
     });
-    await onBeforeModuleInit(app);
+
     setHelmet(app);
-    if (ServerConfig.mode == 'socket') {
+    if (ServerConfig.mode == 'api') {
+      await setAPIServer(app);
+      await app.listen(ServerConfig.port.api);
+    } else if (ServerConfig.mode == 'socket') {
       await setSocketServer(app);
       await app.listen(ServerConfig.port.socket);
+    } else if (ServerConfig.mode == 'mq') {
+      await setMQerver(app);
+      await app.listen(ServerConfig.port.mq);
     } else {
-      await setAPIServer(app);
-      await app.listen(ServerConfig.port.http);
+      throw new Error('Invalid server mode');
     }
 
     if (ServerConfig.serverType == 'local') {
@@ -47,9 +49,9 @@ async function bootstrap(): Promise<void> {
 
           return;
         }
-        const port = ServerConfig.mode == 'socket' ? ServerConfig.port.socket : ServerConfig.port.http;
-        const mode = ServerConfig.mode == 'socket' ? 'Socket' : 'API';
-        const version = ServerConfig.mode == 'socket' ? '' : `v${ServerConfig.version}`;
+        const port = ServerConfig.port[ServerConfig.mode];
+        const mode = ServerConfig.mode.toUpperCase();
+        const version = ServerConfig.mode == 'api' ? `v${ServerConfig.version}` : '';
 
         const appUrl = `http://localhost:${port}/${version}`;
         process.stdout.write('\x1b[2J\x1b[0f');
@@ -61,15 +63,6 @@ async function bootstrap(): Promise<void> {
     ServerLogger.error('Bootstrap error:', error?.message);
     ServerLogger.error('Bootstrap error stack:', error?.stack);
   }
-}
-
-async function onBeforeModuleInit(app: NestExpressApplication): Promise<{ redisService: RedisService; mongoService: MongoService }> {
-  const redisService = app.get(RedisService);
-  const mongoService = app.get(MongoService);
-  await redisService.onBeforeModuleInit();
-  await mongoService.onBeforeModuleInit();
-
-  return { redisService, mongoService };
 }
 
 function setHelmet(app: NestExpressApplication): void {
@@ -107,9 +100,6 @@ async function setAPIServer(app: NestExpressApplication): Promise<void> {
   }
 }
 
-/**
- * useGlobal 사용이 불가하여 직접 설정
- */
 async function setSocketServer(app: NestExpressApplication): Promise<void> {
   app.useWebSocketAdapter(new RedisIoAdapter(app));
   if (ServerConfig.dev) {
@@ -118,6 +108,8 @@ async function setSocketServer(app: NestExpressApplication): Promise<void> {
     await swagger.SocketServerInit();
   }
 }
+
+async function setMQerver(app: NestExpressApplication): Promise<void> {}
 
 bootstrap().catch((err) => {
   ServerLogger.error('Bootstrap failed:', err);

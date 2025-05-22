@@ -5,7 +5,6 @@ import { CacheService } from '@root/core/cache/cache.service';
 import ServerConfig from '@root/core/config/server.config';
 import ServerError from '@root/core/error/server.error';
 import { NoAuthGuard } from '@root/core/guard/auth.guard';
-import { MongoTransaction } from '@root/core/mongo/mongo.service';
 import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../dto/common.request.dto';
 import { ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../dto/common.response.dto';
 import { AccountPlatformService } from '../service/account/account.platform.service';
@@ -129,7 +128,6 @@ export class AccountController {
    * 계정삭제
    */
   @Delete('/delete')
-  @MongoTransaction()
   async deleteAccount(@Session() session: SessionData): Promise<any> {
     await this.accountService.deleteLoginStateAsync(session.user.useridx);
     await this.authService.deleteRefreshTokenAsync(session.user.useridx);

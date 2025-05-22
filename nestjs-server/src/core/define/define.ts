@@ -43,3 +43,5 @@ export enum ROLE {
   ADMIN = 'ADMIN',
   GUEST = 'GUEST',
 }
+
+export const BULL_QUEUES = ['test'];

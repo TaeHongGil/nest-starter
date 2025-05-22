@@ -7,10 +7,13 @@ import { DBUser, DBUserSchema } from './user.schema';
 export class UserRepository implements OnModuleInit {
   private model: Model<DBUser>;
 
-  constructor(readonly redis: RedisService) {}
+  constructor(
+    readonly redis: RedisService,
+    readonly mongo: MongoService,
+  ) {}
 
   async onModuleInit(): Promise<void> {
-    this.model = MongoService.getGlobalClient().model<DBUser>(DBUser.name, DBUserSchema);
+    this.model = this.mongo.getGlobalClient().model<DBUser>(DBUser.name, DBUserSchema);
     await this.model.syncIndexes();
   }
 }

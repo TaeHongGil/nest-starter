@@ -4,6 +4,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthGuard } from '@root/core/guard/auth.guard';
 import { ServerLogger } from '@root/core/server-log/server.log.service';
 import { CommonModule } from './common/common.module';
+import { MQModule } from './mq/mq.module';
 import { ProjectModule } from './project/project.module';
 import { SocketModule } from './socket/socket.module';
 
@@ -24,6 +25,8 @@ if (process.env.mode === 'api') {
   );
 } else if (process.env.mode === 'socket') {
   importModules.push(SocketModule);
+} else if (process.env.mode === 'mq') {
+  importModules.push(MQModule);
 }
 
 @Module({

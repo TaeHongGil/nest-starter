@@ -7,34 +7,35 @@ import { CommonRedisKeys } from '@root/server/common/define/common.redis.key';
 import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
 import { DBAccount, DBAccountSchema } from './account.schema';
+
 @Injectable()
 export class AccountRepository implements OnModuleInit {
   private model: Model<DBAccount>;
 
-  constructor(private readonly redis: RedisService) {}
+  constructor(
+    private readonly redis: RedisService,
+    private readonly mongo: MongoService,
+  ) {}
 
   async onModuleInit(): Promise<void> {
-    this.model = MongoService.getGlobalClient().model<DBAccount>(DBAccount.name, DBAccountSchema);
+    this.model = this.mongo.getGlobalClient().model<DBAccount>(DBAccount.name, DBAccountSchema);
     await this.model.syncIndexes();
   }
 
   async findOne(filter: Partial<DBAccount>): Promise<DBAccount> {
-    const session = MongoService.getCurrentSession();
-    const result = await this.model.findOne(filter).session(session).lean();
+    const result = await this.model.findOne(filter).lean();
 
     return plainToInstance(DBAccount, result, { excludeExtraneousValues: true });
   }
 
   async delete(useridx: number): Promise<boolean> {
-    const session = MongoService.getCurrentSession();
-    const result = await this.model.deleteOne({ useridx }).session(session).lean();
+    const result = await this.model.deleteOne({ useridx }).lean();
 
     return result.deletedCount > 0;
   }
 
   async upsert(account: DBAccount): Promise<DBAccount> {
-    const session = MongoService.getCurrentSession();
-    await this.model.findOneAndUpdate({ useridx: account.useridx }, account, { new: true, upsert: true }).session(session).lean();
+    await this.model.findOneAndUpdate({ useridx: account.useridx }, account, { new: true, upsert: true }).lean();
 
     return account;
   }

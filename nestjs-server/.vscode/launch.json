@@ -39,6 +39,22 @@
     },
     {
       "type": "node",
+      "name": "Local Message Queue Server Run",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:debug"],
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "envFile": "${workspaceFolder}/.env/.env",
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
+      "env": {
+        "server_type": "local",
+        "mode": "mq"
+      }
+    },
+    {
+      "type": "node",
       "request": "launch",
       "name": "=================================="
     },

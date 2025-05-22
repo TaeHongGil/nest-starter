@@ -1,15 +1,31 @@
-import { DynamicModule, Global, Module, Type, type OnModuleInit } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
+import { DynamicModule, Module, Type, type OnModuleInit } from '@nestjs/common';
 import { readdirSync } from 'fs';
 import path from 'path';
 import { AuthModule } from './auth/auth.module';
 import { CacheModule } from './cache/cache.modules';
 import { MongoModule } from './mongo/mongo.modules';
+import { BullMQModule } from './mq/bull.mq.module';
 import { RedisModule } from './redis/redis.modules';
+import { RedisService } from './redis/redis.service';
 import { ServerLogger } from './server-log/server.log.service';
 
-@Global()
 @Module({
-  imports: [MongoModule, RedisModule, AuthModule, CacheModule],
+  imports: [
+    MongoModule.forRootAsync(),
+    RedisModule.forRootAsync(),
+    BullModule.forRootAsync({
+      inject: [RedisService],
+      useFactory: async (redisService: RedisService) => {
+        return {
+          connection: redisService.getGlobalClient().options,
+        };
+      },
+    }),
+    AuthModule,
+    CacheModule,
+    BullMQModule,
+  ],
   providers: [],
   exports: [],
 })

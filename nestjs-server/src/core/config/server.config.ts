@@ -7,8 +7,9 @@ export class ServerConfig {
   static mode: string = 'api';
   static throttler: ThorttlerConfig[] = [];
   static port: PortConfig = {
-    http: 4000,
-    socket: 5000,
+    api: 20000,
+    socket: 30000,
+    mq: 40000,
   };
 
   static dev: boolean = true;
@@ -24,8 +25,28 @@ export class ServerConfig {
   };
 
   static db: DBConfig = {
-    mongo: [],
-    redis: [],
+    mongo: {
+      active: false,
+      hosts: [],
+      replica_set: '',
+      auth_source: '',
+      db_name: '',
+      user_name: '',
+      password: '',
+      min_pool_size: 0,
+      max_pool_size: 0,
+      use_tls: false,
+    },
+    redis: {
+      active: false,
+      host: '',
+      port: 0,
+      db_name: '',
+      user_name: '',
+      password: '',
+      tls: false,
+      db: 0,
+    },
   };
 
   static swagger: SwaggerConfig = {
@@ -104,8 +125,9 @@ export interface ServiceConfig {
  * 포트 설정
  */
 export interface PortConfig {
-  http: number;
+  api: number;
   socket: number;
+  mq: number;
 }
 
 export interface ServerUrl {
@@ -135,8 +157,8 @@ export interface JwtConfig {
  * DB설정
  */
 export interface DBConfig {
-  mongo: MongoConfig[];
-  redis: RedisConfig[];
+  mongo: MongoConfig;
+  redis: RedisConfig;
 }
 
 /**

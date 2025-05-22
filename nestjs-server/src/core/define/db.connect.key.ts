@@ -1,7 +1,7 @@
 import ServerConfig from '../config/server.config';
 import StringUtil from '../utils/string.utils';
 
-export class ConnectKeys {
+export class DBConnectKeys {
   static getPrefix(): string {
     return `${StringUtil.toSnakeCase(ServerConfig.service.name)}_${ServerConfig.serverType}`;
   }
