@@ -10,6 +10,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalExceptionsFilter } from './core/error/global.exception.filter';
 import { ResponseInterceptor } from './core/interceptor/response.interceptor';
+import { HttpMiddleware } from './core/middleware/http.middleware';
 import { GlobalValidationPipe } from './core/pipe/GlobalValidationPipe';
 import { RedisIoAdapter } from './core/redis/redis.adapter';
 import { ServerLogger } from './core/server-log/server.log.service';
@@ -21,7 +22,10 @@ dayjs.tz.setDefault('UTC');
 async function bootstrap(): Promise<void> {
   try {
     await ServerConfig.init();
-    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+      logger: ServerLogger.instance,
+    });
+
     app.enableVersioning({
       type: VersioningType.URI,
       defaultVersion: ServerConfig.mode == 'api' ? ServerConfig.version : undefined,
@@ -87,6 +91,7 @@ function setHelmet(app: NestExpressApplication): void {
 
 async function setAPIServer(app: NestExpressApplication): Promise<void> {
   const reflector = app.get(Reflector);
+  app.use(new HttpMiddleware().use);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
   app.useGlobalFilters(new GlobalExceptionsFilter());
   app.useGlobalInterceptors(new ResponseInterceptor(reflector));

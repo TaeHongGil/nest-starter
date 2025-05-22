@@ -45,7 +45,7 @@ export class CoreModule implements OnModuleInit {
     });
 
     for (const c of classes) {
-      ServerLogger.log(`Added ${t.name} ${type} = ${c.name}`);
+      console.log(`Added ${t.name} ${type} = ${c.name}`);
     }
 
     const result: DynamicModule = {

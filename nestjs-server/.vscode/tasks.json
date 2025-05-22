@@ -16,6 +16,22 @@
       "options": {
         "cwd": "${workspaceFolder}/docker-local-db"
       }
+    },
+    {
+      "label": "elk-compose-up",
+      "type": "shell",
+      "command": "docker compose down && docker compose up setup && docker compose up -d",
+      "options": {
+        "cwd": "${workspaceFolder}/docker-elk"
+      }
+    },
+    {
+      "label": "elk-compose-down",
+      "type": "shell",
+      "command": "docker compose down",
+      "options": {
+        "cwd": "${workspaceFolder}/docker-elk"
+      }
     }
   ]
 }

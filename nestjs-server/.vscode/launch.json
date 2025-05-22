@@ -76,6 +76,25 @@
       "type": "node",
       "request": "launch",
       "name": "=================================="
+    },
+    {
+      "name": "Run Docker ELK Stack",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "elk-compose-up",
+      "program": ""
+    },
+    {
+      "name": "Stop Docker ELK Stack",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "elk-compose-down",
+      "program": ""
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "=================================="
     }
   ],
   "inputs": []

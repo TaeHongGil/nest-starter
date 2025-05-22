@@ -1,7 +1,6 @@
 import { All, Controller, Get, HttpCode, Version, VERSION_NEUTRAL } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import ServerConfig from '@root/core/config/server.config';
-import { AppService } from './app.service';
 import { NoAuthGuard } from './core/guard/auth.guard';
 import { SkipResponseInterceptor } from './core/interceptor/response.interceptor';
 
@@ -9,7 +8,7 @@ import { SkipResponseInterceptor } from './core/interceptor/response.interceptor
 @SkipResponseInterceptor()
 @NoAuthGuard()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor() {}
 
   /**
    * 헬스체크

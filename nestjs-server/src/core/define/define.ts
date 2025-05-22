@@ -44,4 +44,15 @@ export enum ROLE {
   GUEST = 'GUEST',
 }
 
+export const LOG_COLOR_MAP = {
+  error: 31, // 빨강
+  warn: 33, // 노랑
+  info: 32, // 초록
+  http: 35, // 보라
+  data: 36, // 파랑
+  verbose: 36, // 청록
+  debug: 36, // 청록
+  silly: 90, // 회색
+};
+
 export const BULL_QUEUES = ['test'];
