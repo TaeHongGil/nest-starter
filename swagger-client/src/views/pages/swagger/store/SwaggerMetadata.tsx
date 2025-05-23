@@ -84,6 +84,10 @@ class SwaggerMetadata {
   }
 
   private static initSockets(): Record<string, string[]> {
+    if (!this.sockets) {
+      return {};
+    }
+
     const namespaces: Record<string, string[]> = {};
 
     for (const [namespace, event] of Object.entries(this.sockets)) {
@@ -106,11 +110,11 @@ class SwaggerMetadata {
   }
 
   static getPath(method: string, path: string): any {
-    return this.paths[path]?.[method.toLowerCase()];
+    return this.paths?.[path]?.[method.toLowerCase()];
   }
 
   static getEvent(namespace: string, event: string): any {
-    return this.sockets[namespace]?.[event];
+    return this.sockets?.[namespace]?.[event];
   }
 
   static getApis(): Record<string, PathInfo[]> {

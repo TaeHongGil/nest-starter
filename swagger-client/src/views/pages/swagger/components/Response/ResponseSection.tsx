@@ -1,5 +1,5 @@
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { ButtonGroup, Card, Divider, Menu, MenuItem, Button as MuiButton, Tab, Typography } from '@mui/material';
+import { Button, ButtonGroup, Card, Divider, Menu, MenuItem, Button as MuiButton, Tab, Typography } from '@mui/material';
 import CommonUtil from '@root/common/util/common.util';
 import ReactCodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { json5 } from 'codemirror-json5';
@@ -34,9 +34,9 @@ const ResponseSection = observer(() => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px' }}>
         <Typography>Response</Typography>
         <ButtonGroup variant="contained" size="small" disableElevation disableFocusRipple disableRipple>
-          <MuiButton color="info" onClick={handleMenuOpen} className="text-white">
+          <Button color="info" onClick={handleMenuOpen} className="text-white">
             History
-          </MuiButton>
+          </Button>
           <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
             {httpSotre.getHistorys().map((item, index) => (
               <MenuItem

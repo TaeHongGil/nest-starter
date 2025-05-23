@@ -11,15 +11,10 @@
       "name": "┃React Run",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start"
-      ],
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "runtimeArgs": ["run", "start"],
+      "skipFiles": ["<node_internals>/**"],
       "env": {
-        "server_type": "local",
+        "server_type": "local"
       },
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal"
@@ -35,6 +30,6 @@
       "type": "node",
       "request": "launch",
       "name": "┗━━━━━━━━━━━ Nest Client ━━━━━━━━━━━┛"
-    },
+    }
   ]
 }

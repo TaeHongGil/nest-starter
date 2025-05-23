@@ -51,7 +51,7 @@ const SocketLogsSection: React.FC = observer(() => {
   return (
     <Card sx={{ height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px' }}>
-        <Typography variant="h6">Logs</Typography>
+        <Typography>Logs</Typography>
         <Button size="small" variant="contained" onClick={async () => socketStore.clearLogs()} sx={{ boxShadow: 'none', ':hover': { boxShadow: 'none' } }} disableRipple>
           Clear
         </Button>

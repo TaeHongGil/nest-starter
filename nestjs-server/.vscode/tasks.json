@@ -4,7 +4,15 @@
     {
       "label": "db-compose-up",
       "type": "shell",
-      "command": "docker compose down && docker compose up -d",
+      "windows": {
+        "command": "docker compose down; docker compose up -d"
+      },
+      "osx": {
+        "command": "docker compose down && docker compose up -d"
+      },
+      "linux": {
+        "command": "docker compose down && docker compose up -d"
+      },
       "options": {
         "cwd": "${workspaceFolder}/docker-local-db"
       }
@@ -20,7 +28,15 @@
     {
       "label": "elk-compose-up",
       "type": "shell",
-      "command": "docker compose down && docker compose up setup && docker compose up -d",
+      "windows": {
+        "command": "docker compose down; docker compose up --wait setup; docker compose up -d"
+      },
+      "osx": {
+        "command": "docker compose down && docker compose up --wait setup && docker compose up -d"
+      },
+      "linux": {
+        "command": "docker compose down && docker compose up --wait setup && docker compose up -d"
+      },
       "options": {
         "cwd": "${workspaceFolder}/docker-elk"
       }

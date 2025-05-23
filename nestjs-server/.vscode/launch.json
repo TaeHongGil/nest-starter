@@ -15,13 +15,8 @@
       "name": "┃Local API Server Run",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start:debug"
-      ],
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "runtimeArgs": ["run", "start:debug"],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
       "envFile": "${workspaceFolder}/.env/.env",
       "cwd": "${workspaceRoot}",
@@ -36,13 +31,8 @@
       "name": "┃Local Scoket Server Run",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start:debug"
-      ],
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "runtimeArgs": ["run", "start:debug"],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
       "envFile": "${workspaceFolder}/.env/.env",
       "cwd": "${workspaceRoot}",
@@ -57,13 +47,8 @@
       "name": "┃Local Message Queue Server Run",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start:debug"
-      ],
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "runtimeArgs": ["run", "start:debug"],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
       "envFile": "${workspaceFolder}/.env/.env",
       "cwd": "${workspaceRoot}",
@@ -121,13 +106,8 @@
       "name": "┃Swagger Run Watch",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "swagger"
-      ],
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "runtimeArgs": ["run", "swagger:watch"],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
       "envFile": "${workspaceFolder}/.env/.env",
       "cwd": "${workspaceRoot}",
@@ -141,7 +121,7 @@
       "type": "node",
       "request": "launch",
       "name": "┗━━━━━━━━━━━ Nest Server ━━━━━━━━━━━┛"
-    },
+    }
   ],
   "inputs": []
 }
