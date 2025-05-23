@@ -9,11 +9,11 @@ import StringUtil from '../utils/string.utils';
 export class ServerLogger implements LoggerService {
   private static _instance: ServerLogger;
   private logger: WinstonLoggerType;
-  private readonly LOG_DIR_PATH = path.join(__dirname, '..', '..', '..', 'docker-elk', 'logs');
 
   constructor(options?: LoggerOptions) {
-    if (!existsSync(this.LOG_DIR_PATH)) {
-      mkdirSync(this.LOG_DIR_PATH, { recursive: true });
+    const LOG_DIR_PATH = path.join(__dirname, '..', '..', '..', 'docker-elk', 'logs', StringUtil.toSnakeCase(ServerConfig.service.name));
+    if (!existsSync(LOG_DIR_PATH)) {
+      mkdirSync(LOG_DIR_PATH, { recursive: true });
     }
 
     this.logger = winston.createLogger({
@@ -44,13 +44,8 @@ export class ServerLogger implements LoggerService {
           ),
         }),
         new winston.transports.File({
-          filename: path.join(this.LOG_DIR_PATH, `${StringUtil.toSnakeCase(ServerConfig.service.name)}.log`),
-          maxsize: 10 * 1024 * 1024,
-          maxFiles: 5,
-        }),
-        new winston.transports.File({
           level: 'error',
-          filename: path.join(this.LOG_DIR_PATH, `${StringUtil.toSnakeCase(ServerConfig.service.name)}-error.log`),
+          filename: path.join(LOG_DIR_PATH, `${ServerConfig.serverType}-error.log`),
           maxsize: 10 * 1024 * 1024,
           maxFiles: 5,
           format: winston.format((info, opts) => {
@@ -59,7 +54,7 @@ export class ServerLogger implements LoggerService {
         }),
         new winston.transports.File({
           level: 'http',
-          filename: path.join(this.LOG_DIR_PATH, `${StringUtil.toSnakeCase(ServerConfig.service.name)}-http.log`),
+          filename: path.join(LOG_DIR_PATH, `${ServerConfig.serverType}-http.log`),
           maxsize: 10 * 1024 * 1024,
           maxFiles: 5,
           format: winston.format((info, opts) => {
@@ -68,7 +63,7 @@ export class ServerLogger implements LoggerService {
         }),
         new winston.transports.File({
           level: 'data',
-          filename: path.join(this.LOG_DIR_PATH, `${StringUtil.toSnakeCase(ServerConfig.service.name)}-data.log`),
+          filename: path.join(LOG_DIR_PATH, `${ServerConfig.serverType}-data.log`),
           maxsize: 10 * 1024 * 1024,
           maxFiles: 5,
           format: winston.format((info, opts) => {

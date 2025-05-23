@@ -5,8 +5,8 @@ import { ServerLogger } from '../server-log/server.log.service';
 @Injectable()
 export class HttpMiddleware implements NestMiddleware {
   use(request: Request, response: Response, next: NextFunction): void {
-    const { ip, method, originalUrl } = request;
-    const userAgent = request.get('user-agent') || '';
+    const { ip, method, originalUrl: url } = request;
+    const agent = request.get('user-agent') || '';
     const now = Date.now();
 
     const originalSend = response.send.bind(response);
@@ -17,15 +17,17 @@ export class HttpMiddleware implements NestMiddleware {
     };
 
     response.on('finish', () => {
+      const responseBody = JSON.parse(response.locals.body);
+      const error = responseBody.error || undefined;
       const data = {
         ip,
         method,
-        originalUrl,
-        agent: userAgent,
+        url,
+        agent,
         responseTime: Date.now() - now,
-        responseBody: response.locals.body,
+        responseBody: responseBody,
       };
-      ServerLogger.http(`${method} ${originalUrl} ${data.responseTime}ms response end`, 'HTTP', data);
+      ServerLogger.http(`${method} ${url} ${data.responseTime}ms response ${error ? 'error' : 'success'}`, 'HTTP', data);
     });
 
     next();

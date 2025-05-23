@@ -115,15 +115,6 @@ services:
     volumes:
       - ./extensions/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,Z
       - ./logs:/logs:ro
-      # 도커 로그 수집이 필요 없다면 아래 두 줄은 삭제 또는 주석 처리
-      # - type: bind
-      #   source: /var/lib/docker/containers
-      #   target: /var/lib/docker/containers
-      #   read_only: true
-      # - type: bind
-      #   source: /var/run/docker.sock
-      #   target: /var/run/docker.sock
-      #   read_only: true
     environment:
       FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
       BEATS_SYSTEM_PASSWORD: ${BEATS_SYSTEM_PASSWORD:-}

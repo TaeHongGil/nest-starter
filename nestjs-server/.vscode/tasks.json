@@ -29,13 +29,13 @@
       "label": "elk-compose-up",
       "type": "shell",
       "windows": {
-        "command": "docker compose down; docker compose up --wait setup; docker compose up -d"
+        "command": "docker compose down -v; docker compose rm -f setup; docker network prune -f; docker volume prune -f; docker compose up setup; docker compose up -d"
       },
       "osx": {
-        "command": "docker compose down && docker compose up --wait setup && docker compose up -d"
+        "command": "docker compose down -v && docker compose rm -f setup && docker network prune -f && docker volume prune -f && docker compose up setup && docker compose up -d"
       },
       "linux": {
-        "command": "docker compose down && docker compose up --wait setup && docker compose up -d"
+        "command": "docker compose down -v && docker compose rm -f setup && docker network prune -f && docker volume prune -f && docker compose up setup && docker compose up -d"
       },
       "options": {
         "cwd": "${workspaceFolder}/docker-elk"
@@ -44,7 +44,15 @@
     {
       "label": "elk-compose-down",
       "type": "shell",
-      "command": "docker compose down",
+      "windows": {
+        "command": "docker compose down -v; docker compose rm -f setup; docker network prune -f; docker volume prune -f"
+      },
+      "osx": {
+        "command": "docker compose down -v && docker compose rm -f setup && docker network prune -f && docker volume prune -f"
+      },
+      "linux": {
+        "command": "docker compose down -v && docker compose rm -f setup && docker network prune -f && docker volume prune -f"
+      },
       "options": {
         "cwd": "${workspaceFolder}/docker-elk"
       }
