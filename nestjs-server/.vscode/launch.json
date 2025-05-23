@@ -7,11 +7,21 @@
   "configurations": [
     {
       "type": "node",
-      "name": "Local API Server Run",
+      "request": "launch",
+      "name": "┏━━━━━━━━━━━ Nest Server ━━━━━━━━━━━┓"
+    },
+    {
+      "type": "node",
+      "name": "┃Local API Server Run",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start:debug"],
-      "skipFiles": ["<node_internals>/**"],
+      "runtimeArgs": [
+        "run",
+        "start:debug"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "sourceMaps": true,
       "envFile": "${workspaceFolder}/.env/.env",
       "cwd": "${workspaceRoot}",
@@ -23,11 +33,16 @@
     },
     {
       "type": "node",
-      "name": "Local Scoket Server Run",
+      "name": "┃Local Scoket Server Run",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start:debug"],
-      "skipFiles": ["<node_internals>/**"],
+      "runtimeArgs": [
+        "run",
+        "start:debug"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "sourceMaps": true,
       "envFile": "${workspaceFolder}/.env/.env",
       "cwd": "${workspaceRoot}",
@@ -39,11 +54,16 @@
     },
     {
       "type": "node",
-      "name": "Local Message Queue Server Run",
+      "name": "┃Local Message Queue Server Run",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start:debug"],
-      "skipFiles": ["<node_internals>/**"],
+      "runtimeArgs": [
+        "run",
+        "start:debug"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "sourceMaps": true,
       "envFile": "${workspaceFolder}/.env/.env",
       "cwd": "${workspaceRoot}",
@@ -56,17 +76,17 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "=================================="
+      "name": "┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━┃"
     },
     {
-      "name": "Run Docker DB",
+      "name": "┃Run Docker DB",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "db-compose-up",
       "program": ""
     },
     {
-      "name": "Stop Docker DB",
+      "name": "┃Stop Docker DB",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "db-compose-down",
@@ -75,17 +95,17 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "=================================="
+      "name": "┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━┃"
     },
     {
-      "name": "Run Docker ELK Stack",
+      "name": "┃Run Docker ELK Stack",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "elk-compose-up",
       "program": ""
     },
     {
-      "name": "Stop Docker ELK Stack",
+      "name": "┃Stop Docker ELK Stack",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "elk-compose-down",
@@ -94,8 +114,34 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "=================================="
-    }
+      "name": "┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━┃"
+    },
+    {
+      "type": "node",
+      "name": "┃Swagger Run Watch",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "swagger"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "sourceMaps": true,
+      "envFile": "${workspaceFolder}/.env/.env",
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
+      "env": {
+        "server_type": "local",
+        "mode": "mq"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "┗━━━━━━━━━━━ Nest Server ━━━━━━━━━━━┛"
+    },
   ],
   "inputs": []
 }

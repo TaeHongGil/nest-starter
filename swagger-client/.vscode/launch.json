@@ -3,28 +3,38 @@
   "configurations": [
     {
       "type": "node",
-      "name": "React Run",
+      "request": "launch",
+      "name": "┏━━━━━━━━━━━ Nest Client ━━━━━━━━━━━┓"
+    },
+    {
+      "type": "node",
+      "name": "┃React Run",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start"],
-      "skipFiles": ["<node_internals>/**"],
+      "runtimeArgs": [
+        "run",
+        "start"
+      ],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "env": {
         "server_type": "local",
-        },
+      },
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal"
     },
     {
       "type": "chrome",
       "request": "launch",
-      "name": "Launch Chrome For Debug",
+      "name": "┃Launch Chrome For Debug",
       "url": "http://localhost:3000/react/",
       "webRoot": "${workspaceFolder}"
     },
     {
       "type": "node",
       "request": "launch",
-      "name": "=================================="
-    }
+      "name": "┗━━━━━━━━━━━ Nest Client ━━━━━━━━━━━┛"
+    },
   ]
 }

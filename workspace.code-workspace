@@ -1,0 +1,52 @@
+{
+  "folders": [
+    {
+      "path": "nestjs-server"
+    },
+    {
+      "path": "swagger-client"
+    }
+  ],
+  "settings": {
+    "window.title": "nest-workspace",
+    "workbench.colorCustomizations": {
+      "titleBar.activeBackground": "#123456",
+      "titleBar.activeForeground": "#FFFFFF",
+      "titleBar.inactiveBackground": "#123456",
+      "titleBar.inactiveForeground": "#FFFFFF"
+    },
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always",
+      "source.organizeImports": "always",
+      "source.addMissingImports": "always",
+      "source.addMissingImportsWithAutoFix": "always",
+      "source.addMissingImportsWithAutoFixAndOrganizeImports": "always"
+    },
+    "typescript.preferences.importModuleSpecifier": "shortest",
+    "typescript.preferences.quoteStyle": "single",
+    "editor.formatOnSave": true,
+    "prettier.singleQuote": true,
+    "search.exclude": {
+      "**/.git": true,
+      "**/node_modules": true,
+      "**/dist": true
+    },
+    "editor.fontFamily": "D2Coding, Consolas, 'Courier New', monospace",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true,
+    "files.trimTrailingWhitespace": true,
+    "editor.rulers": [250],
+    "mcp": {
+      "inputs": [],
+      "servers": {
+        "Context7": {
+          "type": "stdio",
+          "command": "npx",
+          "args": ["-y", "@upstash/context7-mcp@latest"]
+        }
+      }
+    }
+  }
+}
