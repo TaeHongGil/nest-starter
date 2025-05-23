@@ -22,11 +22,10 @@ export class HttpMiddleware implements NestMiddleware {
         method,
         originalUrl,
         agent: userAgent,
-        statusCode: response.statusCode,
         responseTime: Date.now() - now,
         responseBody: response.locals.body,
       };
-      ServerLogger.http('response end', 'HTTP', data);
+      ServerLogger.http(`${method} ${originalUrl} ${data.responseTime}ms response end`, 'HTTP', data);
     });
 
     next();

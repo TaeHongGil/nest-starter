@@ -11,19 +11,13 @@ export class ResponseInterceptor implements NestInterceptor {
   constructor(private readonly reflector: Reflector) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request = context.switchToHttp().getRequest();
-    const now = Date.now();
-
     const skipInterceptor = this.reflector.get<boolean>('skipInterceptor', context.getHandler()) || this.reflector.get<boolean>('skipInterceptor', context.getClass());
-
     if (skipInterceptor) {
       return next.handle();
     }
 
     return next.handle().pipe(
       map((data) => {
-        console.log(`${request.method} ${request.path} 처리 속도: ${Date.now() - now}ms`);
-
         return CommonResponse.builder().setData(data).build();
       }),
     );
@@ -35,9 +29,6 @@ export class WsResponseInterceptor implements NestInterceptor {
   constructor(private readonly reflector: Reflector) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const client = context.switchToWs().getClient();
-    const data = context.switchToWs().getData();
-    const now = Date.now();
     const skipInterceptor = this.reflector.get<boolean>('skipInterceptor', context.getHandler()) || this.reflector.get<boolean>('skipInterceptor', context.getClass());
     if (skipInterceptor) {
       return next.handle();
@@ -45,8 +36,6 @@ export class WsResponseInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((result) => {
-        console.log(`WS 처리 속도: ${Date.now() - now}ms, data:`, data);
-
         return CommonResponse.builder().setData(result).build();
       }),
     );
