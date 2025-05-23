@@ -1,18 +1,19 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthGuard } from '@root/core/guard/auth.guard';
 import { ServerLogger } from '@root/core/server-log/server.log.service';
 import { CommonModule } from './common/common.module';
 import { MQModule } from './mq/mq.module';
 import { ProjectModule } from './project/project.module';
 import { SocketModule } from './socket/socket.module';
+import ServerConfig from '@root/core/config/server.config';
 
 const importModules = [];
 const providerModules = [];
 
 if (process.env.mode === 'api') {
-  importModules.push(CommonModule, ProjectModule);
+  importModules.push(ThrottlerModule.forRootAsync({ useFactory: async () => ServerConfig.throttler }), CommonModule, ProjectModule);
   providerModules.push(
     {
       provide: APP_GUARD,

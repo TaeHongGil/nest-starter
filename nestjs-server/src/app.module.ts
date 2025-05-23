@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
-import ServerConfig from './core/config/server.config';
 import { CoreModule } from './core/core.module';
 import { FeatureModule } from './feature/feature.module';
 import { ServerModule } from './server/server.module';
 
 @Module({
-  imports: [ThrottlerModule.forRootAsync({ useFactory: async () => ServerConfig.throttler }), CoreModule, ServerModule, FeatureModule],
+  imports: [CoreModule, ServerModule, FeatureModule],
   controllers: [AppController],
   providers: [],
 })
