@@ -1,7 +1,7 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Global, Module, OnModuleInit } from '@nestjs/common';
 import { BULL_QUEUES } from '../define/define';
-import { ServerLogger } from '../server-log/server.log.service';
+import { ServerLogger } from '../server-log/server.logger';
 import { BullMQService } from './bull.mq.service';
 
 @Global()

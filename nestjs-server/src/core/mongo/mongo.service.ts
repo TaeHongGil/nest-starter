@@ -2,7 +2,7 @@ import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import mongoose, { type Connection, ClientSession } from 'mongoose';
 import ServerConfig from '../config/server.config';
 import { DBConnectKeys } from '../define/db.connect.key';
-import { ServerLogger } from '../server-log/server.log.service';
+import { ServerLogger } from '../server-log/server.logger';
 
 /**
  * Mongo Service

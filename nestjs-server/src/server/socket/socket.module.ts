@@ -1,6 +1,6 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { CoreModule } from '@root/core/core.module';
-import { ServerLogger } from '@root/core/server-log/server.log.service';
+import { ServerLogger } from '@root/core/server-log/server.logger';
 import path from 'path';
 import { ChatModule } from './service/chat/chat.module';
 

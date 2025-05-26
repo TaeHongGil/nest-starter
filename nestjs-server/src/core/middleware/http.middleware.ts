@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
-import { ServerLogger } from '../server-log/server.log.service';
+import { ServerLogger } from '../server-log/server.logger';
 
 @Injectable()
 export class HttpMiddleware implements NestMiddleware {
@@ -17,17 +17,15 @@ export class HttpMiddleware implements NestMiddleware {
     };
 
     response.on('finish', () => {
-      const responseBody = JSON.parse(response.locals.body);
-      const error = responseBody.error || undefined;
       const data = {
         ip,
         method,
         url,
         agent,
         responseTime: Date.now() - now,
-        responseBody: responseBody,
+        responseBody: response.locals.body,
       };
-      ServerLogger.http(`${method} ${url} ${data.responseTime}ms response ${error ? 'error' : 'success'}`, 'HTTP', data);
+      ServerLogger.http(`${method} ${url} ${data.responseTime}ms response end`, data);
     });
 
     next();

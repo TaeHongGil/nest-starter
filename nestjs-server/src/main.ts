@@ -2,10 +2,12 @@ import { ClassSerializerInterceptor, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import ServerConfig from '@root/core/config/server.config';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
+import { json } from 'express';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalExceptionsFilter } from './core/error/global.exception.filter';
@@ -13,7 +15,7 @@ import { ResponseInterceptor } from './core/interceptor/response.interceptor';
 import { HttpMiddleware } from './core/middleware/http.middleware';
 import { GlobalValidationPipe } from './core/pipe/GlobalValidationPipe';
 import { RedisIoAdapter } from './core/redis/redis.adapter';
-import { ServerLogger } from './core/server-log/server.log.service';
+import { ServerLogger } from './core/server-log/server.logger';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -97,6 +99,8 @@ async function setAPIServer(app: NestExpressApplication): Promise<void> {
   app.useGlobalInterceptors(new ResponseInterceptor(reflector));
   app.useGlobalPipes(new GlobalValidationPipe());
   app.use(cookieParser());
+  app.use(json({ limit: '1mb' }));
+  app.use(compression());
 
   if (ServerConfig.dev) {
     const { SwaggerService } = await import('./feature/swagger/swagger.service');

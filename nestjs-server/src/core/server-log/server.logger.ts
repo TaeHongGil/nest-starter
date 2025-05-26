@@ -39,7 +39,7 @@ export class ServerLogger implements LoggerService {
               if (context) metaString += `[${context}]`;
               const metaPad = metaString.padEnd(20, ' ');
 
-              return `[${timestamp}] \x1b[${color}m${level}\t${metaPad}${message}\x1b[0m`;
+              return `[${timestamp}] \x1b[${color}m${level.toUpperCase()}\t${metaPad}${message}\x1b[0m`;
             }),
           ),
         }),
@@ -85,7 +85,7 @@ export class ServerLogger implements LoggerService {
   }
 
   static error(message: any, trace?: string, context?: string): void {
-    ServerLogger.instance.logger.error(message, { trace, context });
+    ServerLogger.instance.logger.error(message, { timestamp: new Date(), trace, context });
   }
 
   static warn(message: any, context?: string): void {
@@ -100,12 +100,12 @@ export class ServerLogger implements LoggerService {
     ServerLogger.instance.logger.info(message, { context });
   }
 
-  static http(message: any, context?: string, data?: any): void {
-    ServerLogger.instance.logger.http(message, { context, data });
+  static http(message: any, data?: any): void {
+    ServerLogger.instance.logger.http(message, { timestamp: new Date(), data });
   }
 
-  static data(message: any, context?: string): void {
-    ServerLogger.instance.logger.data(message, { context });
+  static data(message: any, data?: any): void {
+    ServerLogger.instance.logger.data(message, { timestamp: new Date(), data });
   }
 
   static verbose(message: any, context?: string): void {
@@ -121,7 +121,7 @@ export class ServerLogger implements LoggerService {
   }
 
   error(message: any, trace?: string, context?: string): void {
-    this.logger.error(message, { trace, context });
+    this.logger.error(message, { timestamp: new Date(), trace, context });
   }
 
   warn(message: any, context?: string): void {
@@ -136,12 +136,12 @@ export class ServerLogger implements LoggerService {
     this.logger.info(message, { context });
   }
 
-  http(message: any, context?: string): void {
-    this.logger.http(message, { context });
+  http(message: any, data?: any): void {
+    this.logger.http(message, { timestamp: new Date(), data });
   }
 
-  data(message: any, context?: string): void {
-    this.logger.data(message, { context });
+  data(message: any, data?: any): void {
+    this.logger.data(message, { timestamp: new Date(), data });
   }
 
   verbose(message: any, context?: string): void {

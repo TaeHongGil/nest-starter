@@ -1,5 +1,5 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import { ServerLogger } from '@root/core/server-log/server.log.service';
+import { ServerLogger } from '@root/core/server-log/server.logger';
 import { AccountPlatformService } from './account.platform.service';
 import { AccountRepository } from './account.repository';
 import { AccountService } from './account.service';

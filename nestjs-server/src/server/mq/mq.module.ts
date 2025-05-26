@@ -5,7 +5,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { CoreModule } from '@root/core/core.module';
 import { BULL_QUEUES } from '@root/core/define/define';
-import { ServerLogger } from '@root/core/server-log/server.log.service';
+import { ServerLogger } from '@root/core/server-log/server.logger';
 import path from 'path';
 
 @Module({

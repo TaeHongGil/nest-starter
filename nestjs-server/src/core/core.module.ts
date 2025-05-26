@@ -8,7 +8,7 @@ import { MongoModule } from './mongo/mongo.modules';
 import { BullMQModule } from './mq/bull.mq.module';
 import { RedisModule } from './redis/redis.modules';
 import { RedisService } from './redis/redis.service';
-import { ServerLogger } from './server-log/server.log.service';
+import { ServerLogger } from './server-log/server.logger';
 
 @Module({
   imports: [

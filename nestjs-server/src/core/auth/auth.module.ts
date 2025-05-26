@@ -1,5 +1,5 @@
 import { Global, Module, type OnModuleInit } from '@nestjs/common';
-import { ServerLogger } from '../server-log/server.log.service';
+import { ServerLogger } from '../server-log/server.logger';
 import { AuthRepository } from './auth.repository';
 import { AuthService } from './auth.service';
 import { WsAuthService } from './ws.auth.service';

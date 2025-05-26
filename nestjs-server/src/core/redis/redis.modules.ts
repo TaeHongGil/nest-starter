@@ -1,7 +1,7 @@
 import { DynamicModule, Global, Module, ModuleMetadata, type OnModuleInit } from '@nestjs/common';
 import { RedisIoAdapter } from '../redis/redis.adapter';
 import { RedisService } from '../redis/redis.service';
-import { ServerLogger } from '../server-log/server.log.service';
+import { ServerLogger } from '../server-log/server.logger';
 
 @Global()
 @Module({})

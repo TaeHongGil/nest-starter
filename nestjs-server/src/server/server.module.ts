@@ -1,13 +1,13 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import ServerConfig from '@root/core/config/server.config';
 import { AuthGuard } from '@root/core/guard/auth.guard';
-import { ServerLogger } from '@root/core/server-log/server.log.service';
+import { ServerLogger } from '@root/core/server-log/server.logger';
 import { CommonModule } from './common/common.module';
 import { MQModule } from './mq/mq.module';
 import { ProjectModule } from './project/project.module';
 import { SocketModule } from './socket/socket.module';
-import ServerConfig from '@root/core/config/server.config';
 
 const importModules = [];
 const providerModules = [];
