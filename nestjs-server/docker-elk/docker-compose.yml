@@ -93,15 +93,31 @@ services:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+      - ./kibana/config/default.ndjson:/usr/share/kibana/config/default.ndjson:ro,Z
+      - ./kibana/config/import-default-objects.sh:/usr/share/kibana/config/import-default-objects.sh:ro,Z
     ports:
       - 5601:5601
     environment:
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
     networks:
       - elk
     depends_on:
       - elasticsearch
     restart: unless-stopped
+    command: >
+      sh -c "
+        /usr/local/bin/kibana-docker &
+        KIBANA_PID=$!;
+        for i in $(seq 1 30); do
+          if curl -s -o /dev/null -w '%{http_code}' http://localhost:5601/api/status | grep -q 200; then
+            break;
+          fi;
+          sleep 2;
+        done;
+        sh /usr/share/kibana/config/import-default-objects.sh;
+        wait $KIBANA_PID
+      "
 
   filebeat:
     build:

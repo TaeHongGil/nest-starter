@@ -61,65 +61,6 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━┃"
-    },
-    {
-      "name": "┃Run Docker DB",
-      "type": "node",
-      "request": "launch",
-      "preLaunchTask": "db-compose-up",
-      "program": ""
-    },
-    {
-      "name": "┃Stop Docker DB",
-      "type": "node",
-      "request": "launch",
-      "preLaunchTask": "db-compose-down",
-      "program": ""
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━┃"
-    },
-    {
-      "name": "┃Run Docker ELK Stack",
-      "type": "node",
-      "request": "launch",
-      "preLaunchTask": "elk-compose-up",
-      "program": ""
-    },
-    {
-      "name": "┃Stop Docker ELK Stack",
-      "type": "node",
-      "request": "launch",
-      "preLaunchTask": "elk-compose-down",
-      "program": ""
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━┃"
-    },
-    {
-      "type": "node",
-      "name": "┃Swagger Run Watch",
-      "request": "launch",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "swagger:watch"],
-      "skipFiles": ["<node_internals>/**"],
-      "sourceMaps": true,
-      "envFile": "${workspaceFolder}/.env/.env",
-      "cwd": "${workspaceRoot}",
-      "console": "integratedTerminal",
-      "env": {
-        "server_type": "local",
-        "mode": "mq"
-      }
-    },
-    {
-      "type": "node",
-      "request": "launch",
       "name": "┗━━━━━━━━━━━ Nest Server ━━━━━━━━━━━┛"
     }
   ],
