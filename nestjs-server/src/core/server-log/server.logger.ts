@@ -2,6 +2,7 @@ import { LoggerService } from '@nestjs/common';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import winston, { LoggerOptions, Logger as WinstonLoggerType } from 'winston';
+import winstonDaily from 'winston-daily-rotate-file';
 import ServerConfig from '../config/server.config';
 import { LOG_COLOR_MAP } from '../define/define';
 import StringUtil from '../utils/string.utils';
@@ -35,41 +36,23 @@ class ServerLogger implements LoggerService {
             winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
             winston.format.printf(({ timestamp, level, message, context, ...meta }) => {
               const color = LOG_COLOR_MAP[level] || 37;
-              let metaString = '';
-              if (context) metaString += `[${context}]`;
+              const metaString = context ? `[${context}]` : '';
               const metaPad = metaString.padEnd(20, ' ');
 
               return `[${timestamp}] \x1b[${color}m${level.toUpperCase()}\t${metaPad}${message}\x1b[0m`;
             }),
           ),
         }),
-        new winston.transports.File({
-          level: 'error',
-          filename: path.join(LOG_DIR_PATH, `${ServerConfig.serverType}-error.log`),
-          maxsize: 10 * 1024 * 1024,
-          maxFiles: 5,
-          format: winston.format((info, opts) => {
-            return info.level === 'error' ? info : false;
-          })(),
-        }),
-        new winston.transports.File({
-          level: 'http',
-          filename: path.join(LOG_DIR_PATH, `${ServerConfig.serverType}-http.log`),
-          maxsize: 10 * 1024 * 1024,
-          maxFiles: 5,
-          format: winston.format((info, opts) => {
-            return info.level === 'http' ? info : false;
-          })(),
-        }),
-        new winston.transports.File({
-          level: 'data',
-          filename: path.join(LOG_DIR_PATH, `${ServerConfig.serverType}-data.log`),
-          maxsize: 10 * 1024 * 1024,
-          maxFiles: 5,
-          format: winston.format((info, opts) => {
-            return info.level === 'data' ? info : false;
-          })(),
-        }),
+        ...['error', 'http', 'data'].map(
+          (logLevel) =>
+            new winstonDaily({
+              level: logLevel,
+              datePattern: 'YYYY-MM-DD',
+              filename: path.join(LOG_DIR_PATH, `${ServerConfig.serverType}-${logLevel}-%DATE%.log`),
+              maxFiles: '3d',
+              format: winston.format((info) => (info.level === logLevel ? info : false))(),
+            }),
+        ),
       ],
       ...options,
     });
