@@ -2,29 +2,18 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export class ServerConfig {
-  static version: string = '1';
-  static serverType: string = 'local';
-  static mode: string = 'api';
-  static throttler: ThorttlerConfig[] = [];
-  static port: PortConfig = {
-    api: 20000,
-    socket: 30000,
-    mq: 40000,
-  };
-
-  static dev: boolean = true;
-  static service: ServiceConfig = {
-    name: '',
-  };
-
-  static jwt: JwtConfig = {
-    key: '',
-    ttl_access_sec: 0,
-    ttl_refresh_sec: 0,
-    type: '',
-  };
-
-  static db: DBConfig = {
+  version: string = '';
+  serverType: string = '';
+  mode: string = '';
+  throttler: ThorttlerConfig[] = [];
+  dev: boolean = true;
+  service: ServiceConfig = { name: '' };
+  jwt: JwtConfig = { key: '', ttl_access_sec: 0, ttl_refresh_sec: 0, type: '' };
+  server_info: ServerInfo = { api: { port: 20000, mq: false }, socket: { port: 30000, mq: false }, mq: { port: 40000 } };
+  swagger: SwaggerConfig = { active: false, servers: {} };
+  paths: PathConfig = { root: '', env: '', ui: { public: '', view: '' } };
+  platform: PlatformConfig = { google: { client_id: '' }, kakao: { client_id: '' }, naver: { client_id: '' } };
+  db: DBConfig = {
     mongo: {
       active: false,
       hosts: [],
@@ -49,44 +38,75 @@ export class ServerConfig {
     },
   };
 
-  static swagger: SwaggerConfig = {
-    active: false,
-    servers: {},
-  };
+  private static _instance: ServerConfig;
 
-  static paths: PathConfig = {
-    root: '',
-    env: '',
-    ui: {
-      public: '',
-      view: '',
-    },
-  };
+  static get instance(): ServerConfig {
+    if (!this._instance) {
+      this._instance = new ServerConfig();
+    }
 
-  static platform: PlatformConfig = {
-    google: {
-      client_id: '',
-    },
-    kakao: {
-      client_id: '',
-    },
-    naver: {
-      client_id: '',
-    },
-  };
+    return this._instance;
+  }
 
-  static async init(): Promise<void> {
-    global.ServerConfig = ServerConfig;
+  private constructor() {
     this.serverType = process.env.server_type;
     this.mode = process.env.mode;
     this.paths.root = path.join(__dirname, '..', '..', '..', 'src');
     this.paths.env = path.join(this.paths.root, 'env');
     this.paths.ui.public = path.join(this.paths.root, 'ui', 'public');
     this.paths.ui.view = path.join(this.paths.root, 'ui', 'view');
-    await this._load();
+    this._load();
   }
 
-  static async _load(): Promise<void> {
+  static get version(): string {
+    return this.instance.version;
+  }
+
+  static get serverType(): string {
+    return this.instance.serverType;
+  }
+
+  static get mode(): string {
+    return this.instance.mode;
+  }
+
+  static get throttler(): ThorttlerConfig[] {
+    return this.instance.throttler;
+  }
+
+  static get server_info(): ServerInfo {
+    return this.instance.server_info;
+  }
+
+  static get dev(): boolean {
+    return this.instance.dev;
+  }
+
+  static get service(): ServiceConfig {
+    return this.instance.service;
+  }
+
+  static get jwt(): JwtConfig {
+    return this.instance.jwt;
+  }
+
+  static get db(): DBConfig {
+    return this.instance.db;
+  }
+
+  static get swagger(): SwaggerConfig {
+    return this.instance.swagger;
+  }
+
+  static get paths(): PathConfig {
+    return this.instance.paths;
+  }
+
+  static get platform(): PlatformConfig {
+    return this.instance.platform;
+  }
+
+  _load(): void {
     const excludes = ['name', 'prototype', 'length', 'serverType', 'paths', 'mode'];
     const configPath = path.join(this.paths.env, `${this.serverType}-config.json`);
     const forceConfigPath = path.join(this.paths.env, `force-config.json`);
@@ -95,12 +115,10 @@ export class ServerConfig {
     if (fs.existsSync(forceConfigPath)) {
       forceConfig = JSON.parse(fs.readFileSync(forceConfigPath, 'utf8'));
     }
-
     Object.keys(this).forEach((key) => {
       if (excludes.includes(key)) {
         return;
       }
-
       if (key in config) {
         if (forceConfig && key in forceConfig) {
           this[key] = forceConfig[key];
@@ -124,10 +142,18 @@ export interface ServiceConfig {
 /**
  * 포트 설정
  */
-export interface PortConfig {
-  api: number;
-  socket: number;
-  mq: number;
+export interface ServerInfo {
+  api: {
+    port: number;
+    mq: boolean;
+  };
+  socket: {
+    port: number;
+    mq: boolean;
+  };
+  mq: {
+    port: number;
+  };
 }
 
 export interface ServerUrl {

@@ -6,7 +6,7 @@ import ServerConfig from '../config/server.config';
 import { LOG_COLOR_MAP } from '../define/define';
 import StringUtil from '../utils/string.utils';
 
-export class ServerLogger implements LoggerService {
+class ServerLogger implements LoggerService {
   private static _instance: ServerLogger;
   private logger: WinstonLoggerType;
 
@@ -156,3 +156,5 @@ export class ServerLogger implements LoggerService {
     this.logger.silly(message, { context });
   }
 }
+
+export default ServerLogger;

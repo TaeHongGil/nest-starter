@@ -4,14 +4,21 @@ import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs';
 import { BullModule } from '@nestjs/bullmq';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { CoreModule } from '@root/core/core.module';
-import { ServerLogger } from '@root/core/server-log/server.logger';
+import { RedisService } from '@root/core/redis/redis.service';
+import ServerLogger from '@root/core/server-log/server.logger';
 import path from 'path';
 import { BULL_QUEUES } from '../define/mq.define';
-import { MQCoreModule } from '../mq.core.module';
 
 @Module({
   imports: [
-    MQCoreModule,
+    BullModule.forRootAsync({
+      inject: [RedisService],
+      useFactory: async (redisService: RedisService) => {
+        return {
+          connection: redisService.getGlobalClient().options,
+        };
+      },
+    }),
     BullModule.registerQueue(...Object.values(BULL_QUEUES).map((name) => ({ name }))),
     CoreModule.registerDynamic(MQConsumerModule, path.join(__dirname, 'consumer'), '.consumer', 'providers'),
     BullBoardModule.forRoot({

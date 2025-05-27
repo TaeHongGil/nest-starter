@@ -18,8 +18,8 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
   const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
   process.env.VITE_SERVER_TYPE = server_type;
   process.env.VITE_SERVER_NAME = config.service?.name ?? 'Nest';
-  process.env.VITE_SERVER_HTTP_PORT = config.port.api ?? '0';
-  process.env.VITE_SERVER_SOCKET_PORT = config.port.socket ?? '0';
+  process.env.VITE_SERVER_HTTP_PORT = config.server_info.api.port ?? '0';
+  process.env.VITE_SERVER_SOCKET_PORT = config.server_info.socket.port ?? '0';
   process.env.VITE_SERVER_VERSION = config.version ?? '1';
 
   return {

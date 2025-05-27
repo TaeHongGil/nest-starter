@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CoreRedisKeys } from '../define/core.redis.key';
 import { RedisService } from '../redis/redis.service';
-import { ServerLogger } from '../server-log/server.logger';
+import ServerLogger from '../server-log/server.logger';
 
 /**
  * Cache Service

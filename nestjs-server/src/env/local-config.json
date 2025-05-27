@@ -3,10 +3,18 @@
   "service": {
     "name": "Nest"
   },
-  "port": {
-    "api": 20000,
-    "socket": 30000,
-    "mq": 40000
+  "server_info": {
+    "api": {
+      "port": 20000,
+      "mq": false
+    },
+    "socket": {
+      "port": 30000,
+      "mq": false
+    },
+    "mq": {
+      "port": 40000
+    }
   },
   "dev": true,
   "swagger": {

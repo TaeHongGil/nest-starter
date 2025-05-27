@@ -2,7 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/co
 import { BaseWsExceptionFilter } from '@nestjs/websockets';
 import { Request, Response } from 'express';
 import { CommonResponse } from '../common/response';
-import { ServerLogger } from '../server-log/server.logger';
+import ServerLogger from '../server-log/server.logger';
 
 @Catch()
 export class GlobalExceptionsFilter implements ExceptionFilter {

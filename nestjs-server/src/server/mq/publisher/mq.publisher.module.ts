@@ -1,11 +1,22 @@
+import { BullModule } from '@nestjs/bullmq';
 import { Global, Module, OnModuleInit } from '@nestjs/common';
-import { ServerLogger } from '../../../core/server-log/server.logger';
-import { MQCoreModule } from '../mq.core.module';
+import { RedisService } from '@root/core/redis/redis.service';
+import ServerLogger from '../../../core/server-log/server.logger';
 import { MQServiceModule } from './service/mq.service.module';
 
 @Global()
 @Module({
-  imports: [MQCoreModule, MQServiceModule],
+  imports: [
+    BullModule.forRootAsync({
+      inject: [RedisService],
+      useFactory: async (redisService: RedisService) => {
+        return {
+          connection: redisService.getGlobalClient().options,
+        };
+      },
+    }),
+    MQServiceModule,
+  ],
   providers: [],
   exports: [MQServiceModule],
 })

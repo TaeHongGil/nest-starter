@@ -3,23 +3,29 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import ServerConfig from '@root/core/config/server.config';
 import { AuthGuard } from '@root/core/guard/auth.guard';
-import { ServerLogger } from '@root/core/server-log/server.logger';
-import { ApiModule } from './api/api.module';
+import ServerLogger from '@root/core/server-log/server.logger';
+import { ApiModule } from './\bapi/api.module';
 import { MQConsumerModule } from './mq/consumer/mq.consumer.module';
+import { MQPublisherModule } from './mq/publisher/mq.publisher.module';
 import { WsModule } from './ws/ws.module';
 
 const importModules = [];
 const providerModules = [];
+const mode = ServerConfig.mode;
 
-if (process.env.mode === 'api') {
+if (ServerConfig.server_info[mode]?.mq) {
+  importModules.push(MQPublisherModule);
+}
+
+if (mode === 'api') {
   importModules.push(ApiModule);
   providerModules.push({
     provide: APP_GUARD,
     useClass: AuthGuard,
   });
-} else if (process.env.mode === 'socket') {
+} else if (mode === 'socket') {
   importModules.push(WsModule);
-} else if (process.env.mode === 'mq') {
+} else if (mode === 'mq') {
   importModules.push(MQConsumerModule);
 }
 

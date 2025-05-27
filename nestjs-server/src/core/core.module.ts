@@ -5,7 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { CacheModule } from './cache/cache.modules';
 import { MongoModule } from './mongo/mongo.modules';
 import { RedisModule } from './redis/redis.modules';
-import { ServerLogger } from './server-log/server.logger';
+import ServerLogger from './server-log/server.logger';
 
 @Module({
   imports: [MongoModule.forRootAsync(), RedisModule.forRootAsync(), AuthModule, CacheModule],
@@ -28,7 +28,7 @@ export class CoreModule implements OnModuleInit {
     });
 
     for (const c of classes) {
-      console.log(`Added ${t.name} ${type} = ${c.name}`);
+      ServerLogger.log(`Added ${t.name} ${type} = ${c.name}`);
     }
 
     const result: DynamicModule = {

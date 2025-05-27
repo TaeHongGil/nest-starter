@@ -5,7 +5,7 @@ import { OpenAPIObject, TagObject } from '@nestjs/swagger/dist/interfaces/open-a
 
 import ServerConfig from '@root/core/config/server.config';
 import { SERVER_TYPE } from '@root/core/define/define';
-import { ServerLogger } from '@root/core/server-log/server.logger';
+import ServerLogger from '@root/core/server-log/server.logger';
 import { SwaggerUtil } from './swagger.utils';
 
 @Injectable()

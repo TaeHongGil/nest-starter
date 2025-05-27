@@ -59,6 +59,10 @@ class SwaggerMetadata {
   }
 
   private static initApis(): Record<string, PathInfo[]> {
+    if (!this.paths) {
+      return {};
+    }
+
     const apis: Record<string, PathInfo[]> = {};
 
     for (const [path, methods] of Object.entries(this.paths)) {
@@ -79,6 +83,8 @@ class SwaggerMetadata {
         }
       }
     }
+
+    this.init = true;
 
     return apis;
   }
@@ -130,7 +136,7 @@ class SwaggerMetadata {
   }
 
   static getSchema(name: string): any {
-    return this.schema[name];
+    return this.schema?.[name];
   }
 
   static formatJson(jsonString: string, schema: any, targetPath: string = ''): string {

@@ -15,7 +15,7 @@ import { ResponseInterceptor } from './core/interceptor/response.interceptor';
 import { HttpMiddleware } from './core/middleware/http.middleware';
 import { GlobalValidationPipe } from './core/pipe/GlobalValidationPipe';
 import { RedisIoAdapter } from './core/redis/redis.adapter';
-import { ServerLogger } from './core/server-log/server.logger';
+import ServerLogger from './core/server-log/server.logger';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -23,29 +23,29 @@ dayjs.tz.setDefault('UTC');
 
 async function bootstrap(): Promise<void> {
   try {
-    await ServerConfig.init();
+    const mode = ServerConfig.mode;
+    const port = ServerConfig.server_info[mode].port;
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: ServerLogger.instance,
     });
 
     app.enableVersioning({
       type: VersioningType.URI,
-      defaultVersion: ServerConfig.mode == 'api' ? ServerConfig.version : undefined,
+      defaultVersion: mode == 'api' ? ServerConfig.version : undefined,
     });
 
     setHelmet(app);
-    if (ServerConfig.mode == 'api') {
+    if (mode == 'api') {
       await setAPIServer(app);
-      await app.listen(ServerConfig.port.api);
-    } else if (ServerConfig.mode == 'socket') {
+    } else if (mode == 'socket') {
       await setWsServer(app);
-      await app.listen(ServerConfig.port.socket);
-    } else if (ServerConfig.mode == 'mq') {
+    } else if (mode == 'mq') {
       await setMQerver(app);
-      await app.listen(ServerConfig.port.mq);
     } else {
       throw new Error('Invalid server mode');
     }
+
+    await app.listen(port);
 
     if (ServerConfig.serverType == 'local') {
       const figlet = (await import('figlet')).default;
@@ -55,14 +55,12 @@ async function bootstrap(): Promise<void> {
 
           return;
         }
-        const port = ServerConfig.port[ServerConfig.mode];
-        const mode = ServerConfig.mode.toUpperCase();
-        const version = ServerConfig.mode == 'api' ? `v${ServerConfig.version}` : '';
+        const version = mode == 'api' ? `v${ServerConfig.version}` : '';
 
         const appUrl = `http://localhost:${port}/${version}`;
         process.stdout.write('\x1b[2J\x1b[0f');
         console.log('\x1b[36m%s\x1b[0m', data);
-        console.log(`${mode} Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
+        console.log(`${mode.toUpperCase()} Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
       });
     }
   } catch (error) {

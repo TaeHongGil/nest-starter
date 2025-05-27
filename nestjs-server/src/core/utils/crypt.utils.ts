@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import jwt, { Jwt, JwtPayload, VerifyOptions } from 'jsonwebtoken';
-import { ServerLogger } from '../server-log/server.logger';
+import ServerLogger from '../server-log/server.logger';
 
 class CryptUtil {
   static jwtEncode(payload: object, secretKey: string, expiresSec: number): string {
