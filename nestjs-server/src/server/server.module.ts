@@ -4,7 +4,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import ServerConfig from '@root/core/config/server.config';
 import { AuthGuard } from '@root/core/guard/auth.guard';
 import ServerLogger from '@root/core/server-log/server.logger';
-import { ApiModule } from './\bapi/api.module';
+import { ApiModule } from './api/api.module';
 import { MQConsumerModule } from './mq/consumer/mq.consumer.module';
 import { MQPublisherModule } from './mq/publisher/mq.publisher.module';
 import { WsModule } from './ws/ws.module';
