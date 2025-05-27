@@ -1,3 +1,4 @@
+import { JwtInfo } from '@root/core/auth/auth.schema';
 import { ROLE } from '@root/core/define/define';
 
 /**
@@ -22,24 +23,6 @@ export class ResLogin {
 
 export class ResTokenRefresh {
   jwt: JwtInfo;
-}
-
-/**
- * 토큰정보
- */
-export class JwtInfo {
-  /**
-   * 엑세스 토큰
-   */
-  access_token: string;
-  /**
-   * 토큰타입
-   */
-  token_type: string;
-  /**
-   * 만료시간(sec)
-   */
-  access_expire_sec: number;
 }
 
 export class ResCreateGuest {

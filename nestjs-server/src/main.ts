@@ -38,7 +38,7 @@ async function bootstrap(): Promise<void> {
       await setAPIServer(app);
       await app.listen(ServerConfig.port.api);
     } else if (ServerConfig.mode == 'socket') {
-      await setSocketServer(app);
+      await setWsServer(app);
       await app.listen(ServerConfig.port.socket);
     } else if (ServerConfig.mode == 'mq') {
       await setMQerver(app);
@@ -109,7 +109,7 @@ async function setAPIServer(app: NestExpressApplication): Promise<void> {
   }
 }
 
-async function setSocketServer(app: NestExpressApplication): Promise<void> {
+async function setWsServer(app: NestExpressApplication): Promise<void> {
   app.useWebSocketAdapter(new RedisIoAdapter(app));
   if (ServerConfig.dev) {
     const { SwaggerService } = await import('./feature/swagger/swagger.service');

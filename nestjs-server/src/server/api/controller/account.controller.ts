@@ -5,8 +5,8 @@ import { CacheService } from '@root/core/cache/cache.service';
 import ServerConfig from '@root/core/config/server.config';
 import ServerError from '@root/core/error/server.error';
 import { NoAuthGuard } from '@root/core/guard/auth.guard';
-import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../dto/common.request.dto';
-import { ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../dto/common.response.dto';
+import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../dto/api.request.dto';
+import { ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../dto/api.response.dto';
 import { AccountPlatformService } from '../service/account/account.platform.service';
 import { AccountService } from '../service/account/account.service';
 

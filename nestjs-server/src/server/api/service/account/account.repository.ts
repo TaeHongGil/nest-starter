@@ -3,9 +3,9 @@ import { CoreRedisKeys } from '@root/core/define/core.redis.key';
 import { LOGIN_STATE } from '@root/core/define/define';
 import { MongoService } from '@root/core/mongo/mongo.service';
 import { RedisService } from '@root/core/redis/redis.service';
-import { CommonRedisKeys } from '@root/server/common/define/common.redis.key';
 import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
+import { ApiRedisKeys } from '../../define/api.redis.key';
 import { DBAccount, DBAccountSchema } from './account.schema';
 
 @Injectable()
@@ -48,7 +48,7 @@ export class AccountRepository implements OnModuleInit {
 
   async setLoginStateAsync(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
-    const key = CommonRedisKeys.getUserStateKey();
+    const key = ApiRedisKeys.getUserStateKey();
 
     if (await client.hExists(key, useridx.toString())) {
       return await this.updateLoginStateTTL(client, key, useridx.toString(), 'XX');
@@ -70,7 +70,7 @@ export class AccountRepository implements OnModuleInit {
 
   async deleteLoginState(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
-    const key = CommonRedisKeys.getUserStateKey();
+    const key = ApiRedisKeys.getUserStateKey();
     const result = await client.hDel(key, useridx.toString());
 
     return result > 0;

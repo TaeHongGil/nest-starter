@@ -54,5 +54,3 @@ export const LOG_COLOR_MAP = {
   debug: 36, // 청록
   silly: 90, // 회색
 };
-
-export const BULL_QUEUES = ['test'];

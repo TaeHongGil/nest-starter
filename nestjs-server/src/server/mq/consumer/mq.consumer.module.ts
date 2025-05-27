@@ -4,20 +4,22 @@ import { BullBoardModule, BullBoardQueueOptions } from '@bull-board/nestjs';
 import { BullModule } from '@nestjs/bullmq';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { CoreModule } from '@root/core/core.module';
-import { BULL_QUEUES } from '@root/core/define/define';
 import { ServerLogger } from '@root/core/server-log/server.logger';
 import path from 'path';
+import { BULL_QUEUES } from '../define/mq.define';
+import { MQCoreModule } from '../mq.core.module';
 
 @Module({
   imports: [
-    BullModule.registerQueue(...BULL_QUEUES.map((name) => ({ name }))),
-    CoreModule.registerDynamic(MQModule, path.join(__dirname, 'consumer'), '.consumer', 'providers'),
+    MQCoreModule,
+    BullModule.registerQueue(...Object.values(BULL_QUEUES).map((name) => ({ name }))),
+    CoreModule.registerDynamic(MQConsumerModule, path.join(__dirname, 'consumer'), '.consumer', 'providers'),
     BullBoardModule.forRoot({
       route: '/queues',
       adapter: ExpressAdapter,
     }),
     BullBoardModule.forFeature(
-      ...BULL_QUEUES.map(
+      ...Object.values(BULL_QUEUES).map(
         (name): BullBoardQueueOptions => ({
           name,
           adapter: BullMQAdapter,
@@ -26,8 +28,8 @@ import path from 'path';
     ),
   ],
 })
-export class MQModule implements OnModuleInit {
+export class MQConsumerModule implements OnModuleInit {
   async onModuleInit(): Promise<void> {
-    ServerLogger.log('MQModule.OnModuleInit');
+    ServerLogger.log('MQConsumerModule.OnModuleInit');
   }
 }

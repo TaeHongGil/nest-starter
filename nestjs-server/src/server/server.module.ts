@@ -4,36 +4,35 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import ServerConfig from '@root/core/config/server.config';
 import { AuthGuard } from '@root/core/guard/auth.guard';
 import { ServerLogger } from '@root/core/server-log/server.logger';
-import { CommonModule } from './common/common.module';
-import { MQModule } from './mq/mq.module';
-import { ProjectModule } from './project/project.module';
-import { SocketModule } from './socket/socket.module';
+import { ApiModule } from './api/api.module';
+import { MQConsumerModule } from './mq/consumer/mq.consumer.module';
+import { WsModule } from './ws/ws.module';
 
 const importModules = [];
 const providerModules = [];
 
 if (process.env.mode === 'api') {
-  importModules.push(ThrottlerModule.forRootAsync({ useFactory: async () => ServerConfig.throttler }), CommonModule, ProjectModule);
-  providerModules.push(
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
+  importModules.push(ApiModule);
+  providerModules.push({
+    provide: APP_GUARD,
+    useClass: AuthGuard,
+  });
+} else if (process.env.mode === 'socket') {
+  importModules.push(WsModule);
+} else if (process.env.mode === 'mq') {
+  importModules.push(MQConsumerModule);
+}
+
+@Module({
+  imports: [ThrottlerModule.forRootAsync({ useFactory: async () => ServerConfig.throttler }), ...importModules],
+  controllers: [],
+  providers: [
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
-  );
-} else if (process.env.mode === 'socket') {
-  importModules.push(SocketModule);
-} else if (process.env.mode === 'mq') {
-  importModules.push(MQModule);
-}
-
-@Module({
-  imports: [...importModules],
-  controllers: [],
-  providers: [...providerModules],
+    ...providerModules,
+  ],
   exports: [],
 })
 export class ServerModule implements OnModuleInit {

@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { JwtInfo } from '@root/server/common/dto/common.response.dto';
 import { Request } from 'express';
 import ServerConfig from '../config/server.config';
 import ServerError from '../error/server.error';
 import CryptUtil from '../utils/crypt.utils';
 import { AuthRepository } from './auth.repository';
-import { SessionUser } from './auth.schema';
+import { JwtInfo, SessionUser } from './auth.schema';
 
 @Injectable()
 export class AuthService {

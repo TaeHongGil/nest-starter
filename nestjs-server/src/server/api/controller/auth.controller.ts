@@ -6,7 +6,7 @@ import ServerError from '@root/core/error/server.error';
 import { NoAuthGuard } from '@root/core/guard/auth.guard';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';
-import { ResTokenRefresh } from '../dto/common.response.dto';
+import { ResTokenRefresh } from '../dto/api.response.dto';
 import { AccountService } from '../service/account/account.service';
 
 /**
@@ -47,6 +47,7 @@ export class AuthController {
     const res: ResTokenRefresh = {
       jwt: await this.authService.createTokenInfoAsync(user),
     };
+
     return res;
   }
 }
