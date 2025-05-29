@@ -39,6 +39,24 @@ class ServerLogger implements LoggerService {
               const metaString = context ? `[${context}]` : '';
               const metaPad = metaString.padEnd(20, ' ');
 
+              const formatData = (data: any): string => {
+                let dataStr = JSON.stringify(data, null, 2);
+                if (dataStr.length > 1000) {
+                  dataStr = dataStr.slice(0, 1000) + '......';
+                }
+
+                return dataStr;
+              };
+
+              if (level === 'error' || level === 'http' || level === 'data') {
+                if (meta.trace) {
+                  message = `${message}\n\n${meta.trace}`;
+                }
+                if (meta.data) {
+                  message = `${message}\n\n${formatData(meta.data)}`;
+                }
+              }
+
               return `[${timestamp}] \x1b[${color}m${level.toUpperCase()}\t${metaPad}${message}\x1b[0m`;
             }),
           ),
@@ -50,7 +68,16 @@ class ServerLogger implements LoggerService {
               datePattern: 'YYYY-MM-DD',
               filename: path.join(LOG_DIR_PATH, `${ServerConfig.serverType}-${logLevel}-%DATE%.log`),
               maxFiles: '3d',
-              format: winston.format((info) => (info.level === logLevel ? info : false))(),
+              format: winston.format((info) => {
+                if (info.level !== logLevel) {
+                  return false;
+                }
+                if (logLevel === 'error' && !info.trace && !info.data) {
+                  return false;
+                }
+
+                return info;
+              })(),
             }),
         ),
       ],
@@ -67,8 +94,8 @@ class ServerLogger implements LoggerService {
     return ServerLogger._instance;
   }
 
-  static error(message: any, trace?: string, context?: string): void {
-    ServerLogger.instance.logger.error(message, { timestamp: new Date(), trace, context });
+  static error(message: any, trace?: string, data?: any): void {
+    ServerLogger.instance.logger.error(message, { timestamp: new Date(), trace, data });
   }
 
   static warn(message: any, context?: string): void {
@@ -103,8 +130,9 @@ class ServerLogger implements LoggerService {
     ServerLogger.instance.logger.silly(message, { context });
   }
 
-  error(message: any, trace?: string, context?: string): void {
-    this.logger.error(message, { timestamp: new Date(), trace, context });
+  error(message: any, trace?: string, data?: any): void {
+    if (!trace && !data) return;
+    this.logger.error(message, { timestamp: new Date(), trace, data });
   }
 
   warn(message: any, context?: string): void {

@@ -64,8 +64,7 @@ async function bootstrap(): Promise<void> {
       });
     }
   } catch (error) {
-    ServerLogger.error('Bootstrap error:', error?.message);
-    ServerLogger.error('Bootstrap error stack:', error?.stack);
+    ServerLogger.error(`Bootstrap error: ${error?.message}`, error?.stack);
   }
 }
 
@@ -119,6 +118,5 @@ async function setWsServer(app: NestExpressApplication): Promise<void> {
 async function setMQerver(app: NestExpressApplication): Promise<void> {}
 
 bootstrap().catch((err) => {
-  ServerLogger.error('Bootstrap failed:', err);
   process.exit(1);
 });

@@ -44,7 +44,10 @@
         "Context7": {
           "type": "stdio",
           "command": "npx",
-          "args": ["-y", "@upstash/context7-mcp@latest"]
+          "args": ["-y", "@upstash/context7-mcp@latest"],
+          "env": {
+            "DEFAULT_MINIMUM_TOKENS": "100000"
+          }
         }
       }
     }

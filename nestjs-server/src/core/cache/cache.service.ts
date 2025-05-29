@@ -23,7 +23,7 @@ export class CacheService {
         await redis.set(CoreRedisKeys.getGlobalCacheKey(key), typeof value == 'object' ? JSON.stringify(value) : value, { EX: ttl });
       }
     } catch (error) {
-      ServerLogger.error(`Failed to set cache to Redis for key: ${key}`, error);
+      ServerLogger.error(`Failed to set cache to Redis for key: ${key}`, error.stack);
     }
   }
 
@@ -68,7 +68,7 @@ export class CacheService {
         }
       }
     } catch (error) {
-      ServerLogger.error(`Failed to get cache from Redis for key: ${key}`, error);
+      ServerLogger.error(`Failed to get cache from Redis for key: ${key}`, error.stack);
     }
 
     return undefined;
@@ -85,7 +85,7 @@ export class CacheService {
         await redis.del(CoreRedisKeys.getGlobalCacheKey(key));
       }
     } catch (error) {
-      ServerLogger.error(`Failed to delete cache from Redis for key: ${key}`, error);
+      ServerLogger.error(`Failed to delete cache from Redis for key: ${key}`, error.stack);
     }
   }
 
@@ -103,7 +103,7 @@ export class CacheService {
         return exists === 1;
       }
     } catch (error) {
-      ServerLogger.error(`Failed to check existence of key in Redis: ${key}`, error);
+      ServerLogger.error(`Failed to check existence of key in Redis: ${key}`, error.stack);
     }
 
     return false;
@@ -122,7 +122,7 @@ export class CacheService {
         }
       }
     } catch (error) {
-      ServerLogger.error('Failed to clear cache from Redis.', error);
+      ServerLogger.error('Failed to clear cache from Redis.', error.stack);
     }
   }
 }
