@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { SessionUser } from '@root/core/auth/auth.schema';
+import { CommonResponse } from '@root/core/common/response';
 import ServerConfig from '@root/core/config/server.config';
 import ServerError from '@root/core/error/server.error';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';
-import { Server } from 'socket.io';
-import { CommonResponse } from '../../../../core/common/response';
-type WsMiddleware = Parameters<Server['use']>[0];
+import { WsMiddleware } from '../../define/ws.define';
 
 @Injectable()
 export class WsAuthMiddleware {
@@ -20,6 +20,13 @@ export class WsAuthMiddleware {
 
           return next(err);
         }
+        const user: SessionUser = {
+          useridx: jwtInfo['useridx'],
+          role: jwtInfo['role'],
+          nickname: jwtInfo['nickname'],
+        };
+        socket.data = socket.data || {};
+        socket.data.user = user;
         next();
       } catch (err) {
         next(err);
