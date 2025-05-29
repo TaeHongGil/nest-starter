@@ -1,10 +1,10 @@
 import { UseFilters, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { OnGatewayInit, WebSocketServer } from '@nestjs/websockets';
 import { WsGlobalExceptionFilter } from '@root/core/error/global.exception.filter';
-import { WsThrottlerGuard } from '@root/core/guard/throttle.guard';
-import { WsResponseInterceptor } from '@root/core/interceptor/response.interceptor';
-import { WsAuthMiddleware } from '@root/core/middleware/ws.auth.middleware';
 import { GlobalValidationPipe } from '@root/core/pipe/GlobalValidationPipe';
+import { WsThrottlerGuard } from '@root/server/ws/common/guard/ws.throttle.guard';
+import { WsResponseInterceptor } from '@root/server/ws/common/interceptor/ws.response.interceptor';
+import { WsAuthMiddleware } from '@root/server/ws/common/middleware/ws.auth.middleware';
 import { Server } from 'socket.io';
 
 @UsePipes(new GlobalValidationPipe())

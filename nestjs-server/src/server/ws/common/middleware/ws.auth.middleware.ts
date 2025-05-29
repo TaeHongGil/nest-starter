@@ -1,11 +1,13 @@
+import { Injectable } from '@nestjs/common';
 import ServerConfig from '@root/core/config/server.config';
 import ServerError from '@root/core/error/server.error';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';
 import { Server } from 'socket.io';
-import { CommonResponse } from '../common/response';
+import { CommonResponse } from '../../../../core/common/response';
 type WsMiddleware = Parameters<Server['use']>[0];
 
+@Injectable()
 export class WsAuthMiddleware {
   use(): WsMiddleware {
     return async (socket, next) => {

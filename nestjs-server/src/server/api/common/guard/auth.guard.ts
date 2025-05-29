@@ -1,17 +1,13 @@
-import { CanActivate, ExecutionContext, SetMetadata } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { SessionUser } from '@root/core/auth/auth.schema';
+import ServerConfig from '@root/core/config/server.config';
+import { IS_PUBLIC_KEY } from '@root/core/decorator/common.decorator';
+import ServerError from '@root/core/error/server.error';
+import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';
-import { SessionUser } from '../auth/auth.schema';
-import ServerConfig from '../config/server.config';
-import ServerError from '../error/server.error';
-import CryptUtil from '../utils/crypt.utils';
 
-export const IS_PUBLIC_KEY = 'isPublic';
-
-export function NoAuthGuard(): ClassDecorator & MethodDecorator {
-  return SetMetadata(IS_PUBLIC_KEY, true);
-}
-
+@Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 

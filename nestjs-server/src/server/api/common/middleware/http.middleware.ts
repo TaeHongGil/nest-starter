@@ -1,8 +1,9 @@
-import { NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import ServerLogger from '@root/core/server-logger/server.logger';
 import { NextFunction, Request, Response } from 'express';
 import UAParser from 'ua-parser-js';
-import ServerLogger from '../server-logger/server.logger';
 
+@Injectable()
 export class HttpMiddleware implements NestMiddleware {
   use(request: Request, response: Response, next: NextFunction): void {
     const now = Date.now();

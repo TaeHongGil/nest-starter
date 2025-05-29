@@ -3,8 +3,8 @@ import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import { CacheService } from '@root/core/cache/cache.service';
 import ServerConfig from '@root/core/config/server.config';
+import { NoAuthGuard } from '@root/core/decorator/common.decorator';
 import ServerError from '@root/core/error/server.error';
-import { NoAuthGuard } from '@root/core/guard/auth.guard';
 import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../dto/api.request.dto';
 import { ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin } from '../dto/api.response.dto';
 import { AccountPlatformService } from '../service/account/account.platform.service';
@@ -26,6 +26,7 @@ export class AccountController {
    * 게스트 계정을 생성한다.
    */
   @Post('/guest/create')
+  @NoAuthGuard()
   async createGuestAccount(@Session() session: SessionData, @Body() param: ReqCreateGuest): Promise<ResCreateGuest> {
     const guestAccount = await this.accountService.createGuestAccountAsync(param.device_id);
     const res: ResCreateGuest = {

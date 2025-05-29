@@ -11,11 +11,11 @@ import { json } from 'express';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalExceptionsFilter } from './core/error/global.exception.filter';
-import { ResponseInterceptor } from './core/interceptor/response.interceptor';
-import { HttpMiddleware } from './core/middleware/http.middleware';
 import { GlobalValidationPipe } from './core/pipe/GlobalValidationPipe';
 import { RedisIoAdapter } from './core/redis/redis.adapter';
 import ServerLogger from './core/server-logger/server.logger';
+import { ResponseInterceptor } from './server/api/common/interceptor/response.interceptor';
+import { HttpMiddleware } from './server/api/common/middleware/http.middleware';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

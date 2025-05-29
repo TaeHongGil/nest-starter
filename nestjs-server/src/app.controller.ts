@@ -1,8 +1,7 @@
 import { All, Controller, Get, HttpCode, Version, VERSION_NEUTRAL } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import ServerConfig from '@root/core/config/server.config';
-import { NoAuthGuard } from './core/guard/auth.guard';
-import { SkipResponseInterceptor } from './core/interceptor/response.interceptor';
+import { NoAuthGuard, SkipResponseInterceptor } from './core/decorator/common.decorator';
 
 @Controller('')
 @SkipResponseInterceptor()

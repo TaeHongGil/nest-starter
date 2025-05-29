@@ -2,8 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 
 import { ApiExcludeController } from '@nestjs/swagger';
 import ServerConfig from '@root/core/config/server.config';
-import { NoAuthGuard } from '@root/core/guard/auth.guard';
-import { SkipResponseInterceptor } from '@root/core/interceptor/response.interceptor';
+import { NoAuthGuard, SkipResponseInterceptor } from '@root/core/decorator/common.decorator';
 import SwaggerConfig from './swagger.config';
 import { SwaggerService } from './swagger.service';
 import { SwaggerUtil } from './swagger.utils';
