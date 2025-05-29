@@ -1,8 +1,8 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { RedisClientOptions, RedisClientType, createClient } from 'redis';
-import { ServerConfig } from '../config/server.config';
+import ServerConfig from '../config/server.config';
 import { DBConnectKeys } from '../define/db.connect.key';
-import ServerLogger from '../server-log/server.logger';
+import ServerLogger from '../server-logger/server.logger';
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {

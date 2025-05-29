@@ -1,6 +1,6 @@
 import { Global, Module, type OnModuleInit } from '@nestjs/common';
+import ServerLogger from '../server-logger/server.logger';
 import { CacheService } from './cache.service';
-import ServerLogger from '../server-log/server.logger';
 
 @Global()
 @Module({

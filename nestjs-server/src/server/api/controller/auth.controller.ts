@@ -3,7 +3,6 @@ import { SessionData, SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
 import ServerError from '@root/core/error/server.error';
-import { NoAuthGuard } from '@root/core/guard/auth.guard';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';
 import { ResTokenRefresh } from '../dto/api.response.dto';
@@ -23,7 +22,6 @@ export class AuthController {
    * JWT 토큰 Refresh
    */
   @Post('/token')
-  @NoAuthGuard()
   async tokenRefresh(@Session() session: SessionData): Promise<ResTokenRefresh> {
     const req_refresh_token = session.request.cookies.refresh_token;
     const jwtInfo = CryptUtil.jwtVerify(req_refresh_token, ServerConfig.jwt.key) as JwtPayload;

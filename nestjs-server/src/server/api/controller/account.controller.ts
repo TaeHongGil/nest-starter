@@ -26,7 +26,6 @@ export class AccountController {
    * 게스트 계정을 생성한다.
    */
   @Post('/guest/create')
-  @NoAuthGuard()
   async createGuestAccount(@Session() session: SessionData, @Body() param: ReqCreateGuest): Promise<ResCreateGuest> {
     const guestAccount = await this.accountService.createGuestAccountAsync(param.device_id);
     const res: ResCreateGuest = {

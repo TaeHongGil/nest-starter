@@ -15,7 +15,7 @@ import { ResponseInterceptor } from './core/interceptor/response.interceptor';
 import { HttpMiddleware } from './core/middleware/http.middleware';
 import { GlobalValidationPipe } from './core/pipe/GlobalValidationPipe';
 import { RedisIoAdapter } from './core/redis/redis.adapter';
-import ServerLogger from './core/server-log/server.logger';
+import ServerLogger from './core/server-logger/server.logger';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

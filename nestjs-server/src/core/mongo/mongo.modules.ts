@@ -1,5 +1,5 @@
 import { DynamicModule, Global, Module, ModuleMetadata, type OnModuleInit } from '@nestjs/common';
-import ServerLogger from '../server-log/server.logger';
+import ServerLogger from '../server-logger/server.logger';
 import { MongoService } from './mongo.service';
 
 @Global()

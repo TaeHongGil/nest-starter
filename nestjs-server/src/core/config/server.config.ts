@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-export class ServerConfig {
+class ServerConfig {
   version: string = '';
   serverType: string = '';
   mode: string = '';

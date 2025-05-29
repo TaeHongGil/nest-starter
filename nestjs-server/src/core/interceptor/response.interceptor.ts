@@ -1,17 +1,20 @@
-import { CallHandler, CustomDecorator, ExecutionContext, Injectable, NestInterceptor, SetMetadata } from '@nestjs/common';
+import { CallHandler, ExecutionContext, NestInterceptor, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CommonResponse } from '../common/response';
 
-export const SkipResponseInterceptor = (): CustomDecorator => SetMetadata('skipInterceptor', true);
+export const IS_SKIP_KEY = 'isSkip';
 
-@Injectable()
+export function SkipResponseInterceptor(): ClassDecorator & MethodDecorator {
+  return SetMetadata(IS_SKIP_KEY, true);
+}
+
 export class ResponseInterceptor implements NestInterceptor {
   constructor(private readonly reflector: Reflector) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const skipInterceptor = this.reflector.get<boolean>('skipInterceptor', context.getHandler()) || this.reflector.get<boolean>('skipInterceptor', context.getClass());
+    const skipInterceptor = this.reflector.getAllAndOverride<boolean>(IS_SKIP_KEY, [context.getHandler(), context.getClass()]);
     if (skipInterceptor) {
       return next.handle();
     }
@@ -24,19 +27,18 @@ export class ResponseInterceptor implements NestInterceptor {
   }
 }
 
-@Injectable()
 export class WsResponseInterceptor implements NestInterceptor {
   constructor(private readonly reflector: Reflector) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const skipInterceptor = this.reflector.get<boolean>('skipInterceptor', context.getHandler()) || this.reflector.get<boolean>('skipInterceptor', context.getClass());
+    const skipInterceptor = this.reflector.getAllAndOverride<boolean>(IS_SKIP_KEY, [context.getHandler(), context.getClass()]);
     if (skipInterceptor) {
       return next.handle();
     }
 
     return next.handle().pipe(
-      map((result) => {
-        return CommonResponse.builder().setData(result).build();
+      map((data) => {
+        return CommonResponse.builder().setData(data).build();
       }),
     );
   }

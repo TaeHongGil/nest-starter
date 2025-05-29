@@ -1,7 +1,7 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Global, Module, OnModuleInit } from '@nestjs/common';
 import { RedisService } from '@root/core/redis/redis.service';
-import ServerLogger from '../../../core/server-log/server.logger';
+import ServerLogger from '../../../core/server-logger/server.logger';
 import { MQServiceModule } from './service/mq.service.module';
 
 @Global()

@@ -1,5 +1,5 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import ServerLogger from '@root/core/server-log/server.logger';
+import ServerLogger from '@root/core/server-logger/server.logger';
 import { MQTestModule } from './test/mq.test.module';
 
 const importModules = [MQTestModule];

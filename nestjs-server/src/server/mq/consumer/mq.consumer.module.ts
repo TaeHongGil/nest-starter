@@ -5,7 +5,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { CoreModule } from '@root/core/core.module';
 import { RedisService } from '@root/core/redis/redis.service';
-import ServerLogger from '@root/core/server-log/server.logger';
+import ServerLogger from '@root/core/server-logger/server.logger';
 import path from 'path';
 import { BULL_QUEUES } from '../define/mq.define';
 

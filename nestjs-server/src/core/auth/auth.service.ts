@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Request } from 'express';
 import ServerConfig from '../config/server.config';
 import ServerError from '../error/server.error';
 import CryptUtil from '../utils/crypt.utils';
@@ -36,23 +35,6 @@ export class AuthService {
     }
 
     return true;
-  }
-
-  getRequestToken(req: Request): string {
-    const headerToken: string = req.get('Authorization');
-
-    return this.getToken(headerToken);
-  }
-
-  getToken(token: string): string {
-    if (!token) {
-      return undefined;
-    }
-    if (token.startsWith(`${ServerConfig.jwt.type} `)) {
-      return token.substring(7, token.length);
-    } else {
-      return undefined;
-    }
   }
 
   async createTokenInfoAsync(user: SessionUser): Promise<JwtInfo> {
