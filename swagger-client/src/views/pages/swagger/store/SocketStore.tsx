@@ -198,6 +198,11 @@ export class SocketStore {
   }
 
   emitSocketEvent(namespace: string, event: string): void {
+    if (!namespace || !event) {
+      MessageUtil.error('evnt not found');
+      return;
+    }
+
     const socket = this.socketMap[namespace];
     if (!socket || !socket.connected) {
       MessageUtil.error('Socket is not connected');

@@ -10,7 +10,7 @@
       "type": "node",
       "name": "┃React Run",
       "request": "launch",
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "start"],
       "skipFiles": ["<node_internals>/**"],
       "env": {
