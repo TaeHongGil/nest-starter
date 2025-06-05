@@ -11,8 +11,8 @@ export class RedisIoAdapter extends IoAdapter {
 
   createIOServer(port: number, options?: ServerOptions): any {
     const redis = this.app.get(RedisService);
-    const pubClient = redis.getGlobalClient();
-    const subClient = pubClient.duplicate();
+    const pubClient = redis.getPublisher();
+    const subClient = redis.getSubscriber();
 
     const adapterConstructor = createAdapter(pubClient, subClient, options);
 
