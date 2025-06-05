@@ -1,6 +1,6 @@
 import { Injectable, applyDecorators } from '@nestjs/common';
 import { METHOD_METADATA } from '@nestjs/common/constants';
-import { ModulesContainer } from '@nestjs/core';
+import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ApiOperation } from '@nestjs/swagger';
 import { OperationObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
@@ -10,7 +10,7 @@ import { ParameterMetadataAccessor } from './utils/parameter-metadata-accessor';
 
 @Injectable()
 export class SwaggerUtil {
-  constructor(private readonly modulesContainer: ModulesContainer) {}
+  constructor(private readonly discoveryService: DiscoveryService) {}
 
   loadSocketMetadata(): Record<string, Record<string, OperationObject>> {
     const filePath = path.join(__dirname, '..', '..', '..', 'src', 'feature', 'swagger', 'socket-metadata.json');
@@ -26,15 +26,14 @@ export class SwaggerUtil {
     const result: Record<string, Record<string, OperationObject>> = {};
 
     const controllerMetadata = metadata['@nestjs/swagger']['controllers'].map((gateway: any[]) => gateway[1]).reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
-    const providers = [...this.modulesContainer.values()]
-      .flatMap((module) => {
-        return [...module.providers.values()];
-      })
-      .filter((wrapper) => wrapper.instance);
-    const uniqueProviders = Array.from(new Map(providers.map((wrapper) => [wrapper.instance.constructor, wrapper])).values());
+    const providers = this.discoveryService.getProviders();
     const paramsAccesor = new ParameterMetadataAccessor();
-    uniqueProviders.forEach((wrapper: InstanceWrapper) => {
+    providers.forEach((wrapper: InstanceWrapper) => {
       const { instance } = wrapper;
+      if (!instance) {
+        return;
+      }
+
       const provider = instance.constructor;
       const gateWay = Reflect.getMetadata('websockets:is_gateway', provider);
       if (!gateWay) {
@@ -93,11 +92,7 @@ export class SwaggerUtil {
 
   applyDecorators(metadata: Record<string, any>): void {
     const controllerMetadata = metadata['@nestjs/swagger']['controllers'].map((controller: any[]) => controller[1]).reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
-    const controllers = [...this.modulesContainer.values()]
-      .flatMap((module) => {
-        return [...module.controllers.values()];
-      })
-      .filter((wrapper) => wrapper.instance);
+    const controllers = this.discoveryService.getControllers();
 
     controllers.forEach((wrapper: InstanceWrapper) => {
       const { instance } = wrapper;
