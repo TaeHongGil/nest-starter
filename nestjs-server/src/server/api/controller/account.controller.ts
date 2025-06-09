@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Post, Query, Session } from '@nestjs/common';
 import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
-import { CacheService } from '@root/core/cache/cache.service';
 import ServerConfig from '@root/core/config/server.config';
 import { NoAuthGuard } from '@root/core/decorator/common.decorator';
 import ServerError from '@root/core/error/server.error';
@@ -19,7 +18,6 @@ export class AccountController {
     private readonly accountService: AccountService,
     private readonly accountPlatformService: AccountPlatformService,
     private readonly authService: AuthService,
-    private readonly cacheService: CacheService,
   ) {}
 
   /**

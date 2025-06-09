@@ -23,6 +23,7 @@ export class RedisService implements OnModuleDestroy {
       checkServerIdentity: (): any => undefined,
       reconnectStrategy: (_retries: number): number | Error => {
         ServerLogger.warn(`[redis.${dbName}] Reconnecting...`);
+
         return 3000;
       },
     };
@@ -77,6 +78,7 @@ export class RedisService implements OnModuleDestroy {
     if (!this.publisher) {
       throw new Error('Redis publisher not initialized');
     }
+
     return this.publisher;
   }
 
@@ -84,6 +86,7 @@ export class RedisService implements OnModuleDestroy {
     if (!this.subscriber) {
       throw new Error('Redis subscriber not initialized');
     }
+
     return this.subscriber;
   }
 

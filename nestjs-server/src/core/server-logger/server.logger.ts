@@ -131,6 +131,11 @@ class ServerLogger implements LoggerService {
   }
 
   error(message: any, trace?: string, data?: any): void {
+    const msg = message;
+    if (message instanceof Error) {
+      message = msg.message;
+      trace = msg.stack;
+    }
     if (!trace && !data) return;
     this.logger.error(message, { timestamp: new Date(), trace, data });
   }
