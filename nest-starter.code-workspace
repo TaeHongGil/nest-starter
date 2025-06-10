@@ -5,6 +5,9 @@
     },
     {
       "path": "swagger-client"
+    },
+    {
+      "path": ".github"
     }
   ],
   "settings": {
@@ -17,15 +20,11 @@
     },
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "always",
-      "source.organizeImports": "always",
-      "source.addMissingImports": "always",
-      "source.addMissingImportsWithAutoFix": "always",
-      "source.addMissingImportsWithAutoFixAndOrganizeImports": "always"
+      "source.organizeImports": "always"
     },
-    "typescript.preferences.importModuleSpecifier": "shortest",
+    "typescript.preferences.importModuleSpecifier": "non-relative",
     "typescript.preferences.quoteStyle": "single",
     "editor.formatOnSave": true,
-    "prettier.singleQuote": true,
     "search.exclude": {
       "**/.git": true,
       "**/node_modules": true,
@@ -34,8 +33,8 @@
     "editor.fontFamily": "D2Coding, Consolas, 'Courier New', monospace",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.tabSize": 2,
-    "editor.detectIndentation": false,
     "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
     "files.trimTrailingWhitespace": true,
     "editor.rulers": [250],
     "mcp": {
