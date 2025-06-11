@@ -38,3 +38,8 @@ export class DBAccount {
 }
 
 export const DBAccountSchema = SchemaFactory.createForClass(DBAccount);
+
+DBAccountSchema.index({ useridx: 1 }, { unique: true });
+DBAccountSchema.index({ id: 1 }, { unique: true });
+DBAccountSchema.index({ nickname: 1 }, { unique: true });
+DBAccountSchema.index({ created_at: 1 });

@@ -1,14 +1,32 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import ServerConfig, { RedisConfig } from '@root/core/config/server.config';
+import { DBConnectKeys } from '@root/core/define/db.connect.key';
+import ServerLogger from '@root/core/server-logger/server.logger';
 import { RedisClientOptions, RedisClientType, createClient } from 'redis';
-import ServerConfig from '../config/server.config';
-import { DBConnectKeys } from '../define/db.connect.key';
-import ServerLogger from '../server-logger/server.logger';
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {
   private client: RedisClientType;
   private subscriber: RedisClientType;
   private publisher: RedisClientType;
+
+  private setRedisEventHandlers(redisClient: RedisClientType, dbName: string, db: RedisConfig, isPubSub = false) {
+    redisClient.on('ready', () => {
+      ServerLogger.log(`[redis.${dbName}] ${db.host}:${db.port}/${db.db} connected${isPubSub ? ' (pub/sub)' : ''}`);
+    });
+    redisClient.on('error', (err) => {
+      if (!isPubSub) {
+        if (err.message === 'Socket closed unexpectedly') {
+          ServerLogger.error(`[redis.${dbName}] ${db.host}:${db.port}/${db.db} Connection closed unexpectedly. Retrying...`, err.stack);
+        } else {
+          ServerLogger.error(`[redis.${dbName}] ${db.host}:${db.port}/${db.db} error: ${err.code}`, err.stack);
+        }
+      }
+    });
+    redisClient.on('end', () => {
+      ServerLogger.warn(`[redis.${dbName}] ${db.host}:${db.port}/${db.db} Connection closed.${isPubSub ? ' (pub/sub)' : ''}`);
+    });
+  }
 
   async onBeforeModuleInit(): Promise<void> {
     const db = ServerConfig.db.redis;
@@ -22,8 +40,6 @@ export class RedisService implements OnModuleDestroy {
       port: db.port,
       checkServerIdentity: (): any => undefined,
       reconnectStrategy: (_retries: number): number | Error => {
-        ServerLogger.warn(`[redis.${dbName}] Reconnecting...`);
-
         return 3000;
       },
     };
@@ -39,24 +55,15 @@ export class RedisService implements OnModuleDestroy {
 
     const redisClient = createClient(redisClientOptions) as RedisClientType;
     this.client = redisClient;
-    await redisClient.connect();
-
     this.publisher = redisClient.duplicate();
-    await this.publisher.connect();
     this.subscriber = redisClient.duplicate();
-    await this.subscriber.connect();
 
-    redisClient.on('connect', () => {
-      ServerLogger.log(`[redis.${dbName}] ${db.host}:${db.port}/${db.db} connected`);
-    });
-
-    redisClient.on('error', (err) => {
-      ServerLogger.error(`[redis.${dbName}] ${db.host}:${db.port}/${db.db} failed to connect. message=${err.code}`);
-    });
-
-    redisClient.on('end', () => {
-      ServerLogger.warn(`[redis.${dbName}] Connection closed.`);
-    });
+    this.setRedisEventHandlers(this.client, dbName, db);
+    this.setRedisEventHandlers(this.publisher, dbName, db, true);
+    this.setRedisEventHandlers(this.subscriber, dbName, db, true);
+    this.client.connect();
+    this.publisher.connect();
+    this.subscriber.connect();
   }
 
   async onModuleDestroy(): Promise<void> {

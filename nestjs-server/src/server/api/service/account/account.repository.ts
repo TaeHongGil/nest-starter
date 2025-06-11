@@ -1,26 +1,19 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { CoreRedisKeys } from '@root/core/define/core.redis.key';
 import { LOGIN_STATE } from '@root/core/define/define';
-import { MongoService } from '@root/core/mongo/mongo.service';
 import { RedisService } from '@root/core/redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
 import { ApiRedisKeys } from '../../define/api.redis.key';
-import { DBAccount, DBAccountSchema } from './account.schema';
+import { DBAccount } from './account.schema';
 
 @Injectable()
-export class AccountRepository implements OnModuleInit {
-  private model: Model<DBAccount>;
-
+export class AccountRepository {
   constructor(
     private readonly redis: RedisService,
-    private readonly mongo: MongoService,
+    @InjectModel(DBAccount.name) private readonly model: Model<DBAccount>,
   ) {}
-
-  async onModuleInit(): Promise<void> {
-    this.model = this.mongo.getGlobalClient().model<DBAccount>(DBAccount.name, DBAccountSchema);
-    await this.model.syncIndexes();
-  }
 
   async findOne(filter: Partial<DBAccount>): Promise<DBAccount> {
     const result = await this.model.findOne(filter).lean();

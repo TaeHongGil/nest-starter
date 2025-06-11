@@ -8,7 +8,7 @@ import { RedisModule } from './redis/redis.modules';
 import ServerLogger from './server-logger/server.logger';
 
 @Module({
-  imports: [MongoModule.forRootAsync(), RedisModule.forRootAsync(), CacheModule.register({ isGlobal: true }), AuthModule],
+  imports: [MongoModule, RedisModule.forRootAsync(), CacheModule.register({ isGlobal: true }), AuthModule],
   providers: [],
   exports: [],
 })
