@@ -44,4 +44,3 @@
     "server_type": "api"
   }
   ```
-  src/core/define/define.ts -> ZONE_TYPE

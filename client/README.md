@@ -13,4 +13,3 @@
     "zone": "local",
   }
   ```
-  src/core/define/define.ts -> ZONE_TYPE
