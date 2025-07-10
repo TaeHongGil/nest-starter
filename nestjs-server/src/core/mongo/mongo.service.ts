@@ -18,6 +18,7 @@ export class MongoService {
     connection.on('error', (err) => {
       ServerLogger.error(`[mongo.${config.db_name}] MongoDB connection error: ${err.message}`);
     });
+
     return connection;
   }
 }

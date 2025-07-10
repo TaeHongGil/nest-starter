@@ -27,6 +27,7 @@ class RedisLock {
       NX: true,
       PX: this.options.ttl,
     });
+
     return !result || result === 'OK';
   }
 
@@ -45,8 +46,9 @@ class RedisLock {
     for (let i = 0; i < this.options.retryCount; i++) {
       const locked = await this.acquire();
       if (locked) return true;
-      await new Promise((res) => setTimeout(res, this.options.retryDelay));
+      await new Promise((resolve) => setTimeout(resolve, this.options.retryDelay));
     }
+
     return false;
   }
 }

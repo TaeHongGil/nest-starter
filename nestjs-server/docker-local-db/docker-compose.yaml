@@ -11,8 +11,8 @@ services:
       USER_PASSWORD: ${USER_PASSWORD:-admin}
     command: ['sh', '/etc/mongo-init/init.sh']
 
-  redis:
-    image: redis
+  valkey:
+    image: valkey/valkey:8.1.3
     ports:
       - '6379:6379'
     environment:
@@ -20,6 +20,6 @@ services:
       USER_PASSWORD: ${USER_PASSWORD:-admin}
 
     volumes:
-      - ./data/redis:/data
-      - ./config/redis:/usr/local/etc/redis
-    command: ['sh', '/usr/local/etc/redis/start.sh']
+      - ./data/valkey:/data
+      - ./config/valkey:/usr/local/etc/valkey
+    command: ['sh', '/usr/local/etc/valkey/start.sh']

@@ -8,15 +8,15 @@ import { Expose } from 'class-transformer';
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 })
 export class DBAccount {
-  @Prop({ unique: true })
+  @Prop()
   @Expose()
   useridx: number;
 
-  @Prop({ unique: true })
+  @Prop()
   @Expose()
   id: string;
 
-  @Prop({ unique: true })
+  @Prop()
   @Expose()
   nickname: string;
 

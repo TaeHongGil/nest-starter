@@ -22,26 +22,26 @@ export class AccountPlatformService {
     this.platformIdFetchers = {
       [PLATFORM.SERVER]: async (): Promise<string> => undefined,
       [PLATFORM.GOOGLE]: this.getGoogleAsync.bind(this),
-      [PLATFORM.NAVER]: this.getNaverIdAsync.bind(this),
-      [PLATFORM.KAKAO]: this.getKakaoIdAsync.bind(this),
+      [PLATFORM.NAVER]: this.getNaverAsync.bind(this),
+      [PLATFORM.KAKAO]: this.getKakaoAsync.bind(this),
     };
   }
 
-  async getPlatformIdAsync(platform: PLATFORM, token: string): Promise<string> {
+  async getPlatformInfoAsync(platform: PLATFORM, token: string): Promise<any> {
     const fetchPlatformId = this.platformIdFetchers[platform];
     try {
-      const id = await fetchPlatformId(token);
-      if (!id) {
+      const info = await fetchPlatformId(token);
+      if (!info) {
         throw ServerError.PLATFORM_LOGIN_FAILED;
       }
 
-      return id;
+      return info;
     } catch (e) {
-      throw ServerError.PLATFORM_LOGIN_FAILED;
+      throw new Error(`Failed to fetch platform ID for ${platform}: ${e.message}`);
     }
   }
 
-  async getNaverIdAsync(token: string): Promise<string> {
+  async getNaverAsync(token: string): Promise<any> {
     const api_url = 'https://openapi.naver.com/v1/nid/me';
     const header = `Bearer ${token}`;
     const response = await HttpUtil.get(api_url, {
@@ -50,10 +50,10 @@ export class AccountPlatformService {
       },
     });
 
-    return response?.['data']?.['response']?.['id'];
+    return { id: response?.['data']?.['response']?.['id'], data: response?.['data']?.['response'] };
   }
 
-  async getKakaoIdAsync(token: string): Promise<string> {
+  async getKakaoAsync(token: string): Promise<any> {
     const api_url = 'https://kapi.kakao.com/v2/user/me';
     const header = `Bearer ${token}`;
     const response = await HttpUtil.get(api_url, {
@@ -62,14 +62,17 @@ export class AccountPlatformService {
       },
     });
 
-    return response?.['data']?.['id'];
+    return { id: response?.['data']?.['id'], data: response?.['data'] };
   }
 
-  async getGoogleAsync(token: string): Promise<string> {
-    const api_url = `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`;
-    const response = await HttpUtil.get(api_url, {});
+  async getGoogleAsync(credential: string): Promise<any> {
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: ServerConfig.platform.google.client_id,
+    });
+    const payload = ticket.getPayload();
 
-    return response?.['data']?.['sub'];
+    return { id: payload?.sub, data: payload };
   }
 
   async createPlatformAccountAsync(platform: PLATFORM, id: string): Promise<DBAccount> {
@@ -77,7 +80,7 @@ export class AccountPlatformService {
     const account: DBAccount = {
       useridx: useridx,
       id: `${platform}.${id}`,
-      nickname: `${StringUtil.toCapitalizedCamelCase(ServerConfig.service.name)}${useridx}`,
+      nickname: `${StringUtil.toCapitalizedCamelCase(ServerConfig.service.name)}_${useridx}`,
       platform: platform,
       role: ROLE.USER,
     };

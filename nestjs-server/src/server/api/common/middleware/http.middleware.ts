@@ -32,7 +32,11 @@ export class HttpMiddleware implements NestMiddleware {
       };
       if (error) {
         data.error_message = error.message;
-        ServerLogger.error(`${method} ${url} ${data.response_time}ms response end`, error.stack, data);
+        if (data.error_message == 'invalid or expired token') {
+          ServerLogger.warn(`${method} ${url} ${data.error_message}`);
+        } else {
+          ServerLogger.error(`${method} ${url} ${data.response_time}ms response end`, error.stack, data);
+        }
       } else {
         data.query = JSON.stringify(request.query) ?? '{}';
         data.req_body = JSON.stringify(request.body) ?? '{}';

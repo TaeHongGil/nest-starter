@@ -1,47 +1,47 @@
-# Nestjs Starter
+# DUG Data Service
 
-## Stacks
+# 확장 프로그램
 
-![typescript](https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![nestjs](https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
-![swagger](https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white)
+- [VSCode Task Explorer](https://marketplace.visualstudio.com/items?itemName=spmeesseman.vscode-taskexplorer)
 
-![mongo](https://img.shields.io/badge/mongoDB-47A248?style=for-the-badge&logo=MongoDB&logoColor=white)
-![redis](https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=white)
+## 설치
 
-## Install
+1. **의존성 설치**
 
-1. **Install Dependencies**:
+   - `npm install` 명령어로 패키지 설치
 
-   - Run `npm install` to install the necessary packages.
+2. **환경 변수 설정**
+   - `./src/env` 경로에 환경 변수 파일 작성
 
-2. **Environment Configuration**:
-   - Set up environment variables in the `./src/env` file according to your setup
+## 로컬 DB (Mongo, Redis)
 
-## Local DB
+**로컬 데이터베이스(Docker) 실행 방법**
 
-**Docker Setup for Local Database**:
+- 경로: `./docker-local-db`
+- Docker 데몬 실행
+- VS Code Tasks에서 `db-compose-up` 실행
+- `docker-local-db/.env` 및 `src/env/local-config.json` 파일 수정
 
-- ./docker-local-db
-- Modify the `docker-local-db/.env` and `src/env/local-config.json`
-- Start the docker daemon.
-- `Run Docker` from VS Code (Run And Debug)
-  - `./.vscode/launch.json`
-  - `./.vscode/tasks.json`
+## ELK(Elasticsearch, Logstash, Kibana) 환경
 
-## Swagger Documentation
+**로컬 ELK 스택(Docker) 실행 방법**
 
-- **Configuration**:
-  - Modify the `src/feature/swagger/generate-metadata.ts` script to adjust options like `dtoFileNameSuffix` and `controllerFileNameSuffix` based on your needs.
-  - Modify the `src/feature/swagger/swagger.config.ts`
-  - `npm run swagger or npm run swagger:watch`
+- 경로: `./docker-elk`
+- VS Code Tasks에서 `elk-compose-setup`, `elk-compose-up` 실행
+- 로그, 모니터링, 데이터 시각화 등 개발 및 운영 환경에서 활용
 
-## Server Configuration
+## Swagger
 
-- To change the `server_type`, update the `server_type` environment variable in `.vscode/launch.json`:
+- 설정 파일: `src/feature/swagger/generate-metadata.ts`, `src/feature/swagger/swagger.config.ts` 수정
+- 옵션(dtoFileNameSuffix, controllerFileNameSuffix 등) 필요시 변경
+- 명령어: `npm run swagger` 또는 `npm run swagger:watch`
+
+## 서버 설정
+
+- `server_type` 변경 시 `.vscode/launch.json`의 환경 변수 수정
   ```json
   "env": {
     "server_type": "local"
   }
   ```
-  Replace `"local"` with the desired server type (`"dev"`, `"qa"`, `"live"`, etc.).
+  src/core/define/define.ts -> SERVER_TYPE

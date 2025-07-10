@@ -16,6 +16,7 @@ import ServerLogger from '../server-logger/server.logger';
         if (!db.active) return;
         const dbName = DBConnectKeys.getKey(db.db_name);
         const uri = `mongodb://${db.hosts.join(',')}/?replicaSet=${db.replica_set}`;
+
         return {
           uri,
           dbName,
@@ -25,7 +26,7 @@ import ServerLogger from '../server-logger/server.logger';
           maxPoolSize: db.max_pool_size,
           minPoolSize: db.min_pool_size,
           tls: db.use_tls,
-          onConnectionCreate: (connection: Connection) => mongoService.onConnectionCreate(uri, db, connection),
+          onConnectionCreate: (connection: Connection): Connection => mongoService.onConnectionCreate(uri, db, connection),
         };
       },
       inject: [MongoService],

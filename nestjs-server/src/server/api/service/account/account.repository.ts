@@ -41,30 +41,18 @@ export class AccountRepository {
 
   async setLoginStateAsync(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
-    const key = ApiRedisKeys.getUserStateKey();
+    const key = ApiRedisKeys.getUserStateKey(useridx);
 
-    if (await client.hExists(key, useridx.toString())) {
-      return await this.updateLoginStateTTL(client, key, useridx.toString(), 'XX');
-    }
+    await client.set(key, new Date().toISOString());
+    await client.expire(key, LOGIN_STATE.EXPIRES_SEC);
 
-    await client.hSet(key, useridx.toString(), new Date().toISOString());
-
-    return await this.updateLoginStateTTL(client, key, useridx.toString(), 'NX');
-  }
-
-  /**
-   * 공통 TTL 업데이트 메서드
-   */
-  private async updateLoginStateTTL(client: any, key: string, field: string, condition: 'XX' | 'NX'): Promise<boolean> {
-    const result = await client.hExpire(key, field, LOGIN_STATE.EXPIRES_SEC, condition);
-
-    return result[0] === 1;
+    return true;
   }
 
   async deleteLoginState(useridx: number): Promise<boolean> {
     const client = this.redis.getGlobalClient();
-    const key = ApiRedisKeys.getUserStateKey();
-    const result = await client.hDel(key, useridx.toString());
+    const key = ApiRedisKeys.getUserStateKey(useridx);
+    const result = await client.del(key);
 
     return result > 0;
   }

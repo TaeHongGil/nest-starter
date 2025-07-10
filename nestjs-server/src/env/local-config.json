@@ -3,6 +3,16 @@
   "service": {
     "name": "Nest"
   },
+  "client": [
+    {
+      "rootPath": "../client/swagger",
+      "serveRoot": "/client/swagger"
+    },
+    {
+      "rootPath": "../client/management",
+      "serveRoot": "/client/management"
+    }
+  ],
   "server_info": {
     "api": {
       "port": 20000,
@@ -14,6 +24,10 @@
     },
     "mq": {
       "port": 40000
+    },
+    "batch": {
+      "port": 50000,
+      "mq": false
     }
   },
   "dev": true,
@@ -42,8 +56,8 @@
     "active": false,
     "type": "Bearer",
     "key": "Insert Key",
-    "ttl_access_sec": 300,
-    "ttl_refresh_sec": 3600
+    "ttl_access_sec": 3000,
+    "ttl_refresh_sec": 604800
   },
   "throttler": [
     {

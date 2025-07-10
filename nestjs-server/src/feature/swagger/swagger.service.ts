@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { OpenAPIObject, TagObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 
 import ServerConfig from '@root/core/config/server.config';
-import { SERVER_TYPE } from '@root/core/define/define';
+import { ZONE_TYPE } from '@root/core/define/define';
 import ServerLogger from '@root/core/server-logger/server.logger';
 import { SwaggerUtil } from './swagger.utils';
 
@@ -21,7 +21,7 @@ export class SwaggerService {
   }
 
   private async loadMetadata(): Promise<void> {
-    if (ServerConfig.serverType == SERVER_TYPE.LIVE) {
+    if (ServerConfig.zone == ZONE_TYPE.LIVE) {
       return;
     }
 

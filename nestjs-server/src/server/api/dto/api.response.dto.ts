@@ -21,6 +21,31 @@ export class ResLogin {
   role: ROLE;
 }
 
+/**
+ * 로그인
+ */
+export class ResPlatformLogin {
+  /**
+   * jwt token 정보
+   */
+  jwt: JwtInfo;
+
+  /**
+   * 닉네임
+   */
+  nickname: string;
+
+  /**
+   * 권한
+   */
+  role: ROLE;
+
+  /**
+   * 플랫폼 데이터
+   */
+  platform_data: any;
+}
+
 export class ResTokenRefresh {
   jwt: JwtInfo;
 }

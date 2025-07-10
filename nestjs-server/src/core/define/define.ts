@@ -23,12 +23,19 @@ export enum LOGIN_STATE {
   EXPIRES_SEC = TIME_IN_SECONDS.ONE_MINUTE * 10,
 }
 
-export enum SERVER_TYPE {
+export enum ZONE_TYPE {
   TEST = 'test',
   LOCAL = 'local',
   DEV = 'dev',
-  QA = 'qa',
   LIVE = 'live',
+}
+
+export enum SERVER_TYPE {
+  NONE = 'none',
+  API = 'api',
+  SOCKET = 'socket',
+  MQ = 'mq',
+  BATCH = 'batch',
 }
 
 export enum PLATFORM {

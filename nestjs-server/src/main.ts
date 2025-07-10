@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import ServerConfig from '@root/core/config/server.config';
+import { SERVER_TYPE, ZONE_TYPE } from '@root/core/define/define';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import dayjs from 'dayjs';
@@ -23,31 +24,34 @@ dayjs.tz.setDefault('UTC');
 
 async function bootstrap(): Promise<void> {
   try {
-    const mode = ServerConfig.mode;
-    const port = ServerConfig.server_info[mode].port;
+    const server_type = ServerConfig.server_type;
+    const port = ServerConfig.server_info[server_type].port;
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      logger: ServerLogger.instance,
+      logger: new ServerLogger(),
     });
 
     app.enableVersioning({
       type: VersioningType.URI,
-      defaultVersion: mode == 'api' ? ServerConfig.version : undefined,
+      defaultVersion: server_type == SERVER_TYPE.API ? ServerConfig.version : undefined,
     });
 
     setHelmet(app);
-    if (mode == 'api') {
+    if (!server_type) {
+      throw new Error('Invalid server type');
+    }
+    if (server_type == SERVER_TYPE.API) {
       await setAPIServer(app);
-    } else if (mode == 'socket') {
+    } else if (server_type == SERVER_TYPE.SOCKET) {
       await setWsServer(app);
-    } else if (mode == 'mq') {
+    } else if (server_type == SERVER_TYPE.MQ) {
       await setMQerver(app);
-    } else {
-      throw new Error('Invalid server mode');
+    } else if (server_type == SERVER_TYPE.BATCH) {
+      await setBatchServer(app);
     }
 
     await app.listen(port);
 
-    if (ServerConfig.serverType == 'local') {
+    if (ServerConfig.zone == ZONE_TYPE.LOCAL) {
       const figlet = (await import('figlet')).default;
       figlet(ServerConfig.service.name.toUpperCase(), (err, data) => {
         if (err) {
@@ -55,12 +59,12 @@ async function bootstrap(): Promise<void> {
 
           return;
         }
-        const version = mode == 'api' ? `v${ServerConfig.version}` : '';
+        const version = server_type == SERVER_TYPE.API ? `v${ServerConfig.version}` : '';
 
         const appUrl = `http://localhost:${port}/${version}`;
         process.stdout.write('\x1b[2J\x1b[0f');
         console.log('\x1b[36m%s\x1b[0m', data);
-        console.log(`${mode.toUpperCase()} Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
+        console.log(`${server_type.toUpperCase()} Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
       });
     }
   } catch (error) {
@@ -71,7 +75,7 @@ async function bootstrap(): Promise<void> {
 function setHelmet(app: NestExpressApplication): void {
   app.enableCors({
     origin: (origin, callback) => {
-      const allowedPatterns = [/^http:\/\/localhost:\d+$/, /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:\d+$/];
+      const allowedPatterns = [/^http:\/\/localhost:\d+$/, /^https:\/\/localhost:\d+$/];
       if (!origin) {
         callback(null, true);
 
@@ -116,6 +120,8 @@ async function setWsServer(app: NestExpressApplication): Promise<void> {
 }
 
 async function setMQerver(app: NestExpressApplication): Promise<void> {}
+
+async function setBatchServer(app: NestExpressApplication): Promise<void> {}
 
 bootstrap().catch((err) => {
   process.exit(1);

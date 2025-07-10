@@ -31,7 +31,7 @@ export class AuthService {
   async refreshTokenVerifyAsync(useridx: number, token: string): Promise<boolean> {
     const dbToken = await this.getRefreshTokenAsync(useridx);
     if (token != dbToken) {
-      throw ServerError.INVALID_TOKEN;
+      throw ServerError.INVALID_REFRESH_TOKEN;
     }
 
     return true;

@@ -1,17 +1,16 @@
 import { LoggerService } from '@nestjs/common';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
-import winston, { LoggerOptions, Logger as WinstonLoggerType } from 'winston';
+import winston, { Logger as WinstonLoggerType } from 'winston';
 import winstonDaily from 'winston-daily-rotate-file';
 import ServerConfig from '../config/server.config';
 import { LOG_COLOR_MAP } from '../define/define';
 import StringUtil from '../utils/string.utils';
 
 class ServerLogger implements LoggerService {
-  private static _instance: ServerLogger;
-  private logger: WinstonLoggerType;
+  static logger: WinstonLoggerType;
 
-  constructor(options?: LoggerOptions) {
+  static {
     const LOG_DIR_PATH = path.join(__dirname, '..', '..', '..', 'docker-elk', 'logs', StringUtil.toSnakeCase(ServerConfig.service.name));
     if (!existsSync(LOG_DIR_PATH)) {
       mkdirSync(LOG_DIR_PATH, { recursive: true });
@@ -29,7 +28,7 @@ class ServerLogger implements LoggerService {
         debug: 7,
         silly: 8,
       },
-      level: ServerConfig.serverType === 'local' ? 'silly' : 'data',
+      level: ServerConfig.zone === 'local' ? 'silly' : 'data',
       transports: [
         new winston.transports.Console({
           format: winston.format.combine(
@@ -66,7 +65,7 @@ class ServerLogger implements LoggerService {
             new winstonDaily({
               level: logLevel,
               datePattern: 'YYYY-MM-DD',
-              filename: path.join(LOG_DIR_PATH, `${ServerConfig.serverType}-${logLevel}-%DATE%.log`),
+              filename: path.join(LOG_DIR_PATH, `${ServerConfig.zone}-${logLevel}-%DATE%.log`),
               maxFiles: '3d',
               format: winston.format((info) => {
                 if (info.level !== logLevel) {
@@ -81,53 +80,43 @@ class ServerLogger implements LoggerService {
             }),
         ),
       ],
-      ...options,
     });
-    ServerLogger._instance = this;
-  }
-
-  static get instance(): ServerLogger {
-    if (!ServerLogger._instance) {
-      ServerLogger._instance = new ServerLogger();
-    }
-
-    return ServerLogger._instance;
   }
 
   static error(message: any, trace?: string, data?: any): void {
-    ServerLogger.instance.logger.error(message, { timestamp: new Date(), trace, data });
+    this.logger.error(message, { timestamp: new Date(), trace, data });
   }
 
   static warn(message: any, context?: string): void {
-    ServerLogger.instance.logger.warn(message, { context });
+    this.logger.warn(message, { context });
   }
 
   static log(message: any, context?: string): void {
-    ServerLogger.instance.logger.log('info', message, { context });
+    this.logger.log('info', message, { context });
   }
 
   static info(message: any, context?: string): void {
-    ServerLogger.instance.logger.info(message, { context });
+    this.logger.info(message, { context });
   }
 
   static http(message: any, data: any): void {
-    ServerLogger.instance.logger.http(message, { timestamp: new Date(), data });
+    this.logger.http(message, { timestamp: new Date(), data });
   }
 
   static data(message: any, type: string, data: any): void {
-    ServerLogger.instance.logger.data(message, { timestamp: new Date(), type, data });
+    this.logger.data(message, { timestamp: new Date(), type, data });
   }
 
   static verbose(message: any, context?: string): void {
-    ServerLogger.instance.logger.verbose(message, { context });
+    this.logger.verbose(message, { context });
   }
 
   static debug(message: any, context?: string): void {
-    ServerLogger.instance.logger.debug(message, { context });
+    this.logger.debug(message, { context });
   }
 
   static silly(message: any, context?: string): void {
-    ServerLogger.instance.logger.silly(message, { context });
+    this.logger.silly(message, { context });
   }
 
   error(message: any, trace?: string, data?: any): void {
@@ -137,39 +126,39 @@ class ServerLogger implements LoggerService {
       trace = msg.stack;
     }
     if (!trace && !data) return;
-    this.logger.error(message, { timestamp: new Date(), trace, data });
+    ServerLogger.logger.error(message, { timestamp: new Date(), trace, data });
   }
 
   warn(message: any, context?: string): void {
-    this.logger.warn(message, { context });
+    ServerLogger.logger.warn(message, { context });
   }
 
   log(message: any, context?: string): void {
-    this.logger.log('info', message, { context });
+    ServerLogger.logger.log('info', message, { context });
   }
 
   info(message: any, context?: string): void {
-    this.logger.info(message, { context });
+    ServerLogger.logger.info(message, { context });
   }
 
   http(message: any, data?: any): void {
-    this.logger.http(message, { timestamp: new Date(), data });
+    ServerLogger.logger.http(message, { timestamp: new Date(), data });
   }
 
   data(message: any, type: string, data: any): void {
-    this.logger.data(message, { timestamp: new Date(), type, data });
+    ServerLogger.logger.data(message, { timestamp: new Date(), type, data });
   }
 
   verbose(message: any, context?: string): void {
-    this.logger.verbose(message, { context });
+    ServerLogger.logger.verbose(message, { context });
   }
 
   debug(message: any, context?: string): void {
-    this.logger.debug(message, { context });
+    ServerLogger.logger.debug(message, { context });
   }
 
   silly(message: any, context?: string): void {
-    this.logger.silly(message, { context });
+    ServerLogger.logger.silly(message, { context });
   }
 }
 

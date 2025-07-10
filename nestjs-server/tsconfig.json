@@ -25,4 +25,6 @@
     },
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
+  "include": ["src","eslint.config.js", "pnpm-workspace.yaml", "package.json", "tsconfig.json"],
+  "exclude": ["node_modules", "dist"]
 }

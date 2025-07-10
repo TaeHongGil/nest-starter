@@ -1,19 +1,52 @@
+import { ServeStaticModuleOptions } from '@nestjs/serve-static';
+import { SERVER_TYPE, ZONE_TYPE } from '@root/core/define/define';
 import * as fs from 'fs';
 import * as path from 'path';
 
 class ServerConfig {
-  version: string = '';
-  serverType: string = '';
-  mode: string = '';
-  throttler: ThorttlerConfig[] = [];
-  dev: boolean = true;
-  service: ServiceConfig = { name: '' };
-  jwt: JwtConfig = { key: '', ttl_access_sec: 0, ttl_refresh_sec: 0, type: '' };
-  server_info: ServerInfo = { api: { port: 20000, mq: false }, socket: { port: 30000, mq: false }, mq: { port: 40000 } };
-  swagger: SwaggerConfig = { active: false, servers: {} };
-  paths: PathConfig = { root: '', env: '', ui: { public: '', view: '' } };
-  platform: PlatformConfig = { google: { client_id: '' }, kakao: { client_id: '' }, naver: { client_id: '' } };
-  db: DBConfig = {
+  static version: string = '';
+  static zone: string = ZONE_TYPE.LOCAL;
+  static server_type: string = SERVER_TYPE.NONE;
+  static throttler: ThorttlerConfig[] = [];
+  static dev: boolean = true;
+  static service: ServiceConfig = {
+    name: '',
+  };
+
+  static client: ServeStaticModuleOptions[] = [];
+
+  static jwt: JwtConfig = {
+    key: '',
+    ttl_access_sec: 0,
+    ttl_refresh_sec: 0,
+    type: '',
+  };
+
+  static server_info: ServerInfo = {
+    api: { port: 20000, mq: false },
+    socket: { port: 30000, mq: false },
+    mq: { port: 40000 },
+    batch: { port: 50000, mq: false },
+  };
+
+  static swagger: SwaggerConfig = {
+    active: false,
+    servers: {},
+  };
+
+  static paths: PathConfig = {
+    root: '',
+    env: '',
+    ui: { public: '', view: '' },
+  };
+
+  static platform: PlatformConfig = {
+    google: { client_id: '' },
+    kakao: { client_id: '' },
+    naver: { client_id: '' },
+  };
+
+  static db: DBConfig = {
     mongo: {
       active: false,
       hosts: [],
@@ -38,77 +71,25 @@ class ServerConfig {
     },
   };
 
-  private static _instance: ServerConfig;
-
-  static get instance(): ServerConfig {
-    if (!this._instance) {
-      this._instance = new ServerConfig();
-    }
-
-    return this._instance;
+  static {
+    this.loadConfig();
   }
 
-  private constructor() {
-    this.serverType = process.env.server_type;
-    this.mode = process.env.mode;
+  static loadConfig(): void {
+    this.zone = process.env.zone;
+    this.server_type = process.env.server_type;
+
+    if (!this.zone || !this.server_type) {
+      return;
+    }
+
     this.paths.root = path.join(__dirname, '..', '..', '..', 'src');
     this.paths.env = path.join(this.paths.root, 'env');
     this.paths.ui.public = path.join(this.paths.root, 'ui', 'public');
     this.paths.ui.view = path.join(this.paths.root, 'ui', 'view');
-    this._load();
-  }
 
-  static get version(): string {
-    return this.instance.version;
-  }
-
-  static get serverType(): string {
-    return this.instance.serverType;
-  }
-
-  static get mode(): string {
-    return this.instance.mode;
-  }
-
-  static get throttler(): ThorttlerConfig[] {
-    return this.instance.throttler;
-  }
-
-  static get server_info(): ServerInfo {
-    return this.instance.server_info;
-  }
-
-  static get dev(): boolean {
-    return this.instance.dev;
-  }
-
-  static get service(): ServiceConfig {
-    return this.instance.service;
-  }
-
-  static get jwt(): JwtConfig {
-    return this.instance.jwt;
-  }
-
-  static get db(): DBConfig {
-    return this.instance.db;
-  }
-
-  static get swagger(): SwaggerConfig {
-    return this.instance.swagger;
-  }
-
-  static get paths(): PathConfig {
-    return this.instance.paths;
-  }
-
-  static get platform(): PlatformConfig {
-    return this.instance.platform;
-  }
-
-  _load(): void {
-    const excludes = ['name', 'prototype', 'length', 'serverType', 'paths', 'mode'];
-    const configPath = path.join(this.paths.env, `${this.serverType}-config.json`);
+    const excludes = ['name', 'prototype', 'length', 'zone', 'paths', 'server_type'];
+    const configPath = path.join(this.paths.env, `${this.zone}-config.json`);
     const forceConfigPath = path.join(this.paths.env, `force-config.json`);
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     let forceConfig = undefined;
@@ -153,6 +134,10 @@ export interface ServerInfo {
   };
   mq: {
     port: number;
+  };
+  batch: {
+    port: number;
+    mq: boolean;
   };
 }
 

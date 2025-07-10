@@ -33,6 +33,10 @@ class ServerError {
     return new HttpException('invalid or expired token', HttpStatus.UNAUTHORIZED);
   }
 
+  static get INVALID_REFRESH_TOKEN(): HttpException {
+    return new HttpException('invalid or expired refresh token', HttpStatus.UNAUTHORIZED);
+  }
+
   static get TOKEN_NOT_FOUND(): HttpException {
     return new HttpException('token not found', HttpStatus.NOT_FOUND);
   }

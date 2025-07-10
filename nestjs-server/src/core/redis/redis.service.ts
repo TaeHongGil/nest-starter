@@ -10,7 +10,7 @@ export class RedisService implements OnModuleDestroy {
   private subscriber: RedisClientType;
   private publisher: RedisClientType;
 
-  private setRedisEventHandlers(redisClient: RedisClientType, dbName: string, db: RedisConfig, isPubSub = false) {
+  private setRedisEventHandlers(redisClient: RedisClientType, dbName: string, db: RedisConfig, isPubSub = false): void {
     redisClient.on('ready', () => {
       ServerLogger.log(`[redis.${dbName}] ${db.host}:${db.port}/${db.db} connected${isPubSub ? ' (pub/sub)' : ''}`);
     });
@@ -61,9 +61,9 @@ export class RedisService implements OnModuleDestroy {
     this.setRedisEventHandlers(this.client, dbName, db);
     this.setRedisEventHandlers(this.publisher, dbName, db, true);
     this.setRedisEventHandlers(this.subscriber, dbName, db, true);
-    this.client.connect();
-    this.publisher.connect();
-    this.subscriber.connect();
+    await this.client.connect();
+    await this.publisher.connect();
+    await this.subscriber.connect();
   }
 
   async onModuleDestroy(): Promise<void> {

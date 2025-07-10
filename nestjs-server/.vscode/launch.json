@@ -22,8 +22,8 @@
       "cwd": "${workspaceRoot}",
       "console": "integratedTerminal",
       "env": {
-        "server_type": "local",
-        "mode": "api"
+        "zone": "local",
+        "server_type": "api"
       }
     },
     {
@@ -38,8 +38,8 @@
       "cwd": "${workspaceRoot}",
       "console": "integratedTerminal",
       "env": {
-        "server_type": "local",
-        "mode": "socket"
+        "zone": "local",
+        "server_type": "socket"
       }
     },
     {
@@ -54,8 +54,24 @@
       "cwd": "${workspaceRoot}",
       "console": "integratedTerminal",
       "env": {
-        "server_type": "local",
-        "mode": "mq"
+        "zone": "local",
+        "server_type": "mq"
+      }
+    },
+    {
+      "type": "node",
+      "name": "┃Local Batch Server Run",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "start:debug"],
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "envFile": "${workspaceFolder}/.env/.env",
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
+      "env": {
+        "zone": "local",
+        "server_type": "batch"
       }
     },
     {

@@ -1,17 +1,15 @@
-# Nestjs Starter
+# Nest Stater
 
-## Stacks
+## 워크스페이스 구조
 
-### Server
+- **nestjs-server**: NestJS(Typescript) 기반 백엔드 서버
+- **client**: Vite, React, TypeScript, @mui/material 기반 프론트엔드
 
-![typescript](https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![nestjs](https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
-![swagger](https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white)
+## 워크스페이스 실행 방법
 
-![mongo](https://img.shields.io/badge/mongoDB-47A248?style=for-the-badge&logo=MongoDB&logoColor=white)
-![redis](https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=white)
+- nest-starter.code-workspace.code-workspace 실행
 
-### Swagger Client
+## 개발 환경
 
-![typescript](https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![react](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=white&style=for-the-badge)
+- Node.js, pnpm
+- Docker (DB, ELK 등)

@@ -3,11 +3,11 @@ import StringUtil from '../utils/string.utils';
 
 export class CoreRedisKeys {
   static getPrefix(): string {
-    return `${StringUtil.toSnakeCase(ServerConfig.service.name)}:${ServerConfig.serverType}`;
+    return `${StringUtil.toSnakeCase(ServerConfig.service.name)}:${ServerConfig.zone}`;
   }
 
-  static getSessionKey(): string {
-    return `${CoreRedisKeys.getPrefix()}:user:session`;
+  static getSessionKey(useridx: number): string {
+    return `${CoreRedisKeys.getPrefix()}:user:session:${useridx}`;
   }
 
   static getTokenDefaultKey(): string {
