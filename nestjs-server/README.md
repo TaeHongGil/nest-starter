@@ -1,4 +1,4 @@
-# DUG Data Service
+# NestJs
 
 # 확장 프로그램
 
@@ -7,8 +7,7 @@
 ## 설치
 
 1. **의존성 설치**
-
-   - `npm install` 명령어로 패키지 설치
+   - `pnpm install`
 
 2. **환경 변수 설정**
    - `./src/env` 경로에 환경 변수 파일 작성
@@ -41,7 +40,8 @@
 - `server_type` 변경 시 `.vscode/launch.json`의 환경 변수 수정
   ```json
   "env": {
-    "server_type": "local"
+    "zone": "local",
+    "server_type": "api"
   }
   ```
-  src/core/define/define.ts -> SERVER_TYPE
+  src/core/define/define.ts -> ZONE_TYPE
