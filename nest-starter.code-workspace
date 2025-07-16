@@ -39,21 +39,5 @@
     "editor.rulers": [
       250
     ],
-    "mcp": {
-      "inputs": [],
-      "servers": {
-        "Context7": {
-          "type": "stdio",
-          "command": "npx",
-          "args": [
-            "-y",
-            "@upstash/context7-mcp@latest"
-          ],
-          "env": {
-            "DEFAULT_MINIMUM_TOKENS": "100000"
-          }
-        }
-      }
-    }
   }
 }

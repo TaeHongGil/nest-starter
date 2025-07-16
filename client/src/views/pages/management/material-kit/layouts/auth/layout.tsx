@@ -46,7 +46,7 @@ export function AuthLayout({ sx, cssVars, children, slotProps, layoutQuery = 'md
       leftArea: (
         <>
           {/** @slot Logo */}
-          <Logo />
+          <Logo sx={{ pt: 2.5, px: 2.5 }} />
         </>
       ),
       rightArea: (

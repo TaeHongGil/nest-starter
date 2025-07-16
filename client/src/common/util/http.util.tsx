@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import qs from 'qs';
 import ServerConfig from '../config/server.config';
 import { METHOD_TYPE } from '../define/common.define';
@@ -11,15 +11,50 @@ class HttpUtil {
    * @param params Query or body parameters.
    * @param headers Request headers.
    */
-  static async request<T>(baseUrl: string, method: METHOD_TYPE, url: string, params?: any, headers?: any): Promise<AxiosResponse<T>> {
+  static async request<T>(
+    baseUrl: string,
+    method: METHOD_TYPE,
+    url: string,
+    params?: any,
+    headers?: any,
+    responseInterceptors?: (axiosInstance: AxiosInstance, response: AxiosResponse<T>) => Promise<any>,
+  ): Promise<AxiosResponse<T>> {
     MessageUtil.loadingProgress(true);
     try {
-      const config: AxiosRequestConfig = {
+      const axiosInstance = axios.create({
         baseURL: baseUrl,
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          ...headers,
+        },
+      });
+
+      if (responseInterceptors) {
+        axiosInstance.interceptors.request.use(
+          async (config) => {
+            return config;
+          },
+          async (error) => {
+            return Promise.reject(error);
+          },
+        );
+
+        axiosInstance.interceptors.response.use(
+          async (response) => {
+            return await responseInterceptors(axiosInstance, response);
+          },
+          async (error) => {
+            return Promise.reject(error);
+          },
+        );
+      }
+
+      const config: AxiosRequestConfig = {
         url,
         method,
-        headers,
-        withCredentials: true,
       };
 
       if (method === 'GET') {
@@ -29,14 +64,8 @@ class HttpUtil {
         config.data = params;
       }
 
-      config.headers = {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        ...config.headers,
-      };
-
-      const response = await axios.request<T>(config);
+      const response = await axiosInstance.request<T>(config);
+      console.log(response);
 
       return response;
     } catch (error: any) {

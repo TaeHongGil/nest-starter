@@ -6,9 +6,11 @@ import { Outlet } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
+import { observer } from 'mobx-react-lite';
 
 import { AuthLayout } from '@root/views/pages/management/material-kit/layouts/auth';
 import { DashboardLayout } from '@root/views/pages/management/material-kit/layouts/dashboard';
+import managementStore, { ROLE } from '@root/views/pages/management/store/ManagementStore';
 
 // ----------------------------------------------------------------------
 
@@ -20,9 +22,22 @@ export const UserPage = lazy(async () => import('@root/views/pages/management/ma
 
 export const SignInPage = lazy(async () => import('@root/views/pages/management/material-kit/pages/sign-in'));
 
+export const BatchPage = lazy(async () => import('@root/views/pages/management/material-kit/pages/batch'));
+
 export const ProductsPage = lazy(async () => import('@root/views/pages/management/material-kit/pages/products'));
 
+export const PageLoginRequest = lazy(async () => import('@root/views/pages/management/material-kit/pages/page-login-request'));
+
+export const Page403 = lazy(async () => import('@root/views/pages/management/material-kit/pages/page-forbidden'));
+
 export const Page404 = lazy(async () => import('@root/views/pages/management/material-kit/pages/page-not-found'));
+
+const AuthGuard = observer(({ children, requiredRole }: { children: React.ReactNode; requiredRole?: ROLE }) => {
+  if (!managementStore.user) return <PageLoginRequest />;
+  if (requiredRole && (!managementStore.user?.role || managementStore.user.role < requiredRole)) return <Page403 />;
+
+  return <div>{children}</div>;
+});
 
 const renderFallback = () => (
   <Box
@@ -54,14 +69,39 @@ export const routesSection: RouteObject[] = [
       </DashboardLayout>
     ),
     children: [
-      { index: true, path: '/', element: <DashboardPage /> },
-      { path: 'user', element: <UserPage /> },
-      { path: 'products', element: <ProductsPage /> },
-      { path: 'blog', element: <BlogPage /> },
+      {
+        index: true,
+        path: '/',
+        element: <DashboardPage />,
+      },
+      {
+        path: 'batch',
+        element: (
+          <AuthGuard requiredRole={ROLE.ADMIN}>
+            <BatchPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'example/user',
+        element: (
+          <AuthGuard requiredRole={ROLE.ADMIN}>
+            <UserPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'example/products',
+        element: <ProductsPage />,
+      },
+      {
+        path: 'example/blog',
+        element: <BlogPage />,
+      },
     ],
   },
   {
-    path: 'sign-in',
+    path: 'example/sign-in',
     element: (
       <AuthLayout>
         <SignInPage />

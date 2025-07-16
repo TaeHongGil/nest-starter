@@ -19,7 +19,7 @@ class MessageUtil {
     return message;
   }
 
-  static success(message: string, delay = 2000): string {
+  static success(message: string, delay = 1000): string {
     ToastHelper.addToast(message, 'success', delay);
 
     return message;

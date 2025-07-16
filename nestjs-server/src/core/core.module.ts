@@ -1,19 +1,15 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { DynamicModule, Module, Type, type OnModuleInit } from '@nestjs/common';
+import { GoogleModule } from '@root/core/google/google.module';
 import { readdirSync } from 'fs';
 import path from 'path';
 import { AuthModule } from './auth/auth.module';
-import { MongoModule } from './mongo/mongo.modules';
-import { RedisModule } from './redis/redis.modules';
+import { MongoModule } from './mongo/mongo.module';
+import { RedisModule } from './redis/redis.module';
 import ServerLogger from './server-logger/server.logger';
 
 @Module({
-  imports: [
-    MongoModule,
-    RedisModule.forRootAsync(),
-    CacheModule.register({ isGlobal: true }),
-    AuthModule,
-  ],
+  imports: [MongoModule, RedisModule.forRootAsync(), CacheModule.register({ isGlobal: true }), AuthModule, GoogleModule],
   providers: [],
   exports: [],
 })

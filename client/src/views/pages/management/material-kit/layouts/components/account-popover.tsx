@@ -14,9 +14,9 @@ import Typography from '@mui/material/Typography';
 
 import { usePathname, useRouter } from '@root/views/pages/management/material-kit/routes/hooks';
 
-import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import { METHOD_TYPE } from '@root/common/define/common.define';
-import managementStore from '@root/views/pages/management/store/ManagementStore';
+import { GoogleLoginButton } from '@root/views/pages/management/material-kit/components/google-login/google-login';
+import { ApiEndpoints } from '@root/views/pages/management/store/api.endpoints';
+import managementStore, { ROLE } from '@root/views/pages/management/store/ManagementStore';
 
 // ----------------------------------------------------------------------
 
@@ -52,29 +52,16 @@ export const AccountPopover = observer(({ data = [], sx, ...other }: AccountPopo
 
   const handleLogout = async () => {
     setOpenPopover(null);
-    await managementStore.sendRequest(METHOD_TYPE.POST, 'account/logout');
+    await managementStore.sendRequest(ApiEndpoints.LOGOUT);
     managementStore.clearUser();
     console.log('Logged out');
   };
 
-  const test = async () => {
-    await managementStore.sendRequest(METHOD_TYPE.GET, 'account/get');
-  };
-
   return (
     <>
-      <Button onClick={test}>Test</Button>
       {!managementStore.user ? (
         <Box sx={{ p: 1 }}>
-          <GoogleOAuthProvider clientId={managementStore.platformInfo?.google?.client_id || ''}>
-            <GoogleLogin
-              useOneTap={true}
-              onSuccess={function (credentialResponse: CredentialResponse): void {
-                managementStore.googleLogin(credentialResponse);
-                console.log('User logged in:', credentialResponse);
-              }}
-            ></GoogleLogin>
-          </GoogleOAuthProvider>
+          <GoogleLoginButton useOneTap />
         </Box>
       ) : (
         <>
@@ -112,7 +99,7 @@ export const AccountPopover = observer(({ data = [], sx, ...other }: AccountPopo
                 {managementStore.user.email}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-                {managementStore.user.role}
+                {ROLE[managementStore.user.role]}
               </Typography>
             </Box>
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import ServerConfig from '../config/server.config';
-import ServerError from '../error/server.error';
+import CoreError from '../error/core.error';
 import CryptUtil from '../utils/crypt.utils';
 import { AuthRepository } from './auth.repository';
 import { JwtInfo, SessionUser } from './auth.schema';
@@ -31,7 +31,7 @@ export class AuthService {
   async refreshTokenVerifyAsync(useridx: number, token: string): Promise<boolean> {
     const dbToken = await this.getRefreshTokenAsync(useridx);
     if (token != dbToken) {
-      throw ServerError.INVALID_REFRESH_TOKEN;
+      throw CoreError.INVALID_REFRESH_TOKEN;
     }
 
     return true;

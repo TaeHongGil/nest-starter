@@ -1,7 +1,8 @@
-import { PLATFORM } from '@root/core/define/define';
-import { IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
+import { ROLE } from '@root/core/define/define';
+import { Transform } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
 
-export class ReqCreateGuest {
+export class ReqGuestLogin {
   /**
    * 계정 ID
    */
@@ -9,27 +10,13 @@ export class ReqCreateGuest {
   readonly device_id: string;
 }
 
-export class ReqGuestLogin {
-  /**
-   * 계정 ID
-   */
-  @IsNotEmpty()
-  readonly uuid: string;
-}
-
-export class ReqPlatformLogin {
+export class ReqGoogleLogin {
   /**
    * 플랫폼 token
    */
   @IsNotEmpty()
   @IsString()
   readonly token: string;
-
-  /**
-   * 플랫폼
-   */
-  @IsEnum(PLATFORM)
-  readonly platform: PLATFORM;
 }
 
 export class ReqCheckNickname {
@@ -39,4 +26,30 @@ export class ReqCheckNickname {
   @IsString()
   @Length(2, 20)
   nickname: string;
+}
+
+export class ReqGetUsers {
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value, 10))
+  limit: number;
+
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value, 10))
+  page: number;
+
+  @IsString()
+  @IsOptional()
+  filter?: string;
+}
+
+export class ReqUpdateUserRole {
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsNotEmpty()
+  useridx: number;
+
+  @IsEnum(ROLE)
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsNotEmpty()
+  role: ROLE;
 }

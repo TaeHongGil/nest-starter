@@ -1,3 +1,4 @@
+import { Iconify } from '@root/views/pages/management/material-kit/components/iconify';
 import { Label } from '@root/views/pages/management/material-kit/components/label';
 import { SvgColor } from '@root/views/pages/management/material-kit/components/svg-color';
 
@@ -17,35 +18,65 @@ export const navData = [
     title: 'Dashboard',
     path: '/',
     icon: icon('ic-analytics'),
+    info: (
+      <Label color="error" variant="inverted">
+        example
+      </Label>
+    ),
+  },
+  {
+    title: 'Batch',
+    path: 'batch',
+    icon: <Iconify icon="material-symbols:av-timer" width={28} />,
   },
   {
     title: 'User',
-    path: '/user',
+    path: 'example/user',
     icon: icon('ic-user'),
+    info: (
+      <Label color="error" variant="inverted">
+        example
+      </Label>
+    ),
   },
   {
     title: 'Product',
-    path: '/products',
+    path: 'example/products',
     icon: icon('ic-cart'),
     info: (
       <Label color="error" variant="inverted">
-        +3
+        example
       </Label>
     ),
   },
   {
     title: 'Blog',
-    path: '/blog',
+    path: 'example/blog',
     icon: icon('ic-blog'),
+    info: (
+      <Label color="error" variant="inverted">
+        example
+      </Label>
+    ),
   },
   {
     title: 'Sign in',
-    path: '/sign-in',
+    path: 'example/sign-in',
     icon: icon('ic-lock'),
+    info: (
+      <Label color="error" variant="inverted">
+        example
+      </Label>
+    ),
   },
   {
     title: 'Not found',
-    path: '/404',
+    path: '404',
     icon: icon('ic-disabled'),
+    info: (
+      <Label color="error" variant="inverted">
+        example
+      </Label>
+    ),
   },
 ];

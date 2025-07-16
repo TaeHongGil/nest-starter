@@ -17,7 +17,7 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
-  globalIgnores(['**/dist', '**/node_modules', '**/docker-local-db', '**/public', '**/ui', '**/metadata.ts']),
+  globalIgnores(['**/dist', '**/node_modules', '**/docker-local-db', '**/public', '**/metadata.ts']),
   {
     extends: compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended', 'plugin:promise/recommended'),
     plugins: {
@@ -34,6 +34,7 @@ export default defineConfig([
       },
     },
     rules: {
+      '@typescript-eslint/no-namespace': 'off',
       'prettier/prettier': [
         'error',
         {
@@ -45,7 +46,7 @@ export default defineConfig([
         },
       ],
       'no-var': 'error',
-      '@typescript-eslint/explicit-function-return-type': 'error',
+      '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': [
         'error',
         {

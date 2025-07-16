@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, VersioningType } from '@nestjs/common';
+import { ClassSerializerInterceptor } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import ServerConfig from '@root/core/config/server.config';
@@ -30,10 +30,7 @@ async function bootstrap(): Promise<void> {
       logger: new ServerLogger(),
     });
 
-    app.enableVersioning({
-      type: VersioningType.URI,
-      defaultVersion: server_type == SERVER_TYPE.API ? ServerConfig.version : undefined,
-    });
+    app.enableVersioning();
 
     setHelmet(app);
     if (!server_type) {
@@ -45,8 +42,6 @@ async function bootstrap(): Promise<void> {
       await setWsServer(app);
     } else if (server_type == SERVER_TYPE.MQ) {
       await setMQerver(app);
-    } else if (server_type == SERVER_TYPE.BATCH) {
-      await setBatchServer(app);
     }
 
     await app.listen(port);
@@ -59,9 +54,8 @@ async function bootstrap(): Promise<void> {
 
           return;
         }
-        const version = server_type == SERVER_TYPE.API ? `v${ServerConfig.version}` : '';
 
-        const appUrl = `http://localhost:${port}/${version}`;
+        const appUrl = `http://localhost:${port}/`;
         process.stdout.write('\x1b[2J\x1b[0f');
         console.log('\x1b[36m%s\x1b[0m', data);
         console.log(`${server_type.toUpperCase()} Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
@@ -120,8 +114,6 @@ async function setWsServer(app: NestExpressApplication): Promise<void> {
 }
 
 async function setMQerver(app: NestExpressApplication): Promise<void> {}
-
-async function setBatchServer(app: NestExpressApplication): Promise<void> {}
 
 bootstrap().catch((err) => {
   process.exit(1);

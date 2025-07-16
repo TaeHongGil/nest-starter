@@ -24,7 +24,7 @@ export class DBAccount {
   @Expose()
   platform: string;
 
-  @Prop({ type: 'string', enum: Object.values(ROLE) })
+  @Prop({ type: 'number', enum: Object.values(ROLE) })
   @Expose()
   role: ROLE;
 

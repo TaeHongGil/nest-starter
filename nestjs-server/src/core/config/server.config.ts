@@ -4,7 +4,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 class ServerConfig {
-  static version: string = '';
   static zone: string = ZONE_TYPE.LOCAL;
   static server_type: string = SERVER_TYPE.NONE;
   static throttler: ThorttlerConfig[] = [];
@@ -23,10 +22,9 @@ class ServerConfig {
   };
 
   static server_info: ServerInfo = {
-    api: { port: 20000, mq: false },
-    socket: { port: 30000, mq: false },
+    api: { port: 20000 },
+    socket: { port: 30000 },
     mq: { port: 40000 },
-    batch: { port: 50000, mq: false },
   };
 
   static swagger: SwaggerConfig = {
@@ -42,8 +40,6 @@ class ServerConfig {
 
   static platform: PlatformConfig = {
     google: { client_id: '' },
-    kakao: { client_id: '' },
-    naver: { client_id: '' },
   };
 
   static db: DBConfig = {
@@ -75,9 +71,13 @@ class ServerConfig {
     this.loadConfig();
   }
 
-  static loadConfig(): void {
+  private static loadConfig(): void {
     this.zone = process.env.zone;
     this.server_type = process.env.server_type;
+
+    if (this.zone === ZONE_TYPE.TEST) {
+      this.server_type = SERVER_TYPE.NONE;
+    }
 
     if (!this.zone || !this.server_type) {
       return;
@@ -126,18 +126,12 @@ export interface ServiceConfig {
 export interface ServerInfo {
   api: {
     port: number;
-    mq: boolean;
   };
   socket: {
     port: number;
-    mq: boolean;
   };
   mq: {
     port: number;
-  };
-  batch: {
-    port: number;
-    mq: boolean;
   };
 }
 
@@ -219,12 +213,6 @@ export interface PathConfig {
  */
 export interface PlatformConfig {
   google: {
-    client_id: string;
-  };
-  kakao: {
-    client_id: string;
-  };
-  naver: {
     client_id: string;
   };
 }

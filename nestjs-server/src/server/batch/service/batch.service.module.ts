@@ -1,8 +1,9 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import ServerLogger from '@root/core/server-logger/server.logger';
-import { BatchConfluenceModule } from '@root/server/batch/service/confluence/batch.confluence.module';
+import { BatchGoogleModule } from '@root/server/batch/service/google/batch.google.module';
+import { BatchTestModule } from '@root/server/batch/service/test/batch.test.module';
 
-const importModules = [BatchConfluenceModule];
+const importModules = [BatchTestModule, BatchGoogleModule];
 
 @Module({
   imports: [...importModules],

@@ -19,31 +19,11 @@ export class ResLogin {
    * 권한
    */
   role: ROLE;
-}
-
-/**
- * 로그인
- */
-export class ResPlatformLogin {
-  /**
-   * jwt token 정보
-   */
-  jwt: JwtInfo;
 
   /**
-   * 닉네임
+   * 플랫폼 프로필 데이터
    */
-  nickname: string;
-
-  /**
-   * 권한
-   */
-  role: ROLE;
-
-  /**
-   * 플랫폼 데이터
-   */
-  platform_data: any;
+  profile?: any;
 }
 
 export class ResTokenRefresh {
@@ -71,4 +51,15 @@ export class ResDuplicatedCheck {
 
 export class ResGetAccount {
   nickname: string;
+}
+
+export class ResUser {
+  useridx: number;
+  nickname: string;
+  role: ROLE;
+  created_at: string;
+}
+
+export class ResGetUsers {
+  users: ResUser[];
 }

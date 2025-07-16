@@ -4,6 +4,7 @@ KEYFILE_PATH="/etc/mongodb-keyfile"
 REPLICA_NAME="rs0"
 ADMIN_USER="${USER_NAME:-admin}"
 ADMIN_PASS="${USER_PASSWORD:-admin}"
+MONGO_HOST="${MONGO_HOST:-localhost}"
 
 # keyfile 생성
 openssl rand -base64 756 > "$KEYFILE_PATH"
@@ -25,7 +26,7 @@ done
 mongosh <<EOF
 rs.initiate({
   _id: "$REPLICA_NAME",
-  members: [{ _id: 0, host: "localhost:27017" }]
+  members: [{ _id: 0, host: "$MONGO_HOST:27017" }]
 });
 
 while (!rs.isMaster().ismaster) { sleep(1000); }

@@ -1,5 +1,5 @@
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import { All, Controller, Get, HttpCode, UseInterceptors, Version, VERSION_NEUTRAL } from '@nestjs/common';
+import { All, Controller, Get, HttpCode, UseInterceptors } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import ServerConfig from '@root/core/config/server.config';
 import { NoAuthGuard, SkipResponseInterceptor } from './core/decorator/common.decorator';
@@ -27,12 +27,15 @@ export class AppController {
   @UseInterceptors(CacheInterceptor)
   getInfo(): any {
     return {
-      platform: ServerConfig.platform,
+      platform: {
+        google: {
+          client_id: ServerConfig.platform.google.client_id,
+        },
+      },
     };
   }
 
   @All('/favicon.ico')
-  @Version(VERSION_NEUTRAL)
   @HttpCode(204)
   @UseInterceptors(CacheInterceptor)
   @ApiExcludeEndpoint()

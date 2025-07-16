@@ -1,6 +1,6 @@
 import { CONFIG } from '@root/views/pages/management/material-kit/config-global';
 
-import { OverviewAnalyticsView as DashboardView } from '@root/views/pages/management/material-kit/sections/overview/view';
+import { OverviewAnalyticsView as DashboardView } from '@root/views/pages/management/material-kit/sections/example/overview/view';
 
 // ----------------------------------------------------------------------
 

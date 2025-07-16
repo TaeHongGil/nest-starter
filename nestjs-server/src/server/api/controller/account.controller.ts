@@ -3,10 +3,11 @@ import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
 import { NoAuthGuard } from '@root/core/decorator/common.decorator';
-import ServerError from '@root/core/error/server.error';
-import { ReqCheckNickname, ReqCreateGuest, ReqGuestLogin, ReqPlatformLogin } from '../dto/api.request.dto';
-import { ResCreateGuest, ResDuplicatedCheck, ResGetAccount, ResLogin, ResPlatformLogin } from '../dto/api.response.dto';
-import { AccountPlatformService } from '../service/account/account.platform.service';
+import { PLATFORM } from '@root/core/define/define';
+import CoreError from '@root/core/error/core.error';
+import ApiError from '@root/server/api/error/api.error';
+import { ReqCheckNickname, ReqGuestLogin } from '../dto/api.request.dto';
+import { ResDuplicatedCheck, ResGetAccount, ResLogin } from '../dto/api.response.dto';
 import { AccountService } from '../service/account/account.service';
 
 /**
@@ -16,24 +17,8 @@ import { AccountService } from '../service/account/account.service';
 export class AccountController {
   constructor(
     private readonly accountService: AccountService,
-    private readonly accountPlatformService: AccountPlatformService,
     private readonly authService: AuthService,
   ) {}
-
-  /**
-   * 게스트 계정을 생성한다.
-   */
-  @Post('/guest/create')
-  @NoAuthGuard()
-  async createGuestAccount(@Session() session: SessionData, @Body() param: ReqCreateGuest): Promise<ResCreateGuest> {
-    const guestAccount = await this.accountService.createGuestAccountAsync(param.device_id);
-    const res: ResCreateGuest = {
-      nickname: guestAccount.nickname,
-      uuid: guestAccount.id,
-    };
-
-    return res;
-  }
 
   /**
    * 로그인
@@ -41,7 +26,7 @@ export class AccountController {
   @Post('/guest/login')
   @NoAuthGuard()
   async login(@Session() session: SessionData, @Body() param: ReqGuestLogin): Promise<ResLogin> {
-    const account = await this.accountService.loginAsync(session, param);
+    const account = await this.accountService.loginAsync(session, PLATFORM.SERVER, param.device_id);
     const jwt = await this.authService.createTokenInfoAsync(session.user);
     const refresh_token = await this.authService.createRefreshTokenAsync(session.user);
     session.response.cookie('refresh_token', refresh_token, {
@@ -60,39 +45,13 @@ export class AccountController {
   }
 
   /**
-   * 플랫폼 로그인
-   */
-  @Post('/platform/login')
-  @NoAuthGuard()
-  async platformLogin(@Session() session: SessionData, @Body() param: ReqPlatformLogin): Promise<ResPlatformLogin> {
-    const platformInfo = await this.accountPlatformService.getPlatformInfoAsync(param.platform, param.token);
-    const account = await this.accountPlatformService.platformLogin(session, param.platform, platformInfo.id);
-    const jwt = await this.authService.createTokenInfoAsync(session.user);
-    const refresh_token = await this.authService.createRefreshTokenAsync(session.user);
-    session.response.cookie('refresh_token', refresh_token, {
-      httpOnly: true,
-      secure: ServerConfig.zone != 'local',
-      path: '/',
-    });
-
-    const res: ResPlatformLogin = {
-      nickname: account.nickname,
-      role: account.role,
-      jwt,
-      platform_data: platformInfo.data,
-    };
-
-    return res;
-  }
-
-  /**
    * 계정 정보
    */
   @Get('/get')
   async getAccount(@Session() session: SessionData): Promise<ResGetAccount> {
     const account = await this.accountService.getAccountNyUseridxAsync(session.user.useridx);
     if (!account) {
-      throw ServerError.USER_NOT_FOUND;
+      throw ApiError.USER_NOT_FOUND;
     }
 
     return { nickname: account.nickname };
@@ -105,7 +64,7 @@ export class AccountController {
   @NoAuthGuard()
   async checkNickname(@Session() session: SessionData, @Query() req: ReqCheckNickname): Promise<ResDuplicatedCheck> {
     if (!req.nickname || !req.nickname.trim()) {
-      throw ServerError.BAD_REQUEST;
+      throw CoreError.BAD_REQUEST;
     }
     const account = await this.accountService.getAccountByNicknameAsync(req.nickname);
 

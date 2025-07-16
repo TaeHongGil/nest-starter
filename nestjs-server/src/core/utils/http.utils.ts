@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import ServerError from '../error/server.error';
+import CoreError from '../error/core.error';
 
 class HttpUtil {
   /**
@@ -13,7 +13,7 @@ class HttpUtil {
 
       return response;
     } catch (error) {
-      throw ServerError.RESPONSE_ERROR;
+      throw CoreError.EXTERNAL_REQUEST_ERROR(error.message);
     }
   }
 
@@ -29,7 +29,7 @@ class HttpUtil {
 
       return response;
     } catch (error) {
-      throw ServerError.RESPONSE_ERROR;
+      throw CoreError.EXTERNAL_REQUEST_ERROR(error.message);
     }
   }
 
@@ -45,7 +45,7 @@ class HttpUtil {
 
       return response;
     } catch (error) {
-      throw ServerError.RESPONSE_ERROR;
+      throw CoreError.EXTERNAL_REQUEST_ERROR(error.message);
     }
   }
 
@@ -60,7 +60,7 @@ class HttpUtil {
 
       return response;
     } catch (error) {
-      throw ServerError.RESPONSE_ERROR;
+      throw CoreError.EXTERNAL_REQUEST_ERROR(error.message);
     }
   }
 }

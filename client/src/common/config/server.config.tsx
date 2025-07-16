@@ -5,7 +5,6 @@ class ServerConfig {
   static build_type: string;
   static server_http_port: string;
   static server_socket_port: string;
-  static server_version: string;
   static server_base_url: string;
 
   static {
@@ -14,7 +13,6 @@ class ServerConfig {
     this.build_type = import.meta.env.VITE_BUILD_TYPE;
     this.server_http_port = import.meta.env.VITE_SERVER_HTTP_PORT;
     this.server_socket_port = import.meta.env.VITE_SERVER_SOCKET_PORT;
-    this.server_version = 'v' + import.meta.env.VITE_SERVER_VERSION;
     this.server_base_url = `${window.location.protocol}//${window.location.hostname}:${this.server_http_port}`;
     this.url = this.getURL(this.server_http_port);
   }

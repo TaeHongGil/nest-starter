@@ -66,7 +66,7 @@ const ServerSelect: React.FC<{ open: boolean; onClose: () => void }> = observer(
 });
 
 const SwaggerHeader = observer(() => {
-  document.title = `${ServerConfig.server_name.toUpperCase()} - ${ServerConfig.zone.toUpperCase()} ${protocolStore.server_type.toUpperCase()} DOCUMENT ${SwaggerMetadata.config.version}`;
+  document.title = `${ServerConfig.server_name.toUpperCase()} - ${ServerConfig.zone.toUpperCase()} ${protocolStore.server_type.toUpperCase()} DOCUMENT`;
   const [serverDialogOpen, setServerDialogOpen] = React.useState(false);
 
   const setGlobalHeader = async (): Promise<void> => {

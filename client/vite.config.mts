@@ -26,8 +26,6 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
   process.env.VITE_SERVER_NAME = config.service?.name ?? 'Nest';
   process.env.VITE_SERVER_HTTP_PORT = config.server_info.api.port ?? '0';
   process.env.VITE_SERVER_SOCKET_PORT = config.server_info.socket.port ?? '0';
-  process.env.VITE_SERVER_BATCH_PORT = config.server_info.batch.port ?? '0';
-  process.env.VITE_SERVER_VERSION = config.version ?? '1';
 
   return {
     base: `/client/${build_type}`,

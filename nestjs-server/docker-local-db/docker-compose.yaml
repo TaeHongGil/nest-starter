@@ -9,6 +9,8 @@ services:
     environment:
       USER_NAME: ${USER_NAME:-admin}
       USER_PASSWORD: ${USER_PASSWORD:-admin}
+      MONGO_HOST: "${MONGO_HOST:-localhost}"
+
     command: ['sh', '/etc/mongo-init/init.sh']
 
   valkey:

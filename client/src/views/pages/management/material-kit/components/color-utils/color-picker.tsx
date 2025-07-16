@@ -1,10 +1,10 @@
-import type { Theme, SxProps } from '@mui/material/styles';
+import type { SxProps, Theme } from '@mui/material/styles';
 
+import { mergeClasses, varAlpha } from 'minimal-shared/utils';
 import { useCallback } from 'react';
-import { varAlpha, mergeClasses } from 'minimal-shared/utils';
 
 import ButtonBase from '@mui/material/ButtonBase';
-import { styled, alpha as hexAlpha } from '@mui/material/styles';
+import { alpha as hexAlpha, styled } from '@mui/material/styles';
 
 import { Iconify } from '../iconify';
 import { colorPickerClasses } from './classes';
@@ -68,7 +68,7 @@ export function ColorPicker({ sx, value, onChange, slotProps, className, size = 
           <li key={color}>
             <ItemRoot aria-label={color} onClick={() => handleSelect(color)} className={colorPickerClasses.item.root} {...slotProps?.item}>
               <ItemContainer color={color} hasSelected={hasSelected} className={colorPickerClasses.item.container} {...slotProps?.itemContainer}>
-                <ItemIcon color={color} hasSelected={hasSelected} icon="eva:checkmark-fill" className={colorPickerClasses.item.icon} {...slotProps?.icon} />
+                <ItemIcon iconColor={color} hasSelected={hasSelected} icon="eva:checkmark-fill" className={colorPickerClasses.item.icon} {...slotProps?.icon} />
               </ItemContainer>
             </ItemRoot>
           </li>
@@ -127,11 +127,11 @@ const ItemContainer = styled('span', {
 }));
 
 const ItemIcon = styled(Iconify, {
-  shouldForwardProp: (prop: string) => !['color', 'hasSelected', 'sx'].includes(prop),
-})<{ color: string; hasSelected: boolean }>(({ color, theme }) => ({
+  shouldForwardProp: (prop: string) => !['iconColor', 'hasSelected', 'sx'].includes(prop),
+})<{ iconColor: string; hasSelected: boolean }>(({ iconColor, theme }) => ({
   width: 0,
   height: 0,
-  color: theme.palette.getContrastText(color),
+  color: theme.palette.getContrastText(iconColor),
   transition: theme.transitions.create(['all'], {
     duration: theme.transitions.duration.shortest,
   }),

@@ -1,6 +1,6 @@
 import { CONFIG } from '@root/views/pages/management/material-kit/config-global';
 
-import { SignInView } from '@root/views/pages/management/material-kit/sections/auth';
+import { SignInView } from '@root/views/pages/management/material-kit/sections/example/auth';
 
 // ----------------------------------------------------------------------
 

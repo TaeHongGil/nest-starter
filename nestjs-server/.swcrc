@@ -4,5 +4,17 @@
     "type": "commonjs",
     "strict": true
   },
-  "exclude": ["node_modules", "dist", "spec.ts", "src/ui/**"]
+  "jsc": {
+    "target": "es2020",
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true
+    },
+    "transform": {
+      "legacyDecorator": true,
+      "decoratorMetadata": true
+    },
+    "keepClassNames": true
+  },
+  "exclude": ["node_modules", "dist"]
 }

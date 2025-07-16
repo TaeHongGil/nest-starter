@@ -1,6 +1,6 @@
 import { CONFIG } from '@root/views/pages/management/material-kit/config-global';
 
-import { ProductsView } from '@root/views/pages/management/material-kit/sections/product/view';
+import { ProductsView } from '@root/views/pages/management/material-kit/sections/example/product/view';
 
 // ----------------------------------------------------------------------
 

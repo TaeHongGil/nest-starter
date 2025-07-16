@@ -1,3 +1,6 @@
+import type { IconProps } from '@iconify/react';
+
+import { Icon } from '@iconify/react';
 import { mergeClasses } from 'minimal-shared/utils';
 import { useId } from 'react';
 
@@ -6,7 +9,6 @@ import { styled } from '@mui/material/styles';
 import { iconifyClasses } from './classes';
 import { allIconNames, registerIcons } from './register-icons';
 
-import { Icon, IconProps } from '@mui/material';
 import type { IconifyName } from './register-icons';
 
 // ----------------------------------------------------------------------
@@ -14,8 +16,6 @@ import type { IconifyName } from './register-icons';
 export type IconifyProps = React.ComponentProps<typeof IconRoot> &
   Omit<IconProps, 'icon'> & {
     icon: IconifyName;
-    width?: number | string;
-    height?: number | string;
   };
 
 export function Iconify({ className, icon, width = 20, height, sx, ...other }: IconifyProps) {
@@ -35,7 +35,9 @@ export function Iconify({ className, icon, width = 20, height, sx, ...other }: I
 
   return (
     <IconRoot
+      ssr
       id={id}
+      icon={icon}
       className={mergeClasses([iconifyClasses.root, className])}
       sx={[
         {
@@ -47,9 +49,7 @@ export function Iconify({ className, icon, width = 20, height, sx, ...other }: I
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
       {...other}
-    >
-      <span data-icon={icon} />
-    </IconRoot>
+    />
   );
 }
 

@@ -1,6 +1,6 @@
 # NestJs
 
-# 확장 프로그램
+## 확장 프로그램
 
 - [VSCode Task Explorer](https://marketplace.visualstudio.com/items?itemName=spmeesseman.vscode-taskexplorer)
 
@@ -14,7 +14,7 @@
 
 ## 로컬 DB (Mongo, Redis)
 
-**로컬 데이터베이스(Docker) 실행 방법**
+### 로컬 데이터베이스(Docker) 실행 방법
 
 - 경로: `./docker-local-db`
 - Docker 데몬 실행
@@ -23,7 +23,7 @@
 
 ## ELK(Elasticsearch, Logstash, Kibana) 환경
 
-**로컬 ELK 스택(Docker) 실행 방법**
+### 로컬 ELK 스택(Docker) 실행 방법
 
 - 경로: `./docker-elk`
 - VS Code Tasks에서 `elk-compose-setup`, `elk-compose-up` 실행
@@ -38,6 +38,7 @@
 ## 서버 설정
 
 - `server_type` 변경 시 `.vscode/launch.json`의 환경 변수 수정
+
   ```json
   "env": {
     "zone": "local",

@@ -44,7 +44,7 @@ export class HttpStore {
   async initialize(): Promise<void> {
     const apiMap = await StorageUtil.loadIndexDB<HttpApiMap>('http', 'api', {});
     const historyMap = await StorageUtil.loadIndexDB<HttpHistoryMap>('http', 'history', {});
-    const pathInfo = await StorageUtil.loadIndexDB<PathInfo>('http', 'path', { method: METHOD_TYPE.GET, path: `/${SwaggerMetadata.config.version}` });
+    const pathInfo = await StorageUtil.loadIndexDB<PathInfo>('http', 'path', { method: METHOD_TYPE.GET, path: '/' });
     runInAction(() => {
       this.apiMap = apiMap;
       this.historyMap = historyMap;

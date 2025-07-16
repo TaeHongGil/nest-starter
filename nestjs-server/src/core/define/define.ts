@@ -35,20 +35,17 @@ export enum SERVER_TYPE {
   API = 'api',
   SOCKET = 'socket',
   MQ = 'mq',
-  BATCH = 'batch',
 }
 
 export enum PLATFORM {
   SERVER = 'SERVER',
   GOOGLE = 'GOOGLE',
-  NAVER = 'NAVER',
-  KAKAO = 'KAKAO',
 }
 
 export enum ROLE {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-  GUEST = 'GUEST',
+  ADMIN = 100,
+  USER = 1,
+  GUEST = 0,
 }
 
 export const LOG_COLOR_MAP = {

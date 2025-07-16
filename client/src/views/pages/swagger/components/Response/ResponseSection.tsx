@@ -15,7 +15,7 @@ const ResponseSection = observer(() => {
   const httpSotre = protocolStore.httpStore;
   const responseSchema = httpSotre.getResponseSchema();
   const response = httpSotre.getCurrentApi().response;
-  const responseBody = SwaggerMetadata.formatJson(response.body, responseSchema, 'data');
+  const responseBody = SwaggerMetadata.formatJson(response.body, responseSchema.schema, 'data');
 
   const handleChange = (event: React.SyntheticEvent, tab: string): void => {
     setResponseActiveTab(tab);

@@ -4,6 +4,10 @@ import { RedisService } from '@root/core/redis/redis.service';
 import ServerLogger from '../../../core/server-logger/server.logger';
 import { MQServiceModule } from './service/mq.service.module';
 
+/**
+ * MQ Publisher 모듈
+ * 필요시 별도로 추가하여 사용
+ */
 @Global()
 @Module({
   imports: [

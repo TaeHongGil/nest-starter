@@ -7,7 +7,6 @@ import JSON5 from 'json5';
  * Swagger 옵션
  */
 export interface SwaggerOptions {
-  version?: string;
   token?: Record<string, string>;
   header?: Record<string, any>;
 }

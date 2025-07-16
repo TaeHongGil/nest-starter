@@ -60,18 +60,26 @@
     },
     {
       "type": "node",
-      "name": "┃Local Batch Server Run",
+      "name": "┃Test: All",
       "request": "launch",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["run", "start:debug"],
-      "skipFiles": ["<node_internals>/**"],
-      "sourceMaps": true,
-      "envFile": "${workspaceFolder}/.env/.env",
-      "cwd": "${workspaceRoot}",
+      "runtimeArgs": ["run", "test:all"],
       "console": "integratedTerminal",
+      "cwd": "${workspaceRoot}",
       "env": {
-        "zone": "local",
-        "server_type": "batch"
+        "zone": "test"
+      }
+    },
+    {
+      "type": "node",
+      "name": "┃Test: Current File",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["test", "--", "${file}", "--runInBand"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceRoot}",
+      "env": {
+        "zone": "test"
       }
     },
     {

@@ -1,16 +1,21 @@
-import { CredentialResponse } from '@react-oauth/google';
 import ServerConfig from '@root/common/config/server.config';
-import { METHOD_TYPE } from '@root/common/define/common.define';
 import HttpUtil from '@root/common/util/http.util';
 import MessageUtil from '@root/common/util/message.util';
-import axios from 'axios';
+import { ApiEndpoint, ApiEndpoints } from '@root/views/pages/management/store/api.endpoints';
+import { AxiosInstance } from 'axios';
 import { makeAutoObservable } from 'mobx';
+
+export enum ROLE {
+  GUEST = 0,
+  USER = 1,
+  ADMIN = 100,
+}
 
 export interface User {
   token: string;
   name: string;
   email: string;
-  role: string;
+  role: ROLE;
 }
 
 export interface PlatformInfo {
@@ -45,70 +50,51 @@ class ManagementStore {
     localStorage.removeItem('user');
   }
 
-  async googleLogin(credentialResponse: CredentialResponse) {
-    if (this.user) {
-      return;
-    }
+  async sendRequest(apiEndpoint: ApiEndpoint, params?: any, headers?: any, toast = true) {
+    const method = apiEndpoint.method;
+    const path = apiEndpoint.path;
 
-    const response = await HttpUtil.request<any>(ServerConfig.server_base_url, METHOD_TYPE.POST, `${ServerConfig.server_version}/account/platform/login`, {
-      token: credentialResponse.credential,
-      platform: 'GOOGLE',
-    });
+    headers = {
+      ...headers,
+      Authorization: `Bearer ${this.user?.token || ''}`,
+    };
 
-    const data = response.data.data;
-    if (response.data) {
-      this.setUser({
-        email: data.platform_data?.email,
-        token: data.jwt.access_token,
-        name: data.platform_data?.name,
-        role: data.role,
-      });
-    }
+    try {
+      const interceptors = async (instance: AxiosInstance, response: any) => {
+        const originalRequest = response.config as any;
 
-    return this.user;
-  }
+        if (response.data?.error?.message === 'invalid or expired refresh token' && !originalRequest?._retry) {
+          originalRequest._retry = true;
+          alert('세션 만료');
 
-  async sendRequest(method: METHOD_TYPE, url: string, params?: any, headers?: any) {
-    if (!this.user) {
-      MessageUtil.error('로그인이 필요합니다.');
+          return response;
+        } else if (response.data?.error?.message === 'invalid or expired token' && !originalRequest?._retry) {
+          originalRequest._retry = true;
+          await this.refreshToken();
+          originalRequest.headers['Authorization'] = `Bearer ${this.user?.token || ''}`;
 
-      return;
-    }
-    axios.interceptors.request.use((config) => {
-      config.headers['Authorization'] = `Bearer ${this.user?.token}`;
-
-      return config;
-    });
-
-    axios.interceptors.response.use(async (response) => {
-      const originalRequest = response.config as any;
-      if (response.data?.error?.message === 'invalid or expired refresh token' && !originalRequest._retry) {
-        originalRequest._retry = true;
-        this.clearUser();
-        alert('세션 만료');
+          return instance.request(originalRequest);
+        }
 
         return response;
-      } else if (response.data?.error?.message === 'invalid or expired token' && !originalRequest._retry) {
-        originalRequest._retry = true;
-        await this.refreshToken();
-        originalRequest.headers['Authorization'] = `Bearer ${this.user?.token}`;
+      };
 
-        return axios(originalRequest);
+      const response = await HttpUtil.request<any>(ServerConfig.server_base_url, method, path, params, headers, interceptors);
+
+      if (response.data?.data) {
+        if (toast) {
+          MessageUtil.success(`${path} Done`);
+        }
+      } else if (response.data?.error?.message) {
+        MessageUtil.error(`${path}: ${response.data.error.message}`);
       }
 
-      return response;
-    });
+      return response.data;
+    } catch (error) {
+      console.error(`Error in ${path}:`, error);
 
-    const response = await HttpUtil.request<any>(ServerConfig.server_base_url, method, `${ServerConfig.server_version}/${url}`, params, headers);
-
-    if (response.data?.data) {
-      MessageUtil.success(`${url} Done`);
-      console.log(`${url} Done`, response.data.data);
-    } else if (response.data?.error?.message) {
-      MessageUtil.error(`${url}: ${response.data.error.message}`);
+      return undefined;
     }
-
-    return response.data;
   }
 
   async refreshToken() {
@@ -117,12 +103,9 @@ class ManagementStore {
 
       return;
     }
-    const response = await HttpUtil.request<any>(ServerConfig.server_base_url, METHOD_TYPE.POST, `${ServerConfig.server_version}/auth/token`);
-    if (response.data?.data) {
-      this.user.token = response.data.data.jwt?.access_token;
-    }
-
-    return;
+    const response = await this.sendRequest(ApiEndpoints.REFRESH_TOKEN);
+    this.user.token = response?.data?.jwt?.access_token;
+    this.setUser(this.user);
   }
 
   async getPlatformInfo() {
@@ -130,8 +113,8 @@ class ManagementStore {
       return;
     }
 
-    const response = await HttpUtil.request<any>(ServerConfig.server_base_url, METHOD_TYPE.GET, `${ServerConfig.server_version}/info`);
-    this.platformInfo = response.data?.platform;
+    const response = await this.sendRequest(ApiEndpoints.PLATFORM_INFO);
+    this.platformInfo = response?.platform;
 
     return this.platformInfo;
   }

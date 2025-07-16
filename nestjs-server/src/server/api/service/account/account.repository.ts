@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CoreRedisKeys } from '@root/core/define/core.redis.key';
 import { LOGIN_STATE } from '@root/core/define/define';
 import { RedisService } from '@root/core/redis/redis.service';
-import { plainToInstance } from 'class-transformer';
+import { BeanUtils } from '@root/core/utils/bean.utils';
 import { Model } from 'mongoose';
 import { ApiRedisKeys } from '../../define/api.redis.key';
 import { DBAccount } from './account.schema';
@@ -18,7 +18,19 @@ export class AccountRepository {
   async findOne(filter: Partial<DBAccount>): Promise<DBAccount> {
     const result = await this.model.findOne(filter).lean();
 
-    return plainToInstance(DBAccount, result, { excludeExtraneousValues: true });
+    return BeanUtils.ToIns(DBAccount, result);
+  }
+
+  async findAll(limit: number, page: number, filter?: Record<string, any>): Promise<DBAccount[]> {
+    const query = this.model.find();
+    const skip = (page - 1) * (limit || 0);
+
+    query.limit(limit).skip(skip);
+    if (filter) {
+      query.where(filter);
+    }
+
+    return await query.lean();
   }
 
   async delete(useridx: number): Promise<boolean> {
