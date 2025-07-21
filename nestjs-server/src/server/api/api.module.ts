@@ -11,7 +11,7 @@ import { ApiServiceModule } from './service/api.service.module';
 const staticClients = ServerConfig.client
   .map((client) => ({
     ...client,
-    rootPath: path.join(__dirname, '..', '..', '..', ...client.rootPath.split('/')),
+    rootPath: path.join(ServerConfig.paths.root, '..', ...client.rootPath.split('/')),
   }))
   .filter((client) => fs.existsSync(client.rootPath));
 

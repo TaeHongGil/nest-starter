@@ -103,8 +103,8 @@ class ServerLogger implements LoggerService {
     this.logger.http(message, { timestamp: new Date(), data });
   }
 
-  static data(message: any, type: string, data: any): void {
-    this.logger.data(message, { timestamp: new Date(), type, data });
+  static data(message: any, data: any): void {
+    this.logger.data(message, { timestamp: new Date(), data });
   }
 
   static verbose(message: any, context?: string): void {
@@ -145,8 +145,8 @@ class ServerLogger implements LoggerService {
     ServerLogger.logger.http(message, { timestamp: new Date(), data });
   }
 
-  data(message: any, type: string, data: any): void {
-    ServerLogger.logger.data(message, { timestamp: new Date(), type, data });
+  data(message: any, data: any): void {
+    ServerLogger.logger.data(message, { timestamp: new Date(), data });
   }
 
   verbose(message: any, context?: string): void {

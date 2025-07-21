@@ -34,7 +34,7 @@ export const Page404 = lazy(async () => import('@root/views/pages/management/mat
 
 const AuthGuard = observer(({ children, requiredRole }: { children: React.ReactNode; requiredRole?: ROLE }) => {
   if (!managementStore.user) return <PageLoginRequest />;
-  if (requiredRole && (!managementStore.user?.role || managementStore.user.role < requiredRole)) return <Page403 />;
+  if (requiredRole && (!managementStore.user?.role || managementStore.user.role < requiredRole)) return <Page403 requiredRole={requiredRole} />;
 
   return <div>{children}</div>;
 });
@@ -83,7 +83,7 @@ export const routesSection: RouteObject[] = [
         ),
       },
       {
-        path: 'example/user',
+        path: 'user',
         element: (
           <AuthGuard requiredRole={ROLE.ADMIN}>
             <UserPage />

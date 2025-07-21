@@ -1,30 +1,24 @@
 import { Body, Controller, Get, Post, Session } from '@nestjs/common';
-import { SchedulerRegistry } from '@nestjs/schedule';
 import { SessionData } from '@root/core/auth/auth.schema';
-import { ReqStartCronJob as ReqExctueCronJob } from '@root/server/batch/dto/batch.request.dto';
-import { ResExecuteJob, ResGetCronJobs } from '@root/server/batch/dto/batch.response.dto';
+import { RoleGuard } from '@root/core/decorator/common.decorator';
+import { ROLE } from '@root/core/define/define';
+import ObjectUtil from '@root/core/utils/obj.utils';
+import { BatchCronService } from '@root/server/batch/cron/batch.cron.service';
+import { ReqStartCronJob as ReqExctueCronJob, ReqUpdateCronJob } from '@root/server/batch/dto/batch.request.dto';
+import { ResExecuteJob, ResGetCronJobs, ResUpdateCronJobs } from '@root/server/batch/dto/batch.response.dto';
 import BatchError from '@root/server/batch/error/batch.error';
 
-/**
- * 인증 컨트롤러
- */
 @Controller('cron')
+@RoleGuard(ROLE.ADMIN)
 export class CronController {
-  constructor(private schedulerRegistry: SchedulerRegistry) {}
+  constructor(private cronService: BatchCronService) {}
 
   /**
    * Cron 작업 목록
    */
   @Get('/jobs')
   async getJobs(@Session() session: SessionData): Promise<ResGetCronJobs> {
-    const jobs = this.schedulerRegistry.getCronJobs();
-
-    const jobsObj = Array.from(jobs.entries()).map(([name, job]) => ({
-      name,
-      cronTime: job.cronTime.source.toString(),
-      beforeDate: job.lastDate() ? job.lastDate().toISOString() : null,
-      nextDate: job.nextDate().toJSDate().toISOString(),
-    }));
+    const jobsObj = this.cronService.getJobs();
 
     return { jobs: jobsObj };
   }
@@ -35,12 +29,26 @@ export class CronController {
   @Post('/execute')
   async executeJob(@Session() session: SessionData, @Body() req: ReqExctueCronJob): Promise<ResExecuteJob> {
     try {
-      const job = this.schedulerRegistry.getCronJob(req.name);
-      await job.fireOnTick();
+      await this.cronService.executeJobAsync(req.name);
 
       return { result: true, message: `Job ${req.name} executed successfully.` };
     } catch (error) {
       throw BatchError.CRON_EXECUTE_FAILED(error.message);
     }
+  }
+
+  /**
+   * Cron 주기/상태 수정
+   */
+  @Post('/update')
+  async updateDataSyncCronJob(@Body() req: ReqUpdateCronJob): Promise<ResUpdateCronJobs> {
+    if (!ObjectUtil.isCronTime(req.cronTime)) {
+      throw BatchError.CRON_UPDATE_FAILED('invalid cronTime');
+    }
+
+    await this.cronService.updateJobAsync(req.name, req.cronTime, req.active);
+    const jobsObj = this.cronService.getJobs();
+
+    return { jobs: jobsObj };
   }
 }

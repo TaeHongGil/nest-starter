@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
 import { DiscoveryModule } from '@nestjs/core';
-import { SwaggerController } from './swagger.controller';
 import { SwaggerService } from './swagger.service';
 import { SwaggerUtil } from './swagger.utils';
 
@@ -9,6 +8,6 @@ import { SwaggerUtil } from './swagger.utils';
   imports: [DiscoveryModule],
   providers: [SwaggerService, SwaggerUtil],
   exports: [SwaggerService],
-  controllers: [SwaggerController],
+  controllers: [],
 })
 export class CustomSwaggerModule {}

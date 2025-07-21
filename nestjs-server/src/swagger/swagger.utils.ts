@@ -4,25 +4,13 @@ import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ApiOperation } from '@nestjs/swagger';
 import { OperationObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import path from 'path';
 import { ParameterMetadataAccessor } from './utils/parameter-metadata-accessor';
 
 @Injectable()
 export class SwaggerUtil {
   constructor(private readonly discoveryService: DiscoveryService) {}
 
-  loadSocketMetadata(): Record<string, Record<string, OperationObject>> {
-    const filePath = path.join(__dirname, '..', '..', '..', 'src', 'feature', 'swagger', 'socket-metadata.json');
-    if (!existsSync(filePath)) {
-      return undefined;
-    }
-    const data = readFileSync(filePath, 'utf-8');
-
-    return JSON.parse(data);
-  }
-
-  saveSocketMetadata(metadata: Record<string, any>): void {
+  getSocketMetadata(metadata: Record<string, any>): Record<string, Record<string, OperationObject>> {
     const result: Record<string, Record<string, OperationObject>> = {};
 
     const controllerMetadata = metadata['@nestjs/swagger']['controllers'].map((gateway: any[]) => gateway[1]).reduce((acc: any, obj: any) => ({ ...acc, ...obj }), {});
@@ -86,8 +74,8 @@ export class SwaggerUtil {
         }
       });
     });
-    const filePath = path.join(__dirname, '..', '..', '..', 'src', 'feature', 'swagger', 'socket-metadata.json');
-    writeFileSync(filePath, JSON.stringify(result, null, 2), 'utf-8');
+
+    return result;
   }
 
   applyDecorators(metadata: Record<string, any>): void {
@@ -118,9 +106,5 @@ export class SwaggerUtil {
         }
       });
     });
-  }
-
-  private getControllerTag(name: string): string {
-    return name.replace('Controller', '').replace(/([a-z])([A-Z])/g, '$1 $2');
   }
 }

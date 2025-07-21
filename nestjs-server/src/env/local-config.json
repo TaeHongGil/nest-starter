@@ -71,7 +71,12 @@
   ],
   "platform": {
     "google": {
-      "client_id": "Insert Client Key"
+      "client_id": "Insert Client ID"
+    },
+    "slack": {
+      "token": "Insert Token",
+      "signing_secret": "Insert Signing Secret",
+      "channel_id": "Insert Channel ID"
     }
   },
   "db": {

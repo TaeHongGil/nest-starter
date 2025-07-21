@@ -24,7 +24,7 @@ export class BeanUtils {
   }
 
   static ToIns<T, V>(cls: ClassConstructor<T>, plain: V): T {
-    const ins = plainToInstance(cls, plain, { excludeExtraneousValues: true });
+    const ins = plainToInstance(cls, plain);
 
     return ins;
   }

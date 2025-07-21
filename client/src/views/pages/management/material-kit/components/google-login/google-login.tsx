@@ -12,6 +12,7 @@ export function GoogleLoginButton(props: GoogleLoginProps): ReactElement {
 
   return (
     <GoogleLogin
+      cancel_on_tap_outside={false}
       useOneTap={useOneTap}
       onSuccess={async function (credentialResponse: CredentialResponse): Promise<void> {
         const response = await managementStore.sendRequest(ApiEndpoints.GOOGLE_LOGIN, {

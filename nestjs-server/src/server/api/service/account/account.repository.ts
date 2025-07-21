@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { CoreRedisKeys } from '@root/core/define/core.redis.key';
 import { LOGIN_STATE } from '@root/core/define/define';
 import { RedisService } from '@root/core/redis/redis.service';
 import { BeanUtils } from '@root/core/utils/bean.utils';
+import { ApiRedisKeys } from '@root/server/api/define/api.redis.key';
 import { Model } from 'mongoose';
-import { ApiRedisKeys } from '../../define/api.redis.key';
 import { DBAccount } from './account.schema';
-
 @Injectable()
 export class AccountRepository {
   constructor(
@@ -48,7 +46,7 @@ export class AccountRepository {
   async increaseidx(): Promise<number> {
     const client = this.redis.getGlobalClient();
 
-    return await client.hIncrBy(CoreRedisKeys.getGlobalNumberKey(), 'useridx', 1);
+    return await client.hIncrBy(ApiRedisKeys.getGlobalNumberKey(), 'useridx', 1);
   }
 
   async setLoginStateAsync(useridx: number): Promise<boolean> {

@@ -1,13 +1,14 @@
-import { Body, Controller, Post, Session } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Session } from '@nestjs/common';
 import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
-import { NoAuthGuard } from '@root/core/decorator/common.decorator';
-import { PLATFORM } from '@root/core/define/define';
+import { NoAuthGuard, RoleGuard } from '@root/core/decorator/common.decorator';
+import { PLATFORM, ROLE } from '@root/core/define/define';
 import { GoogleAccountService } from '@root/core/google/google.account.service';
+import { GoogleSheetService } from '@root/core/google/google.sheet.service';
 import { AccountService } from '@root/server/api/service/account/account.service';
-import { ReqGoogleLogin } from '../dto/api.request.dto';
-import { ResLogin } from '../dto/api.response.dto';
+import { ReqGetSheet as ReqGetSheetData, ReqGoogleLogin } from '../dto/api.request.dto';
+import { ResGetSheetData, ResLogin } from '../dto/api.response.dto';
 
 /**
  * 계정 컨트롤러
@@ -17,6 +18,7 @@ export class GoogleController {
   constructor(
     private readonly accountService: AccountService,
     private readonly googleAccountService: GoogleAccountService,
+    private readonly googleSheetService: GoogleSheetService,
     private readonly authService: AuthService,
   ) {}
 
@@ -47,5 +49,16 @@ export class GoogleController {
     };
 
     return res;
+  }
+
+  /**
+   * 스프레드시트 조회
+   */
+  @Get('/sheet/data')
+  @RoleGuard(ROLE.USER)
+  async getSheetData(@Session() session: SessionData, @Query() param: ReqGetSheetData): Promise<ResGetSheetData> {
+    const result = await this.googleSheetService.getSheetDataByUrl(param.url, param.sheet_name, param.range);
+
+    return result;
   }
 }

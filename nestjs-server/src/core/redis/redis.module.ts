@@ -1,9 +1,8 @@
-import { DynamicModule, Global, Module, ModuleMetadata, type OnModuleInit } from '@nestjs/common';
+import { DynamicModule, Module, ModuleMetadata, type OnModuleInit } from '@nestjs/common';
 import ServerLogger from '../server-logger/server.logger';
 import { RedisIoAdapter } from './redis.adapter';
 import { RedisService } from './redis.service';
 
-@Global()
 @Module({})
 export class RedisModule implements OnModuleInit {
   async onModuleInit(): Promise<void> {
@@ -12,6 +11,7 @@ export class RedisModule implements OnModuleInit {
 
   static forRootAsync(options: ModuleMetadata = {}): DynamicModule {
     return {
+      global: true,
       module: RedisModule,
       imports: options.imports,
       providers: [

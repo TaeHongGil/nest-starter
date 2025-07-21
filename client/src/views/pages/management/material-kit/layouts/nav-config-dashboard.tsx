@@ -27,17 +27,12 @@ export const navData = [
   {
     title: 'Batch',
     path: 'batch',
-    icon: <Iconify icon="material-symbols:av-timer" width={28} />,
+    icon: <Iconify icon="icon-park-solid:timer" />,
   },
   {
     title: 'User',
-    path: 'example/user',
+    path: 'user',
     icon: icon('ic-user'),
-    info: (
-      <Label color="error" variant="inverted">
-        example
-      </Label>
-    ),
   },
   {
     title: 'Product',

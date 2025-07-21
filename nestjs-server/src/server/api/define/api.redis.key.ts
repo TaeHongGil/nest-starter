@@ -1,7 +1,7 @@
 import { CoreRedisKeys } from '@root/core/define/core.redis.key';
 
-export class ApiRedisKeys {
+export class ApiRedisKeys extends CoreRedisKeys {
   static getUserStateKey(useridx: number): string {
-    return `${CoreRedisKeys.getPrefix()}:user:state:${useridx}`;
+    return `${this.getPrefix()}:user:state:${useridx}`;
   }
 }

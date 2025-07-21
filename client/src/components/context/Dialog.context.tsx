@@ -81,7 +81,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   return (
     <DialogContext.Provider value={{ showDialog, showFormDialog }}>
       {children}
-      <Dialog fullWidth maxWidth={'md'} open={open} onClose={handleCancel} slots={{ transition: React.Fragment }} slotProps={{ transition: { timeout: 0 } }}>
+      <Dialog fullWidth maxWidth={'md'} open={open} onClose={handleCancel} aria-hidden={!open}>
         <DialogTitle>{dialogTitle}</DialogTitle>
         <Divider />
         <DialogContent>

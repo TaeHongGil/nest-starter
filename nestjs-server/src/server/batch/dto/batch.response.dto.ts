@@ -1,4 +1,4 @@
-export class CronInfo {
+export class CronJobData {
   /**
    * Cron Job 이름
    */
@@ -15,13 +15,17 @@ export class CronInfo {
    * 다음 실행 시간
    */
   nextDate: string;
+  /**
+   * 활성상태
+   */
+  active: boolean;
 }
 
 export class ResGetCronJobs {
   /**
    * Cron Job 목록
    */
-  jobs: CronInfo[];
+  jobs: CronJobData[];
 }
 
 export class ResExecuteJob {
@@ -35,3 +39,5 @@ export class ResExecuteJob {
    */
   message?: string;
 }
+
+export class ResUpdateCronJobs extends ResGetCronJobs {}

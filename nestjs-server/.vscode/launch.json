@@ -18,7 +18,6 @@
       "runtimeArgs": ["run", "start:debug"],
       "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
-      "envFile": "${workspaceFolder}/.env/.env",
       "cwd": "${workspaceRoot}",
       "console": "integratedTerminal",
       "env": {
@@ -50,12 +49,24 @@
       "runtimeArgs": ["run", "start:debug"],
       "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
-      "envFile": "${workspaceFolder}/.env/.env",
       "cwd": "${workspaceRoot}",
       "console": "integratedTerminal",
       "env": {
         "zone": "local",
         "server_type": "mq"
+      }
+    },
+    {
+      "type": "node",
+      "name": "┃Generate Swagger Metadata",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "swagger"],
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
+       "env": {
+        "zone": "test"
       }
     },
     {

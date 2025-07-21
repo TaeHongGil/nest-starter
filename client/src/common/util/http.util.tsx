@@ -1,6 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import qs from 'qs';
-import ServerConfig from '../config/server.config';
 import { METHOD_TYPE } from '../define/common.define';
 import MessageUtil from './message.util';
 
@@ -82,10 +81,10 @@ class HttpUtil {
    * @param params Query parameters.
    * @returns The complete URL string.
    */
-  static previewUrl(url: string, params?: Record<string, any>): string {
+  static previewUrl(baseurl: string, url: string, params?: Record<string, any>): string {
     const queryString = qs.stringify(params || {}, { arrayFormat: 'repeat' });
 
-    return `${ServerConfig.url}${url}${queryString ? `?${queryString}` : ''}`;
+    return `${baseurl}${url}${queryString ? `?${queryString}` : ''}`;
   }
 }
 

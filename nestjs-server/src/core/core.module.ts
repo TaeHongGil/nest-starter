@@ -1,6 +1,10 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { DynamicModule, Module, Type, type OnModuleInit } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import ServerConfig from '@root/core/config/server.config';
 import { GoogleModule } from '@root/core/google/google.module';
+import { SlackModule } from '@root/core/slack/slack.module';
 import { readdirSync } from 'fs';
 import path from 'path';
 import { AuthModule } from './auth/auth.module';
@@ -9,8 +13,28 @@ import { RedisModule } from './redis/redis.module';
 import ServerLogger from './server-logger/server.logger';
 
 @Module({
-  imports: [MongoModule, RedisModule.forRootAsync(), CacheModule.register({ isGlobal: true }), AuthModule, GoogleModule],
-  providers: [],
+  imports: [
+    MongoModule,
+    RedisModule.forRootAsync(),
+    CacheModule.register({ isGlobal: true }),
+    AuthModule,
+    ThrottlerModule.forRootAsync({ useFactory: async () => ServerConfig.throttler }),
+    GoogleModule,
+    SlackModule.forRootAsync({
+      useFactory: async () => {
+        return {
+          token: ServerConfig.platform.slack?.token,
+        };
+      },
+    }),
+  ],
+  controllers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [],
 })
 export class CoreModule implements OnModuleInit {

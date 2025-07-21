@@ -28,11 +28,11 @@ async function bootstrap(): Promise<void> {
     const port = ServerConfig.server_info[server_type].port;
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: new ServerLogger(),
+      rawBody: true,
     });
 
-    app.enableVersioning();
-
     setHelmet(app);
+
     if (!server_type) {
       throw new Error('Invalid server type');
     }
@@ -56,7 +56,8 @@ async function bootstrap(): Promise<void> {
         }
 
         const appUrl = `http://localhost:${port}/`;
-        process.stdout.write('\x1b[2J\x1b[0f');
+        console.log('\n'.repeat(20));
+
         console.log('\x1b[36m%s\x1b[0m', data);
         console.log(`${server_type.toUpperCase()} Server is running on:\x1b[0m \x1b[32m${appUrl}\x1b[0m\n`);
       });
@@ -96,21 +97,10 @@ async function setAPIServer(app: NestExpressApplication): Promise<void> {
   app.use(cookieParser());
   app.use(json({ limit: '1mb' }));
   app.use(compression());
-
-  if (ServerConfig.dev) {
-    const { SwaggerService } = await import('./feature/swagger/swagger.service');
-    const swagger = app.get(SwaggerService);
-    await swagger.APIServerInit(app);
-  }
 }
 
 async function setWsServer(app: NestExpressApplication): Promise<void> {
   app.useWebSocketAdapter(new RedisIoAdapter(app));
-  if (ServerConfig.dev) {
-    const { SwaggerService } = await import('./feature/swagger/swagger.service');
-    const swagger = app.get(SwaggerService);
-    await swagger.SocketServerInit();
-  }
 }
 
 async function setMQerver(app: NestExpressApplication): Promise<void> {}

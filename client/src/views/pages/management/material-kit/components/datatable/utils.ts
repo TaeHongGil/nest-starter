@@ -73,7 +73,13 @@ export function applyFilter({ inputData, comparator, filterName, filterKey = 'na
     inputData = inputData.filter((data) => {
       const value = data[filterKey];
 
-      return typeof value === 'string' && value.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
+      if (typeof value === 'string') {
+        return value.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
+      } else if (typeof value === 'number') {
+        return String(value).indexOf(filterName) !== -1;
+      } else if (Array.isArray(value)) {
+        return value.some((v) => String(v).toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+      }
     });
   }
 

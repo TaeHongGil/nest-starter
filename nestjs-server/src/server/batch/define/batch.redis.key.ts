@@ -1,7 +1,11 @@
 import { CoreRedisKeys } from '@root/core/define/core.redis.key';
 
-export class BatchRedisKeys {
-  static getSheetKey(id: string): string {
-    return `${CoreRedisKeys.getPrefix()}:sheet:${id}`;
+export class BatchRedisKeys extends CoreRedisKeys {
+  static getBatchPrefix(): string {
+    return `${this.getPrefix()}:batch`;
+  }
+
+  static getCronJobsKey(): string {
+    return `${this.getBatchPrefix()}:cron_jobs`;
   }
 }

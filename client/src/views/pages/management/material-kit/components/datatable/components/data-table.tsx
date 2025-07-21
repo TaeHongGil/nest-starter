@@ -37,10 +37,10 @@ export interface DataTableProps {
 }
 
 export function DataTable(props: DataTableProps) {
-  const { inputData, headLabel, cellRenderers, onSelectRow, showCheckbox = false, popoverList, showToolbar = true, sx } = props;
-  const table = useTable();
+  const { inputData = [], headLabel, cellRenderers, onSelectRow, showCheckbox = false, popoverList, showToolbar = true, sx } = props;
+  const table = useTable(headLabel);
   const [filterName, setFilterName] = useState('');
-  const [filterKey, setFilterKey] = useState(headLabel[0]?.id || 'name');
+  const [filterKey, setFilterKey] = useState(headLabel[0]?.id);
   const normalizedData = inputData.map((row, idx) => (row.id === undefined ? { ...row, id: idx } : row));
   const dataFiltered: any[] = applyFilter({
     inputData: normalizedData,
@@ -83,13 +83,13 @@ export function DataTable(props: DataTableProps) {
             <DataTableHead
               order={table.order}
               orderBy={table.orderBy}
-              rowCount={inputData.length}
+              rowCount={normalizedData.length}
               numSelected={table.selected.length}
               onSort={table.onSort}
               onSelectAllRows={(checked) => {
                 table.onSelectAllRows(
                   checked,
-                  inputData.map((user) => user.id),
+                  normalizedData.map((user) => user.id),
                 );
               }}
               headLabel={computedHeadLabel}
@@ -110,7 +110,7 @@ export function DataTable(props: DataTableProps) {
                   popoverList={popoverList}
                 />
               ))}
-              <TableEmptyRows height={72} emptyRows={emptyRows(table.page, table.rowsPerPage, inputData.length)} />
+              <TableEmptyRows height={72} emptyRows={emptyRows(table.page, table.rowsPerPage, normalizedData.length)} />
               {notFound && <TableNoData searchQuery={filterName} />}
             </TableBody>
           </Table>
@@ -119,7 +119,7 @@ export function DataTable(props: DataTableProps) {
       <TablePagination
         component="div"
         page={table.page}
-        count={inputData.length}
+        count={normalizedData.length}
         rowsPerPage={table.rowsPerPage}
         onPageChange={table.onChangePage}
         rowsPerPageOptions={[5, 10, 25]}
@@ -131,10 +131,10 @@ export function DataTable(props: DataTableProps) {
 
 // ----------------------------------------------------------------------
 
-export function useTable() {
+export function useTable(headLabel: HeadLabel[]) {
   const [page, setPage] = useState(0);
-  const [orderBy, setOrderBy] = useState('name');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [orderBy, setOrderBy] = useState(headLabel[0]?.id || '');
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selected, setSelected] = useState<string[]>([]);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 

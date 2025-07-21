@@ -47,7 +47,7 @@ const QueryTable = observer(() => {
         minRows={3}
         maxRows={3}
         fullWidth
-        value={HttpUtil.previewUrl(httpStore.pathInfo.path, httpStore.requestQuery)}
+        value={HttpUtil.previewUrl(SwaggerMetadata.servers[protocolStore.activeServer].api, httpStore.pathInfo.path, httpStore.requestQuery)}
         slotProps={{
           input: {
             readOnly: true,

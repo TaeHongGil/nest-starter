@@ -1,6 +1,5 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import ServerConfig from '@root/core/config/server.config';
 import ServerLogger from '@root/core/server-logger/server.logger';
 import { AuthGuard } from '@root/server/api/common/guard/auth.guard';
@@ -25,15 +24,9 @@ if (server_type === 'api') {
 }
 
 @Module({
-  imports: [ThrottlerModule.forRootAsync({ useFactory: async () => ServerConfig.throttler }), ...importModules],
+  imports: [...importModules],
   controllers: [],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-    ...providerModules,
-  ],
+  providers: [...providerModules],
   exports: [],
 })
 export class ServerModule implements OnModuleInit {

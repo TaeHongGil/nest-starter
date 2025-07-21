@@ -1,5 +1,5 @@
 import { CONFIG } from '@root/views/pages/management/material-kit/config-global';
-import { UserView } from '@root/views/pages/management/material-kit/sections/example/user/user-view';
+import { UserView } from '@root/views/pages/management/material-kit/sections/user/user-view';
 
 // ----------------------------------------------------------------------
 

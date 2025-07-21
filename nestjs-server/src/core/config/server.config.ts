@@ -35,11 +35,15 @@ class ServerConfig {
   static paths: PathConfig = {
     root: '',
     env: '',
-    ui: { public: '', view: '' },
   };
 
   static platform: PlatformConfig = {
     google: { client_id: '' },
+    slack: {
+      token: '',
+      signing_secret: '',
+      channel_id: '',
+    },
   };
 
   static db: DBConfig = {
@@ -85,8 +89,6 @@ class ServerConfig {
 
     this.paths.root = path.join(__dirname, '..', '..', '..', 'src');
     this.paths.env = path.join(this.paths.root, 'env');
-    this.paths.ui.public = path.join(this.paths.root, 'ui', 'public');
-    this.paths.ui.view = path.join(this.paths.root, 'ui', 'view');
 
     const excludes = ['name', 'prototype', 'length', 'zone', 'paths', 'server_type'];
     const configPath = path.join(this.paths.env, `${this.zone}-config.json`);
@@ -202,10 +204,6 @@ export interface RedisConfig {
 export interface PathConfig {
   root: string;
   env: string;
-  ui: {
-    public: string;
-    view: string;
-  };
 }
 
 /**
@@ -214,6 +212,11 @@ export interface PathConfig {
 export interface PlatformConfig {
   google: {
     client_id: string;
+  };
+  slack: {
+    token: string;
+    signing_secret: string;
+    channel_id: string;
   };
 }
 

@@ -1,10 +1,10 @@
-import { Body, Controller, Get, Post, Query, Session } from '@nestjs/common';
+import { Body, Controller, Get, Put, Query, Session } from '@nestjs/common';
 import { SessionData } from '@root/core/auth/auth.schema';
 import { RoleGuard } from '@root/core/decorator/common.decorator';
 import { ROLE } from '@root/core/define/define';
 import CoreError from '@root/core/error/core.error';
 import { AccountService } from '@root/server/api/service/account/account.service';
-import { ReqGetUsers, ReqUpdateUserRole } from '../dto/api.request.dto';
+import { ReqAdminUpdateRole, ReqGetUsers } from '../dto/api.request.dto';
 import { ResGetUsers, ResUser } from '../dto/api.response.dto';
 
 /**
@@ -44,8 +44,12 @@ export class AdminController {
   /**
    * 유저 역할 업데이트
    */
-  @Post('/update/role')
-  async updateUserRole(@Session() session: SessionData, @Body() params: ReqUpdateUserRole): Promise<ResUser> {
+  @Put('/update/role')
+  async updateUserRole(@Session() session: SessionData, @Body() params: ReqAdminUpdateRole): Promise<ResUser> {
+    if (params.role == ROLE.ADMIN) {
+      throw CoreError.BAD_REQUEST;
+    }
+
     const dbUsers = await this.accountService.getAccountNyUseridxAsync(params.useridx);
     dbUsers.role = params.role;
     await this.accountService.upsertAccountAsync(dbUsers);

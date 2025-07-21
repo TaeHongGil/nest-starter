@@ -7,18 +7,18 @@ export class CoreRedisKeys {
   }
 
   static getSessionKey(useridx: number): string {
-    return `${CoreRedisKeys.getPrefix()}:user:session:${useridx}`;
+    return `${this.getPrefix()}:user:session:${useridx}`;
   }
 
   static getTokenDefaultKey(): string {
-    return `${CoreRedisKeys.getPrefix()}:user:token:`;
+    return `${this.getPrefix()}:user:token:`;
   }
 
   static getGlobalNumberKey(): string {
-    return `${CoreRedisKeys.getPrefix()}:global:number`;
+    return `${this.getPrefix()}:global:number`;
   }
 
   static getGlobalCacheKey(key: string): string {
-    return `${CoreRedisKeys.getPrefix()}:cache:${key}`;
+    return `${this.getPrefix()}:cache:${key}`;
   }
 }

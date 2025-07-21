@@ -21,6 +21,7 @@ export interface User {
 export interface PlatformInfo {
   google: {
     client_id: string;
+    client_email: string;
   };
 }
 

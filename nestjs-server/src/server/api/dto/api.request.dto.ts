@@ -1,22 +1,21 @@
 import { ROLE } from '@root/core/define/define';
 import { Transform } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, Length } from 'class-validator';
 
 export class ReqGuestLogin {
   /**
    * 계정 ID
    */
-  @IsNotEmpty()
-  readonly device_id: string;
+  @IsString()
+  device_id: string;
 }
 
 export class ReqGoogleLogin {
   /**
    * 플랫폼 token
    */
-  @IsNotEmpty()
   @IsString()
-  readonly token: string;
+  token: string;
 }
 
 export class ReqCheckNickname {
@@ -29,27 +28,61 @@ export class ReqCheckNickname {
 }
 
 export class ReqGetUsers {
+  /**
+   * 1 페이지 내 사용자 수
+   */
   @IsNumber()
   @Transform(({ value }) => parseInt(value, 10))
   limit: number;
 
+  /**
+   * 현재 페이지
+   */
   @IsNumber()
   @Transform(({ value }) => parseInt(value, 10))
   page: number;
 
+  /**
+   * 필터링 조건 (JSON 문자열)
+   * 예: {"role": 100}
+   */
   @IsString()
   @IsOptional()
   filter?: string;
 }
 
-export class ReqUpdateUserRole {
+export class ReqGetSheet {
+  /**
+   * 스프레드시트 URL
+   */
+  @IsString()
+  url: string;
+
+  /**
+   * 내부 시트 이름
+   */
+  @IsString()
+  sheet_name: string;
+
+  /**
+   * 데이터 범위 (예: 'A1:C10')
+   */
+  @IsString()
+  range: string;
+}
+
+export class ReqAdminUpdateRole {
   @IsNumber()
   @Transform(({ value }) => parseInt(value, 10))
-  @IsNotEmpty()
   useridx: number;
 
   @IsEnum(ROLE)
   @Transform(({ value }) => parseInt(value, 10))
-  @IsNotEmpty()
+  role: ROLE;
+}
+
+export class ReqUserUpdateRole {
+  @IsEnum(ROLE)
+  @Transform(({ value }) => parseInt(value, 10))
   role: ROLE;
 }

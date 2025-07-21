@@ -41,7 +41,7 @@ export function TableToolbar({ numSelected, filterName, onFilterName, filterKey,
           {numSelected} selected
         </Typography>
       ) : (
-        <Box sx={{ display: 'flex', gap: 1, maxWidth: 420, width: '100%' }}>
+        <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
           <OutlinedInput
             fullWidth
             value={filterName}
@@ -50,7 +50,7 @@ export function TableToolbar({ numSelected, filterName, onFilterName, filterKey,
             startAdornment={<InputAdornment position="start">{/* <Iconify width={20} icon="eva:search-fill" sx={{ color: 'text.disabled' }} /> */}</InputAdornment>}
             sx={{ maxWidth: 320 }}
           />
-          <Select value={filterKey} onChange={onFilterKey} size="small" sx={{ minWidth: 100, background: 'white' }}>
+          <Select value={filterKey} onChange={onFilterKey} size="small" sx={{ minWidth: 200, background: 'white' }}>
             {headLabel.map((header) => (
               <MenuItem key={header.id} value={header.id}>
                 {header.label}

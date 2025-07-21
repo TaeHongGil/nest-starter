@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Expose } from 'class-transformer';
 
 @Schema({
   collection: 'user',
@@ -8,7 +7,6 @@ import { Expose } from 'class-transformer';
 })
 export class DBUser {
   @Prop()
-  @Expose()
   updated_at?: Date;
 }
 

@@ -2,13 +2,14 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 import { All, Controller, Get, HttpCode, UseInterceptors } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import ServerConfig from '@root/core/config/server.config';
+import { GoogleSheetService } from '@root/core/google/google.sheet.service';
 import { NoAuthGuard, SkipResponseInterceptor } from './core/decorator/common.decorator';
 
 @Controller('')
 @SkipResponseInterceptor()
 @NoAuthGuard()
 export class AppController {
-  constructor() {}
+  constructor(private readonly googleSheetService: GoogleSheetService) {}
 
   /**
    * 헬스체크
@@ -30,6 +31,7 @@ export class AppController {
       platform: {
         google: {
           client_id: ServerConfig.platform.google.client_id,
+          client_email: this.googleSheetService.getGoogleAccount().client_email,
         },
       },
     };

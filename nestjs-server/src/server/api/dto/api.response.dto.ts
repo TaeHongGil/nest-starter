@@ -63,3 +63,10 @@ export class ResUser {
 export class ResGetUsers {
   users: ResUser[];
 }
+
+export class ResGetSheetData {
+  /**
+   * data 조회 결과
+   */
+  result: string[][];
+}
