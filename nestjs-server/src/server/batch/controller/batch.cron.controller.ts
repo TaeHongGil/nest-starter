@@ -4,7 +4,7 @@ import { RoleGuard } from '@root/core/decorator/common.decorator';
 import { ROLE } from '@root/core/define/define';
 import ObjectUtil from '@root/core/utils/obj.utils';
 import { BatchCronService } from '@root/server/batch/cron/batch.cron.service';
-import { ReqStartCronJob as ReqExctueCronJob, ReqUpdateCronJob } from '@root/server/batch/dto/batch.request.dto';
+import { ReqExecuteCronJob, ReqUpdateCronJob } from '@root/server/batch/dto/batch.request.dto';
 import { ResExecuteJob, ResGetCronJobs, ResUpdateCronJobs } from '@root/server/batch/dto/batch.response.dto';
 import BatchError from '@root/server/batch/error/batch.error';
 
@@ -27,7 +27,7 @@ export class CronController {
    * Cron 실행
    */
   @Post('/execute')
-  async executeJob(@Session() session: SessionData, @Body() req: ReqExctueCronJob): Promise<ResExecuteJob> {
+  async executeJob(@Session() session: SessionData, @Body() req: ReqExecuteCronJob): Promise<ResExecuteJob> {
     try {
       await this.cronService.executeJobAsync(req.name);
 

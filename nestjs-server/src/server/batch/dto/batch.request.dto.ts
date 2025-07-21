@@ -1,6 +1,6 @@
 import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
-export class ReqStartCronJob {
+export class ReqExecuteCronJob {
   /**
    * Cron Job 이름
    */
