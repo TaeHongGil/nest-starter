@@ -1,5 +1,6 @@
 onlyBuiltDependencies:
   - '@nestjs/core'
+  - '@openapitools/openapi-generator-cli'
   - '@scarf/scarf'
   - '@swc/core'
   - msgpackr-extract

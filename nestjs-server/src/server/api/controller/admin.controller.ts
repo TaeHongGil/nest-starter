@@ -19,17 +19,17 @@ export class AdminController {
    * 유저 목록 조회
    */
   @Get('/users')
-  async getUsers(@Session() session: SessionData, @Query() params: ReqGetUsers): Promise<ResGetUsers> {
+  async getUsers(@Session() session: SessionData, @Query() req: ReqGetUsers): Promise<ResGetUsers> {
     let parsedFilter: Record<string, any> = {};
-    if (params.filter) {
+    if (req.filter) {
       try {
-        parsedFilter = JSON.parse(params.filter);
+        parsedFilter = JSON.parse(req.filter);
       } catch (error) {
         throw CoreError.BAD_REQUEST;
       }
     }
 
-    const dbUsers = await this.accountService.getAllUsersAsync(params.limit, params.page, parsedFilter);
+    const dbUsers = await this.accountService.getAllUsersAsync(req.limit, req.page, parsedFilter);
 
     const users: ResUser[] = dbUsers.map((user) => ({
       useridx: user.useridx,
@@ -45,13 +45,13 @@ export class AdminController {
    * 유저 역할 업데이트
    */
   @Put('/update/role')
-  async updateUserRole(@Session() session: SessionData, @Body() params: ReqAdminUpdateRole): Promise<ResUser> {
-    if (params.role == ROLE.ADMIN) {
+  async updateUserRole(@Session() session: SessionData, @Body() req: ReqAdminUpdateRole): Promise<ResUser> {
+    if (req.role == ROLE.ADMIN) {
       throw CoreError.BAD_REQUEST;
     }
 
-    const dbUsers = await this.accountService.getAccountNyUseridxAsync(params.useridx);
-    dbUsers.role = params.role;
+    const dbUsers = await this.accountService.getAccountNyUseridxAsync(req.useridx);
+    dbUsers.role = req.role;
     await this.accountService.upsertAccountAsync(dbUsers);
 
     return {

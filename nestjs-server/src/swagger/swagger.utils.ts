@@ -2,8 +2,9 @@ import { Injectable, applyDecorators } from '@nestjs/common';
 import { METHOD_METADATA } from '@nestjs/common/constants';
 import { DiscoveryService } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, getSchemaPath } from '@nestjs/swagger';
 import { OperationObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { CommonResponse } from '@root/core/common/response';
 import { ParameterMetadataAccessor } from './utils/parameter-metadata-accessor';
 
 @Injectable()
@@ -95,16 +96,57 @@ export class SwaggerUtil {
           if (descriptor) {
             const methodMetadata = Reflect.getMetadata(METHOD_METADATA, method);
             if (methodMetadata != undefined) {
-              const description = controllerMetadata?.[controllerName]?.[methodName]?.['description'];
+              const { description, type } = controllerMetadata?.[controllerName]?.[methodName] ?? {};
+              const info = Reflect.getMetadata('swagger/apiOperation', method);
               const operation = {
-                ...Reflect.getMetadata('swagger/apiOperation', method),
+                ...info,
                 description,
               };
-              applyDecorators(ApiOperation(operation))(prototype, methodName, descriptor);
+              if (type && controllerName !== 'AppController') {
+                const properties =
+                  type.name !== 'Object'
+                    ? { timestamp: { type: 'string' }, data: { $ref: getSchemaPath(type) }, error: { type: 'object' } }
+                    : { timestamp: { type: 'string' }, data: { type: 'object' }, error: { type: 'object' } };
+                applyDecorators(
+                  ApiOperation(operation),
+                  ApiOkResponse({
+                    schema: {
+                      allOf: [{ $ref: getSchemaPath(CommonResponse) }, { properties }],
+                    },
+                  }),
+                )(prototype, methodName, descriptor);
+              } else {
+                applyDecorators(ApiOperation(operation))(prototype, methodName, descriptor);
+              }
             }
           }
         }
       });
     });
+  }
+
+  async getModels(metadata: Record<string, any>): Promise<any[]> {
+    const models = await Promise.all(metadata['@nestjs/swagger']['models'].map(async (model: any[]) => await model[0]));
+    const modelMetadata = models.reduce((acc: any[], obj: any) => {
+      obj = [...Object.values(obj)].filter((x) => typeof x == 'function');
+      obj.forEach((item: any) => {
+        if (item['_OPENAPI_METADATA_FACTORY']) {
+          const metadata = item['_OPENAPI_METADATA_FACTORY']();
+          Object.entries(metadata).forEach(([propName, prop]: [string, any]) => {
+            if (prop.enum && typeof prop.enum === 'object' && !Array.isArray(prop.enum)) {
+              const enumObj = prop.enum;
+              const names = Object.keys(enumObj).filter((k) => isNaN(Number(k)));
+              const values = names.map((n) => enumObj[n]);
+              prop.enum = values;
+              prop['x-enum-varnames'] = names;
+            }
+          });
+        }
+      });
+
+      return [...acc, ...obj];
+    }, []);
+
+    return modelMetadata;
   }
 }

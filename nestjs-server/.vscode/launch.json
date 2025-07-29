@@ -65,9 +65,16 @@
       "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceRoot}",
       "console": "integratedTerminal",
-       "env": {
-        "zone": "test"
-      }
+    },
+    {
+      "type": "node",
+      "name": "┃Generate Server API Axios Module",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "swagger:axios"],
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
     },
     {
       "type": "node",
@@ -77,9 +84,6 @@
       "runtimeArgs": ["run", "test:all"],
       "console": "integratedTerminal",
       "cwd": "${workspaceRoot}",
-      "env": {
-        "zone": "test"
-      }
     },
     {
       "type": "node",
@@ -89,9 +93,6 @@
       "runtimeArgs": ["test", "--", "${file}", "--runInBand"],
       "console": "integratedTerminal",
       "cwd": "${workspaceRoot}",
-      "env": {
-        "zone": "test"
-      }
     },
     {
       "type": "node",

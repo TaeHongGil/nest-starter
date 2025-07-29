@@ -11,6 +11,7 @@
     "clear": "rimraf dist",
     "start": "vite",
     "build": "pnpm run clear && vite build",
+    "build:docker": "pnpm run clear && vite build --mode docker",
     "build:swagger": "rimraf swagger && cross-env build_type=swagger vite build",
     "build:management": "rimraf management && cross-env build_type=management vite build",
     "preview": "vite preview",
@@ -52,7 +53,8 @@
     "react-router-dom": "^7.7.0",
     "react-split": "^2.0.14",
     "simplebar-react": "^3.3.2",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "nestjs-api-axios": "file:./modules/nestjs-api-axios"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

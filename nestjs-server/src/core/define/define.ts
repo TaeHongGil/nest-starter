@@ -24,6 +24,7 @@ export enum LOGIN_STATE {
 }
 
 export enum ZONE_TYPE {
+  NONE = 'none',
   TEST = 'test',
   LOCAL = 'local',
   DEV = 'dev',

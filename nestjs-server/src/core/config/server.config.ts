@@ -76,19 +76,11 @@ class ServerConfig {
   }
 
   private static loadConfig(): void {
-    this.zone = process.env.zone;
-    this.server_type = process.env.server_type;
-
-    if (this.zone === ZONE_TYPE.TEST) {
-      this.server_type = SERVER_TYPE.NONE;
-    }
-
-    if (!this.zone || !this.server_type) {
-      return;
-    }
-
+    this.zone = process.env.zone ?? ZONE_TYPE.NONE;
+    this.server_type = process.env.server_type ?? SERVER_TYPE.NONE;
     this.paths.root = path.join(__dirname, '..', '..', '..', 'src');
     this.paths.env = path.join(this.paths.root, 'env');
+    if (this.zone === ZONE_TYPE.NONE) return;
 
     const excludes = ['name', 'prototype', 'length', 'zone', 'paths', 'server_type'];
     const configPath = path.join(this.paths.env, `${this.zone}-config.json`);

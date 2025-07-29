@@ -2,6 +2,7 @@ import { Body, Controller, Put, Session } from '@nestjs/common';
 import { SessionData } from '@root/core/auth/auth.schema';
 import ServerConfig from '@root/core/config/server.config';
 import { ROLE } from '@root/core/define/define';
+import CoreError from '@root/core/error/core.error';
 import { SlackService } from '@root/core/slack/slack.service';
 import { ReqUserUpdateRole } from '@root/server/api/dto/api.request.dto';
 import { ChatPostMessageArguments } from '@slack/web-api';
@@ -18,6 +19,10 @@ export class UserController {
    */
   @Put('/update/role')
   async requestRoleUpdate(@Session() session: SessionData, @Body() req: ReqUserUpdateRole): Promise<any> {
+    if (req.role == ROLE.ADMIN) {
+      throw CoreError.BAD_REQUEST;
+    }
+
     try {
       const messageData: ChatPostMessageArguments = {
         channel: ServerConfig.platform.slack.channel_id,

@@ -41,17 +41,13 @@ export class SwaggerService {
     }
     this.swaggerUtil.applyDecorators(this.metadata);
     const documentOptions = new DocumentBuilder().build();
-    const models = await Promise.all(this.metadata['@nestjs/swagger']['models'].map(async (model: any[]) => await model[0]));
-    const modelMetadata = models.reduce((acc: any[], obj: any) => {
-      obj = [...Object.values(obj)].filter((x) => typeof x == 'function');
-
-      return [...acc, ...obj];
-    }, []);
+    const models = await this.swaggerUtil.getModels(this.metadata);
 
     this.document = SwaggerModule.createDocument(app, documentOptions, {
-      extraModels: [...modelMetadata],
+      extraModels: [...models],
       autoTagControllers: true,
     });
+
     const apiPath = path.join(ServerConfig.paths.root, 'swagger', 'api-metadata.json');
     writeFileSync(apiPath, JSON.stringify(this.document, null, 2), 'utf-8');
 

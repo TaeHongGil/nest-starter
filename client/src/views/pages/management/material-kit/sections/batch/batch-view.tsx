@@ -12,14 +12,14 @@ import { DashboardContent } from '@root/views/pages/management/material-kit/layo
 
 import { DataTable } from '@root/views/pages/management/material-kit/components/datatable/components';
 import { Iconify } from '@root/views/pages/management/material-kit/components/iconify/iconify';
-import { ApiEndpoints } from '@root/views/pages/management/store/api.endpoints';
-import managementStore from '@root/views/pages/management/store/ManagementStore';
+import ServerApi from '@root/views/pages/management/store/server.api';
+import { CronJobData } from 'nestjs-api-axios';
 import { useEffect, useState } from 'react';
 
 // ----------------------------------------------------------------------
 
 export function BatchView() {
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState<CronJobData[]>([]);
   const REFRESH_TIME = 10;
   const [refreshRemainingTime, setRefreshRemainingTime] = useState<number>(REFRESH_TIME);
   const [editOpen, setEditOpen] = useState(false);
@@ -28,8 +28,8 @@ export function BatchView() {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const response = await managementStore.sendRequest(ApiEndpoints.GET_JOBS, undefined, undefined, false);
-      setJobs(response?.data?.jobs);
+      const response = await ServerApi.cron.cronControllerGetJobs();
+      setJobs(response.data.data?.jobs ?? []);
     };
 
     fetchJobs();
@@ -60,13 +60,13 @@ export function BatchView() {
   };
 
   const handleEditSave = async () => {
-    const response = await managementStore.sendRequest(ApiEndpoints.UPDATE_JOB, {
+    const response = await ServerApi.cron.cronControllerUpdateDataSyncCronJob({
       name: editJob.name,
       cronTime: editValues.cronTime,
       active: editValues.active,
     });
     setEditOpen(false);
-    if (response?.data?.jobs) setJobs(response.data.jobs);
+    if (response.data.data?.jobs) setJobs(response.data.data.jobs);
   };
 
   return (
@@ -113,7 +113,7 @@ export function BatchView() {
                 color="primary"
                 size="small"
                 onClick={async () => {
-                  await managementStore.sendRequest(ApiEndpoints.EXECUTE_JOBS, { name: row.name });
+                  await ServerApi.cron.cronControllerExecuteJob({ name: row.name });
                 }}
                 sx={{ mr: 1 }}
               >

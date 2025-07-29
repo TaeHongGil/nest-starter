@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ReadonlyVisitor } from '@nestjs/swagger/dist/plugin';
 
+import { AppController } from '@root/app.controller';
 import ServerConfig from '@root/core/config/server.config';
 import { CoreModule } from '@root/core/core.module';
 import ServerLogger from '@root/core/server-logger/server.logger';
@@ -22,6 +23,7 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault('UTC');
 
 @Module({
+  controllers: [AppController],
   imports: [CoreModule, ApiModule, WsModule, CustomSwaggerModule],
 })
 export class SwaggerAppModule {}
@@ -50,7 +52,7 @@ function generateSwaggerMetadata(): void {
   generator.generate({
     visitors: [
       new ReadonlyVisitor({
-        dtoFileNameSuffix: ['.schema.ts', '.dto.ts'],
+        dtoFileNameSuffix: ['.schema.ts', '.dto.ts', 'response.ts', 'define.ts'],
         controllerFileNameSuffix: ['.controller.ts', '.gateway.ts'],
         classValidatorShim: true,
         pathToSource: metadataFolder,

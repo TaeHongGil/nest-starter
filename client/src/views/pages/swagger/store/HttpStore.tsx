@@ -72,7 +72,7 @@ export class HttpStore {
     const pathInfo = SwaggerMetadata.getPath(this.pathInfo.method, this.pathInfo.path);
     if (!pathInfo) return { name: '', schema: undefined };
     const ref = CommonUtil.findAllValuesByKey(pathInfo.responses, '$ref');
-    const name = ref.length > 0 ? SwaggerMetadata.getSchemaName(ref[0]) : '';
+    const name = ref.length > 0 ? SwaggerMetadata.getSchemaName(ref[ref.length - 1]) : '';
     const schema = name ? SwaggerMetadata.getSchema(name) : undefined;
 
     return { name, schema };

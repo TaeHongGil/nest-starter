@@ -17,15 +17,6 @@
     "baseUrl": ".",
     "paths": {
       "@root/*": ["./src/*"],
-      "@assets/*": ["./src/assets/*"],
-      "@common/*": ["./src/common/*"],
-      "@components/*": ["./src/components/*"],
-      "@context/*": ["./src/context/*"],
-      "@routes/*": ["./src/routes/*"],
-      "@scss/*": ["./src/scss/*"],
-      "@types/*": ["./src/types/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@views/*": ["./src/views/*"]
     },
     "types": ["vite/client"]
   },
@@ -34,4 +25,9 @@
     "vite.config.mts",
     "eslint.config.js",
   ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "modules",
+  ]
 }

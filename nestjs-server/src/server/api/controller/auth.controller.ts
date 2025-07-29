@@ -5,9 +5,9 @@ import ServerConfig from '@root/core/config/server.config';
 import { NoAuthGuard } from '@root/core/decorator/common.decorator';
 import CoreError from '@root/core/error/core.error';
 import CryptUtil from '@root/core/utils/crypt.utils';
+import { ResTokenRefresh } from '@root/server/api/dto/api.response.dto';
+import { AccountService } from '@root/server/api/service/account/account.service';
 import { JwtPayload } from 'jsonwebtoken';
-import { ResTokenRefresh } from '../dto/api.response.dto';
-import { AccountService } from '../service/account/account.service';
 
 /**
  * 인증 컨트롤러

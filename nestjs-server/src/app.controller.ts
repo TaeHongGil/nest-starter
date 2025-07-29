@@ -1,9 +1,10 @@
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { All, Controller, Get, HttpCode, UseInterceptors } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { ResHealthCheck, ResPlatformInfo } from '@root/app.response.dto';
 import ServerConfig from '@root/core/config/server.config';
+import { NoAuthGuard, SkipResponseInterceptor } from '@root/core/decorator/common.decorator';
 import { GoogleSheetService } from '@root/core/google/google.sheet.service';
-import { NoAuthGuard, SkipResponseInterceptor } from './core/decorator/common.decorator';
 
 @Controller('')
 @SkipResponseInterceptor()
@@ -15,7 +16,7 @@ export class AppController {
    * 헬스체크
    */
   @Get('/')
-  healthCheck(): any {
+  healthCheck(): ResHealthCheck {
     return {
       message: 'Server is running',
     };
@@ -26,7 +27,7 @@ export class AppController {
    */
   @Get('/info')
   @UseInterceptors(CacheInterceptor)
-  getInfo(): any {
+  getPlatformInfo(): ResPlatformInfo {
     return {
       platform: {
         google: {

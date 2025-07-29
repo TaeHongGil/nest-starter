@@ -1,7 +1,8 @@
 import { Box, LinearProgress, linearProgressClasses } from '@mui/material';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ServerConfig from '@root/common/config/server.config';
-import managementStore from '@root/views/pages/management/store/ManagementStore';
+import managementStore, { PlatformInfo } from '@root/views/pages/management/store/ManagementStore';
+import ServerApi from '@root/views/pages/management/store/server.api';
 import { varAlpha } from 'minimal-shared/utils';
 import { observer } from 'mobx-react-lite';
 import { lazy, ReactElement, Suspense } from 'react';
@@ -43,10 +44,19 @@ const App = observer((): ReactElement => {
     } else if (import.meta.env.VITE_BUILD_TYPE === 'management') {
       const { routesSection } = await import('@root/views/pages/management/material-kit/routes/sections');
 
+      const platformInfo = await ServerApi.app.appControllerGetPlatformInfo();
+      const info: PlatformInfo = {
+        google: {
+          client_id: platformInfo.data.platform.google.client_id ?? '',
+          client_email: platformInfo.data.platform.google.client_email ?? '',
+        },
+      };
+      managementStore.setPlatformInfo(info);
+
       return (
         <GoogleOAuthProvider clientId={managementStore.platformInfo?.google?.client_id || ''}>
           <Routes>
-            {managementStore.platformInfo ? (
+            {managementStore.platformInfo?.google?.client_id ? (
               routesSection.map((route, index) => (
                 <Route key={index} path={route.path} element={route.element} caseSensitive={route.caseSensitive}>
                   {route.children?.map((child, childIndex) => (

@@ -7,20 +7,21 @@ import { Button } from '@mui/material';
 import MessageUtil from '@root/common/util/message.util';
 import { DataTable } from '@root/views/pages/management/material-kit/components/datatable/components';
 import { Iconify } from '@root/views/pages/management/material-kit/components/iconify';
-import { ApiEndpoints } from '@root/views/pages/management/store/api.endpoints';
-import managementStore, { ROLE } from '@root/views/pages/management/store/ManagementStore';
+import { ROLE } from '@root/views/pages/management/store/ManagementStore';
+import ServerApi from '@root/views/pages/management/store/server.api';
 import JSON5 from 'json5';
+import { ReqAdminUpdateRoleRoleEnum, ResUser } from 'nestjs-api-axios';
 import { useEffect, useState } from 'react';
 
 // ----------------------------------------------------------------------
 
 export function UserView() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<ResUser[]>([]);
   const [filter, setFilter] = useState<Record<string, any>>({ limit: '100', page: '1', filter: '{}' });
 
   const fetchUsers = async () => {
-    const response = await managementStore.sendRequest(ApiEndpoints.GET_USERS, filter, undefined, false);
-    setUsers(response?.data?.users);
+    const response = await ServerApi.admin.adminControllerGetUsers(filter.limit, filter.page, filter.filter);
+    setUsers(response.data.data?.users ?? []);
   };
 
   useEffect(() => {
@@ -67,7 +68,7 @@ export function UserView() {
             onClick: async (row, close) => {
               const result = await MessageUtil.formDialogAsync(`Update ${row.nickname}'s Role`, { role: row.role });
               if (result) {
-                await managementStore.sendRequest(ApiEndpoints.UPDATE_ROLE, { useridx: row.useridx, role: result.role });
+                await ServerApi.admin.adminControllerUpdateUserRole({ useridx: row.useridx, role: Number(result.role) as ReqAdminUpdateRoleRoleEnum });
                 fetchUsers();
               }
               close();

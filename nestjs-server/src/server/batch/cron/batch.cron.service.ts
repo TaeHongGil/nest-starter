@@ -25,7 +25,7 @@ export class BatchCronService implements OnModuleInit {
    * - 각 key별로 메서드를 메모리 맵에 저장하고, 등록된 job 정보가 있으면 반영한다.
    */
   async onModuleInit(): Promise<void> {
-    const providers = this.discoveryService.getProviders({});
+    const providers = this.discoveryService.getProviders();
     for (const wrapper of providers) {
       const instance = wrapper.instance;
       if (!instance) continue;

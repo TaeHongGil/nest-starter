@@ -15,8 +15,8 @@ import Typography from '@mui/material/Typography';
 import { usePathname, useRouter } from '@root/views/pages/management/material-kit/routes/hooks';
 
 import { GoogleLoginButton } from '@root/views/pages/management/material-kit/components/google-login/google-login';
-import { ApiEndpoints } from '@root/views/pages/management/store/api.endpoints';
 import managementStore, { ROLE } from '@root/views/pages/management/store/ManagementStore';
+import ServerApi from '@root/views/pages/management/store/server.api';
 
 // ----------------------------------------------------------------------
 
@@ -52,7 +52,8 @@ export const AccountPopover = observer(({ data = [], sx, ...other }: AccountPopo
 
   const handleLogout = async () => {
     setOpenPopover(null);
-    await managementStore.sendRequest(ApiEndpoints.LOGOUT);
+
+    await ServerApi.account.accountControllerLogout();
     managementStore.clearUser();
     console.log('Logged out');
   };

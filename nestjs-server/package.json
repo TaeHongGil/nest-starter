@@ -13,6 +13,7 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "swagger": "ts-node --transpile-only -r tsconfig-paths/register src/swagger/swagger-main.ts",
+    "swagger:axios": "openapi-generator-cli generate -i ./src/swagger/api-metadata.json -g typescript-axios -o ../client/modules/nestjs-api-axios --skip-validate-spec && cd ../client && pnpm install",
     "test": "node ./node_modules/jest/bin/jest.js --max-old-space-size=4096 --passWithNoTests --logHeapUsage",
     "test:all": "pnpm run test ./src"
   },
@@ -68,6 +69,7 @@
     "@eslint/js": "^9.31.0",
     "@nestjs/cli": "^11.0.7",
     "@nestjs/testing": "^11.1.5",
+    "@openapitools/openapi-generator-cli": "^2.21.4",
     "@swc/cli": "^0.7.8",
     "@swc/core": "^1.13.1",
     "@swc/jest": "^0.2.39",
