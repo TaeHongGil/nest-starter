@@ -34,6 +34,7 @@ export enum ZONE_TYPE {
 export enum SERVER_TYPE {
   NONE = 'none',
   API = 'api',
+  BATCH = 'batch',
   SOCKET = 'socket',
   MQ = 'mq',
 }

@@ -1,8 +1,15 @@
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { AppModule } from '@root/app.module';
 import ServerConfig from '@root/core/config/server.config';
-import { SERVER_TYPE, ZONE_TYPE } from '@root/core/define/define';
+import { SERVER_TYPE, ZONE_TYPE } from '@root/core/define/core.define';
+import { GlobalExceptionsFilter } from '@root/core/error/global.exception.filter';
+import { GlobalValidationPipe } from '@root/core/pipe/GlobalValidationPipe';
+import { RedisIoAdapter } from '@root/core/redis/redis.adapter';
+import ServerLogger from '@root/core/server-logger/server.logger';
+import { ResponseInterceptor } from '@root/server/api/common/interceptor/response.interceptor';
+import { HttpMiddleware } from '@root/server/api/common/middleware/http.middleware';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import dayjs from 'dayjs';
@@ -10,13 +17,6 @@ import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { json } from 'express';
 import helmet from 'helmet';
-import { AppModule } from './app.module';
-import { GlobalExceptionsFilter } from './core/error/global.exception.filter';
-import { GlobalValidationPipe } from './core/pipe/GlobalValidationPipe';
-import { RedisIoAdapter } from './core/redis/redis.adapter';
-import ServerLogger from './core/server-logger/server.logger';
-import { ResponseInterceptor } from './server/api/common/interceptor/response.interceptor';
-import { HttpMiddleware } from './server/api/common/middleware/http.middleware';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -32,11 +32,12 @@ async function bootstrap(): Promise<void> {
     });
 
     setHelmet(app);
-
     if (!server_type) {
       throw new Error('Invalid server type');
     }
     if (server_type == SERVER_TYPE.API) {
+      await setAPIServer(app);
+    } else if (server_type == SERVER_TYPE.BATCH) {
       await setAPIServer(app);
     } else if (server_type == SERVER_TYPE.SOCKET) {
       await setWsServer(app);

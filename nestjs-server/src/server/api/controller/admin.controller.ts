@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Put, Query, Session } from '@nestjs/common';
 import { SessionData } from '@root/core/auth/auth.schema';
-import { RoleGuard } from '@root/core/decorator/common.decorator';
-import { ROLE } from '@root/core/define/define';
+import { RoleGuard } from '@root/core/decorator/core.decorator';
+import { ROLE } from '@root/core/define/core.define';
 import CoreError from '@root/core/error/core.error';
 import { AccountService } from '@root/server/api/service/account/account.service';
 import { ReqAdminUpdateRole, ReqGetUsers } from '../dto/api.request.dto';

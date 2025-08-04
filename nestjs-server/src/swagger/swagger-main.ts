@@ -9,6 +9,7 @@ import ServerConfig from '@root/core/config/server.config';
 import { CoreModule } from '@root/core/core.module';
 import ServerLogger from '@root/core/server-logger/server.logger';
 import { ApiModule } from '@root/server/api/api.module';
+import { BatchModule } from '@root/server/batch/batch.module';
 import { WsModule } from '@root/server/ws/ws.module';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
@@ -24,7 +25,7 @@ dayjs.tz.setDefault('UTC');
 
 @Module({
   controllers: [AppController],
-  imports: [CoreModule, ApiModule, WsModule, CustomSwaggerModule],
+  imports: [CoreModule, ApiModule, BatchModule, WsModule, CustomSwaggerModule],
 })
 export class SwaggerAppModule {}
 

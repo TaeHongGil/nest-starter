@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "spaces": 2,
+  "generator-cli": {
+    "version": "7.14.0",
+    "generators": {
+      "nestjs-api-axios": {
+        "generatorName": "typescript-axios",
+        "inputSpec": "./src/swagger/api-metadata.json",
+        "output": "../client/modules/nestjs-api-axios",
+        "templateDir": "./openapi-template",
+        "additionalProperties": {
+          "supportsES6": true,
+          "withInterfaces": true,
+          "modelPropertyNaming": "camelCase",
+          "npmName": "nestjs-api-axios",
+          "npmVersion": "1.0.0"
+        },
+        "skipValidateSpec": true
+      }
+    }
+  }
+}

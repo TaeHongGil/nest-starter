@@ -4,6 +4,7 @@ import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
 import promise from 'eslint-plugin-promise';
+import unusedImports from 'eslint-plugin-unused-imports';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +25,7 @@ export default defineConfig([
       '@typescript-eslint': typescriptEslint,
       prettier,
       promise,
+      'unused-imports': unusedImports,
     },
     languageOptions: {
       parser: tsParser,
@@ -34,15 +36,19 @@ export default defineConfig([
       },
     },
     rules: {
+      'unused-imports/no-unused-imports': 'error',
+      'no-trailing-spaces': ['error'],
       '@typescript-eslint/no-namespace': 'off',
       'prettier/prettier': [
         'error',
         {
-          printWidth: 200,
-          singleQuote: true,
-          endOfLine: 'auto',
+          semi: true,
           trailingComma: 'all',
+          singleQuote: true,
+          arrowParens: 'always',
           tabWidth: 2,
+          printWidth: 200,
+          endOfLine: 'auto',
         },
       ],
       'no-var': 'error',

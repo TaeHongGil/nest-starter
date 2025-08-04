@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { LOGIN_STATE } from '@root/core/define/define';
+import { LOGIN_STATE } from '@root/core/define/core.define';
 import { RedisService } from '@root/core/redis/redis.service';
 import { BeanUtils } from '@root/core/utils/bean.utils';
 import { ApiRedisKeys } from '@root/server/api/define/api.redis.key';

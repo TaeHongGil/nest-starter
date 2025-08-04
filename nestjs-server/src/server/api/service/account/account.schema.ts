@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ROLE } from '@root/core/define/define';
+import { ROLE } from '@root/core/define/core.define';
 
 @Schema({
   collection: 'account',

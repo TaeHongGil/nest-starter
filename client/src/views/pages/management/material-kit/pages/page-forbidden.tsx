@@ -2,15 +2,14 @@ import { CONFIG } from '@root/views/pages/management/material-kit/config-global'
 
 import { Box, Button, Typography } from '@mui/material';
 import { ROLE } from '@root/views/pages/management/store/ManagementStore';
-import ServerApi from '@root/views/pages/management/store/server.api';
-import { ReqUserUpdateRoleRoleEnum } from 'nestjs-api-axios';
+import ServerApi from '@root/common/util/server.api';
 
 // ----------------------------------------------------------------------
 
 export default function Page403({ requiredRole }: { requiredRole?: ROLE }) {
   const handleRequestAccess = async () => {
-    await ServerApi.user.userControllerRequestRoleUpdate({
-      role: Number(requiredRole) as ReqUserUpdateRoleRoleEnum,
+    await ServerApi.User.userControllerRequestRoleUpdate({
+      role: Number(requiredRole),
     });
   };
 

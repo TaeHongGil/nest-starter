@@ -2,7 +2,7 @@ import { Controller, Post, Session } from '@nestjs/common';
 import { SessionData, SessionUser } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
-import { NoAuthGuard } from '@root/core/decorator/common.decorator';
+import { NoAuthGuard } from '@root/core/decorator/core.decorator';
 import CoreError from '@root/core/error/core.error';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import { ResTokenRefresh } from '@root/server/api/dto/api.response.dto';

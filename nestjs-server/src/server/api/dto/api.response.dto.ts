@@ -1,5 +1,5 @@
 import { JwtInfo } from '@root/core/auth/auth.schema';
-import { ROLE } from '@root/core/define/define';
+import { ROLE } from '@root/core/define/core.define';
 
 /**
  * 로그인

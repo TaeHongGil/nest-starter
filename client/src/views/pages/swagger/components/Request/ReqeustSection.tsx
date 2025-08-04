@@ -14,10 +14,11 @@ import SchemaTable from '../SchemaTable';
 import QueryTable from './QueryTable';
 
 const ReqeustSection = observer(() => {
-  const [requestActiveTab, setRequestActiveTab] = useState<string>('1');
+  const [requestActiveTab, setRequestActiveTab] = useState<string>('0');
   const httpSotre = protocolStore.httpStore;
   const path = httpSotre.pathInfo.path;
   const method = httpSotre.pathInfo.method;
+  const pathInfo = SwaggerMetadata.getPath(method, path);
   const isGet = method === METHOD_TYPE.GET;
   const requestSchema = httpSotre.getRequestSchema();
 
@@ -91,28 +92,62 @@ const ReqeustSection = observer(() => {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <TabContext value={requestActiveTab}>
             <TabList onChange={handleChange} textColor="inherit">
-              <Tab label="Schema" value="0" />
-              {isGet ? <Tab label="Query" value="1" /> : <Tab label="Request Body" value="1" />}
+              <Tab
+                label={
+                  <span>
+                    <span>Schema</span>
+                    {requestSchema ? <span style={{ color: 'red' }}>*</span> : null}
+                  </span>
+                }
+                value="0"
+              />
+              <Tab
+                label={
+                  <span>
+                    <span>Query</span>
+                    {pathInfo?.parameters && pathInfo?.parameters.length > 0 ? <span style={{ color: 'red' }}>*</span> : null}
+                  </span>
+                }
+                value="1"
+              />
+              <Tab
+                label={
+                  <span>
+                    <span>Body</span>
+                    {pathInfo?.requestBody ? <span style={{ color: 'red' }}>*</span> : null}
+                  </span>
+                }
+                value="2"
+              />
             </TabList>
             <div style={{ flex: 1, overflow: 'hidden' }}>
               <TabPanel value="0" classes={{ root: 'swagger-panel' }}>
-                {isGet ? (
+                {requestSchema ? (
+                  ((): ReactElement => <SchemaTable name={requestSchema?.name ?? ''} schema={requestSchema?.schema} />)()
+                ) : (
                   <Typography variant="subtitle1" padding={2}>
                     not found data
                   </Typography>
-                ) : (
-                  ((): ReactElement => <SchemaTable name={requestSchema?.name ?? ''} schema={requestSchema?.schema} />)()
                 )}
               </TabPanel>
-              {isGet ? (
-                <TabPanel value="1" classes={{ root: 'swagger-panel' }}>
+              <TabPanel value="1" classes={{ root: 'swagger-panel' }}>
+                {pathInfo?.parameters && pathInfo?.parameters.length > 0 ? (
                   <QueryTable />
-                </TabPanel>
-              ) : (
-                <TabPanel value="1" classes={{ root: 'swagger-panel cusror-text' }}>
+                ) : (
+                  <Typography variant="subtitle1" padding={2}>
+                    not found data
+                  </Typography>
+                )}
+              </TabPanel>
+              <TabPanel value="2" classes={{ root: 'swagger-panel cusror-text' }}>
+                {pathInfo?.requestBody ? (
                   <ReactCodeMirror value={httpSotre.requestBody} extensions={[json5(), EditorView.lineWrapping, linter(json5ParseLinter())]} onChange={(value) => httpSotre.setRequestBody(value)} />
-                </TabPanel>
-              )}
+                ) : (
+                  <Typography variant="subtitle1" padding={2}>
+                    not found data
+                  </Typography>
+                )}
+              </TabPanel>
             </div>
           </TabContext>
         </div>

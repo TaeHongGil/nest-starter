@@ -12,7 +12,7 @@ import { DashboardContent } from '@root/views/pages/management/material-kit/layo
 
 import { DataTable } from '@root/views/pages/management/material-kit/components/datatable/components';
 import { Iconify } from '@root/views/pages/management/material-kit/components/iconify/iconify';
-import ServerApi from '@root/views/pages/management/store/server.api';
+import ServerApi from '@root/common/util/server.api';
 import { CronJobData } from 'nestjs-api-axios';
 import { useEffect, useState } from 'react';
 
@@ -28,7 +28,7 @@ export function BatchView() {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const response = await ServerApi.cron.cronControllerGetJobs();
+      const response = await ServerApi.Cron.cronControllerGetJobs();
       setJobs(response.data.data?.jobs ?? []);
     };
 
@@ -60,7 +60,7 @@ export function BatchView() {
   };
 
   const handleEditSave = async () => {
-    const response = await ServerApi.cron.cronControllerUpdateDataSyncCronJob({
+    const response = await ServerApi.Cron.cronControllerUpdateDataSyncCronJob({
       name: editJob.name,
       cronTime: editValues.cronTime,
       active: editValues.active,
@@ -113,7 +113,7 @@ export function BatchView() {
                 color="primary"
                 size="small"
                 onClick={async () => {
-                  await ServerApi.cron.cronControllerExecuteJob({ name: row.name });
+                  await ServerApi.Cron.cronControllerExecuteJob({ name: row.name });
                 }}
                 sx={{ mr: 1 }}
               >

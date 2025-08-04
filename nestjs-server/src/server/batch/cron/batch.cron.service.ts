@@ -1,11 +1,13 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { CronExpression, SchedulerRegistry } from '@nestjs/schedule';
-import { CRON_KEY, CustomCronMetadata } from '@root/core/decorator/common.decorator';
+import ServerConfig from '@root/core/config/server.config';
+import { SERVER_TYPE } from '@root/core/define/core.define';
 import ServerLogger from '@root/core/server-logger/server.logger';
 import ObjectUtil from '@root/core/utils/obj.utils';
 import { BatchCronRepository } from '@root/server/batch/cron/batch.cron.repository';
 import { DBCronJobInfo } from '@root/server/batch/cron/batch.cron.schema';
+import { CUSTOM_CRON_KEY, ICustomCronMetadata } from '@root/server/batch/decorator/batch.decorator';
 import { CronJobData } from '@root/server/batch/dto/batch.response.dto';
 import BatchError from '@root/server/batch/error/batch.error';
 import { CronJob } from 'cron';
@@ -25,11 +27,15 @@ export class BatchCronService implements OnModuleInit {
    * - 각 key별로 메서드를 메모리 맵에 저장하고, 등록된 job 정보가 있으면 반영한다.
    */
   async onModuleInit(): Promise<void> {
+    if (ServerConfig.server_type !== SERVER_TYPE.BATCH) {
+      return;
+    }
+
     const providers = this.discoveryService.getProviders();
     for (const wrapper of providers) {
       const instance = wrapper.instance;
       if (!instance) continue;
-      const cronMeta: CustomCronMetadata[] = Reflect.getMetadata(CRON_KEY, instance.constructor) || [];
+      const cronMeta: ICustomCronMetadata[] = Reflect.getMetadata(CUSTOM_CRON_KEY, instance.constructor) || [];
       for (const { name, method, cronTime } of cronMeta) {
         const cronMethod = instance[method];
         if (typeof cronMethod === 'function') {
@@ -83,7 +89,7 @@ export class BatchCronService implements OnModuleInit {
    * 크론 job을 동적으로 수정한다.
    */
   async updateJobAsync(name: string, cronTime: string, active: boolean): Promise<void> {
-    const cronMethod = this.cronMethodMap.get(name);
+    const cronMethod = this.getCronMethodByKey(name);
     if (!cronMethod) {
       throw BatchError.CRON_UPDATE_FAILED(`invalid name: ${name}`);
     }

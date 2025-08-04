@@ -8,8 +8,17 @@
     },
     {
       "path": ".github"
-    },
+    }
   ],
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "spmeesseman.vscode-taskexplorer",
+      "alefragnani.Bookmarks",
+      "usernamehw.errorlens"
+    ]
+  },
   "settings": {
     "window.title": "nest-workspace",
     "workbench.colorCustomizations": {
@@ -19,15 +28,20 @@
       "titleBar.inactiveForeground": "#FFFFFF"
     },
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "always",
-      "source.organizeImports": "always"
+      "source.fixAll.eslint": "always"
     },
     "typescript.preferences.importModuleSpecifier": "non-relative",
-    "typescript.preferences.quoteStyle": "single",
     "editor.formatOnSave": true,
     "search.exclude": {
       "**/.git": true,
       "**/node_modules": true,
+      "**/modules": true,
+      "**/dist": true
+    },
+    "files.watcherExclude": {
+      "**/.git": true,
+      "**/node_modules": true,
+      "**/modules": true,
       "**/dist": true
     },
     "editor.fontFamily": "D2Coding, Consolas, 'Courier New', monospace",
@@ -35,9 +49,8 @@
     "editor.tabSize": 2,
     "editor.insertSpaces": true,
     "editor.detectIndentation": false,
-    "files.trimTrailingWhitespace": true,
-    "editor.rulers": [
-      250
-    ],
+    "editor.rulers": [200],
+    "bookmarks.saveBookmarksInProject": true,
+    "bookmarks.sideBar.expanded": true
   }
 }

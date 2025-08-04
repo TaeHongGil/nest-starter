@@ -6,6 +6,7 @@ import { observer } from 'mobx-react';
 import React from 'react';
 import { protocolStore } from '../store/ProtocolStore';
 import SwaggerMetadata from '../store/SwaggerMetadata';
+import ServerApi from '@root/common/util/server.api';
 
 const ServerSelect: React.FC<{ open: boolean; onClose: () => void }> = observer(({ open, onClose }) => {
   const [selectedServer, setSelectedServer] = React.useState<string>(protocolStore.activeServer);
@@ -31,6 +32,11 @@ const ServerSelect: React.FC<{ open: boolean; onClose: () => void }> = observer(
                 onClick={async () => {
                   setSelectedServer(server);
                   await protocolStore.setActiveServer(server);
+                  ServerConfig.api_url = SwaggerMetadata.servers[server].api;
+                  ServerConfig.batch_url = SwaggerMetadata.servers[server].batch;
+                  ServerConfig.socket_url = SwaggerMetadata.servers[server].socket;
+                  ServerConfig.mq_url = SwaggerMetadata.servers[server].mq;
+                  ServerApi.init();
                   onClose();
                 }}
                 selected={selectedServer === server}
@@ -43,14 +49,12 @@ const ServerSelect: React.FC<{ open: boolean; onClose: () => void }> = observer(
                   secondary={
                     <table>
                       <tbody>
-                        <tr>
-                          <td style={{ textAlign: 'right' }}>API</td>
-                          <td>{url.api}</td>
-                        </tr>
-                        <tr>
-                          <td style={{ textAlign: 'right' }}>Socket</td>
-                          <td>{url.socket}</td>
-                        </tr>
+                        {Object.entries(url).map(([key, value]) => (
+                          <tr key={key}>
+                            <td style={{ textAlign: 'right' }}>{key.toUpperCase()}</td>
+                            <td>{value}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   }

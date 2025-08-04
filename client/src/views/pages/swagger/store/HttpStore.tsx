@@ -1,6 +1,5 @@
 import { METHOD_TYPE } from '@root/common/define/common.define';
 import CommonUtil from '@root/common/util/common.util';
-import HttpUtil from '@root/common/util/http.util';
 import MessageUtil from '@root/common/util/message.util';
 import StorageUtil from '@root/common/util/storage.util';
 import dayjs from 'dayjs';
@@ -8,6 +7,9 @@ import JSON5 from 'json5';
 import { makeAutoObservable, runInAction } from 'mobx';
 import { protocolStore } from './ProtocolStore';
 import SwaggerMetadata, { DefaultSchema, PathInfo } from './SwaggerMetadata';
+import qs from 'qs';
+import ServerApi from '@root/common/util/server.api';
+import { camelCase } from 'es-toolkit';
 
 export type HttpHistoryMap = Record<string, HttpHistoryEntry[]>;
 
@@ -15,7 +17,7 @@ export type HttpApiMap = Record<string, HttpApiData>;
 
 export interface HttpApiData {
   request: {
-    query: Record<string, any>;
+    params: HttpRequestParams;
     body: string;
   };
   response: {
@@ -29,11 +31,16 @@ export interface HttpHistoryEntry {
   data: HttpApiData;
 }
 
+export interface HttpRequestParams {
+  path: Record<string, number | string>;
+  query: Record<string, any>;
+}
+
 export class HttpStore {
   apiMap: HttpApiMap = {};
   historyMap: HttpHistoryMap = {};
   requestBody: string = '';
-  requestQuery: Record<string, any> = {};
+  requestParams: HttpRequestParams = { path: {}, query: {} };
   pathInfo: PathInfo = { method: METHOD_TYPE.GET, path: '' };
   refreshTrigger = 0;
 
@@ -52,7 +59,7 @@ export class HttpStore {
     });
     const data = this.getCurrentApi();
     this.setRequestBody(data.request.body);
-    this.setRequestQuery(data.request.query);
+    this.setRequestParams(data.request.params);
     this.triggerRefresh();
   }
 
@@ -81,7 +88,7 @@ export class HttpStore {
   getCurrentApi(): HttpApiData {
     return (
       this.apiMap[this.getApiKey()] ?? {
-        request: { body: SwaggerMetadata.toSchemaString(this.getRequestSchema()?.schema), query: {} },
+        request: { body: SwaggerMetadata.toSchemaString(this.getRequestSchema()?.schema), params: { path: {}, query: {} } },
         response: { headers: '', body: '' },
       }
     );
@@ -97,9 +104,9 @@ export class HttpStore {
     });
   }
 
-  setRequestQuery(params: Record<string, any>): void {
+  setRequestParams(params: HttpRequestParams): void {
     runInAction(() => {
-      this.requestQuery = params;
+      this.requestParams = params;
     });
   }
 
@@ -132,7 +139,7 @@ export class HttpStore {
     });
     const data = this.getCurrentApi();
     this.setRequestBody(data.request.body);
-    this.setRequestQuery(data.request.query);
+    this.setRequestParams(data.request.params);
     await StorageUtil.saveIndexDB('http', 'path', path);
   }
 
@@ -140,7 +147,7 @@ export class HttpStore {
     delete this.apiMap[this.getApiKey()];
     const data = this.getCurrentApi();
     this.setRequestBody(data.request.body);
-    this.setRequestQuery(data.request.query);
+    this.setRequestParams(data.request.params);
     await StorageUtil.saveIndexDB('http', 'api', this.apiMap);
   }
 
@@ -150,24 +157,52 @@ export class HttpStore {
 
       return;
     }
+    const info = SwaggerMetadata.getPath(this.pathInfo.method, this.pathInfo.path);
+    const id = camelCase(info?.operationId);
+
     const method = this.pathInfo.method;
     const path = this.pathInfo.path;
-    let params;
+    let requestBody;
     try {
-      params = method === METHOD_TYPE.GET ? this.requestQuery : JSON5.parse(this.requestBody);
+      requestBody = JSON5.parse(this.requestBody);
     } catch (error: any) {
       MessageUtil.error(`Invalid JSON format: ${error.message}`);
 
       return;
     }
     try {
-      const baseUrl = SwaggerMetadata.servers[protocolStore.activeServer].api ?? '';
-      const result = await HttpUtil.request(baseUrl, method, path, params, protocolStore.globalHeader);
+      const category = info.tags[0] as keyof typeof ServerApi;
+      const apiCategory = ServerApi[category] as Record<string, any>;
+      if (!apiCategory) {
+        MessageUtil.error(`API category ${category} not found.`);
+
+        return;
+      }
+      ServerApi.headers = protocolStore.globalHeader;
+      const params = info.parameters.map((param: any) => {
+        if (param.in == 'path') {
+          return this.requestParams.path[param.name];
+        } else if (param.in == 'query') {
+          return this.requestParams.query[param.name];
+        }
+
+        return undefined;
+      });
+
+      if (info.requestBody) {
+        params.push(requestBody);
+      }
+      const result = await apiCategory?.[id]?.(...params);
+      if (!result) {
+        MessageUtil.error(`API method ${id} not found in category ${category}.`);
+
+        return;
+      }
+
       const data: HttpApiData = {
-        request: { body: SwaggerMetadata.formatJson(this.requestBody, this.getRequestSchema()?.schema), query: this.requestQuery },
+        request: { body: SwaggerMetadata.formatJson(this.requestBody, this.getRequestSchema()?.schema), params: this.requestParams },
         response: { headers: JSON.stringify(result.headers, null, 2), body: JSON.stringify(result.data, null, 2) },
       };
-      MessageUtil.success(`${path} Done`);
       this.setRequestBody(data.request.body);
       await this.addHistory(data);
       await this.setApiData(data);
@@ -176,5 +211,16 @@ export class HttpStore {
     } catch (error: any) {
       MessageUtil.error(`Request failed: ${error.message}`);
     }
+  }
+
+  previewUrl(): string {
+    const baseurl = SwaggerMetadata.servers[protocolStore.activeServer].api;
+    let url = this.pathInfo.path;
+    Object.keys(this.requestParams.path).forEach((key) => {
+      url = url.replace(`{${key}}`, encodeURIComponent(String(this.requestParams.path[key])));
+    });
+    const queryString = qs.stringify(this.requestParams.query || {}, { arrayFormat: 'repeat' });
+
+    return `${baseurl}${url}${queryString ? `?${queryString}` : ''}`;
   }
 }

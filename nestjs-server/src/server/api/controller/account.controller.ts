@@ -2,8 +2,8 @@ import { Body, Controller, Delete, Get, Post, Query, Session } from '@nestjs/com
 import { SessionData } from '@root/core/auth/auth.schema';
 import { AuthService } from '@root/core/auth/auth.service';
 import ServerConfig from '@root/core/config/server.config';
-import { NoAuthGuard } from '@root/core/decorator/common.decorator';
-import { PLATFORM } from '@root/core/define/define';
+import { NoAuthGuard } from '@root/core/decorator/core.decorator';
+import { PLATFORM } from '@root/core/define/core.define';
 import CoreError from '@root/core/error/core.error';
 import ApiError from '@root/server/api/error/api.error';
 import { ReqCheckNickname, ReqGuestLogin } from '../dto/api.request.dto';

@@ -2,7 +2,7 @@ import { Box, LinearProgress, linearProgressClasses } from '@mui/material';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ServerConfig from '@root/common/config/server.config';
 import managementStore, { PlatformInfo } from '@root/views/pages/management/store/ManagementStore';
-import ServerApi from '@root/views/pages/management/store/server.api';
+import ServerApi from '@root/common/util/server.api';
 import { varAlpha } from 'minimal-shared/utils';
 import { observer } from 'mobx-react-lite';
 import { lazy, ReactElement, Suspense } from 'react';
@@ -44,7 +44,7 @@ const App = observer((): ReactElement => {
     } else if (import.meta.env.VITE_BUILD_TYPE === 'management') {
       const { routesSection } = await import('@root/views/pages/management/material-kit/routes/sections');
 
-      const platformInfo = await ServerApi.app.appControllerGetPlatformInfo();
+      const platformInfo = await ServerApi.App.appControllerGetPlatformInfo();
       const info: PlatformInfo = {
         google: {
           client_id: platformInfo.data.platform.google.client_id ?? '',

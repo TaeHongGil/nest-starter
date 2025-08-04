@@ -77,7 +77,7 @@ export class GoogleSheetService {
   async getSheetDataByUrl(url: string, sheetName: string, range: string): Promise<any> {
     const spreadsheetId = this.extractFileIdFromUrl(url);
 
-    return this.getSheetDataById(spreadsheetId, sheetName, range);
+    return await this.getSheetDataById(spreadsheetId, sheetName, range);
   }
 
   /**

@@ -1,4 +1,4 @@
-import { ROLE } from '@root/core/define/define';
+import { ROLE } from '@root/core/define/core.define';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsNumber, IsOptional, IsString, Length } from 'class-validator';
 

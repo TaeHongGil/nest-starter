@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { SessionUser } from '@root/core/auth/auth.schema';
 import ServerConfig from '@root/core/config/server.config';
-import { IS_PUBLIC_KEY, IS_ROLE_KEY } from '@root/core/decorator/common.decorator';
+import { IS_PUBLIC_KEY, IS_ROLE_KEY } from '@root/core/decorator/core.decorator';
 import CoreError from '@root/core/error/core.error';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import { JwtPayload } from 'jsonwebtoken';

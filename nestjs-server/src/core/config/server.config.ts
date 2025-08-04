@@ -1,5 +1,5 @@
 import { ServeStaticModuleOptions } from '@nestjs/serve-static';
-import { SERVER_TYPE, ZONE_TYPE } from '@root/core/define/define';
+import { SERVER_TYPE, ZONE_TYPE } from '@root/core/define/core.define';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -23,8 +23,9 @@ class ServerConfig {
 
   static server_info: ServerInfo = {
     api: { port: 20000 },
-    socket: { port: 30000 },
-    mq: { port: 40000 },
+    batch: { port: 30000 },
+    socket: { port: 40000 },
+    mq: { port: 50000 },
   };
 
   static swagger: SwaggerConfig = {
@@ -121,6 +122,9 @@ export interface ServerInfo {
   api: {
     port: number;
   };
+  batch: {
+    port: number;
+  };
   socket: {
     port: number;
   };
@@ -132,6 +136,8 @@ export interface ServerInfo {
 export interface ServerUrl {
   api: string;
   socket: string;
+  batch: string;
+  mq: string;
 }
 
 /**

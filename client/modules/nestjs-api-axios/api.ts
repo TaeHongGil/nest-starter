@@ -410,13 +410,12 @@ export interface DBAccount {
     'updated_at'?: string;
 }
 
-export const DBAccountRoleEnum = {
-    ADMIN: 100,
-    USER: 1,
-    GUEST: 0
-} as const;
+export enum DBAccountRoleEnum {
+    ADMIN = 100,
+    USER = 1,
+    GUEST = 0
+}
 
-export type DBAccountRoleEnum = typeof DBAccountRoleEnum[keyof typeof DBAccountRoleEnum];
 
 /**
  * 
@@ -520,13 +519,12 @@ export interface ReqAdminUpdateRole {
     'role': ReqAdminUpdateRoleRoleEnum;
 }
 
-export const ReqAdminUpdateRoleRoleEnum = {
-    ADMIN: 100,
-    USER: 1,
-    GUEST: 0
-} as const;
+export enum ReqAdminUpdateRoleRoleEnum {
+    ADMIN = 100,
+    USER = 1,
+    GUEST = 0
+}
 
-export type ReqAdminUpdateRoleRoleEnum = typeof ReqAdminUpdateRoleRoleEnum[keyof typeof ReqAdminUpdateRoleRoleEnum];
 
 /**
  * 
@@ -682,13 +680,12 @@ export interface ReqUserUpdateRole {
     'role': ReqUserUpdateRoleRoleEnum;
 }
 
-export const ReqUserUpdateRoleRoleEnum = {
-    ADMIN: 100,
-    USER: 1,
-    GUEST: 0
-} as const;
+export enum ReqUserUpdateRoleRoleEnum {
+    ADMIN = 100,
+    USER = 1,
+    GUEST = 0
+}
 
-export type ReqUserUpdateRoleRoleEnum = typeof ReqUserUpdateRoleRoleEnum[keyof typeof ReqUserUpdateRoleRoleEnum];
 
 /**
  * 
@@ -838,13 +835,12 @@ export interface ResLogin {
     'profile'?: object;
 }
 
-export const ResLoginRoleEnum = {
-    ADMIN: 100,
-    USER: 1,
-    GUEST: 0
-} as const;
+export enum ResLoginRoleEnum {
+    ADMIN = 100,
+    USER = 1,
+    GUEST = 0
+}
 
-export type ResLoginRoleEnum = typeof ResLoginRoleEnum[keyof typeof ResLoginRoleEnum];
 
 /**
  * 
@@ -962,13 +958,12 @@ export interface ResUser {
     'created_at': string;
 }
 
-export const ResUserRoleEnum = {
-    ADMIN: 100,
-    USER: 1,
-    GUEST: 0
-} as const;
+export enum ResUserRoleEnum {
+    ADMIN = 100,
+    USER = 1,
+    GUEST = 0
+}
 
-export type ResUserRoleEnum = typeof ResUserRoleEnum[keyof typeof ResUserRoleEnum];
 
 /**
  * 
@@ -996,13 +991,12 @@ export interface SessionUser {
     'role': SessionUserRoleEnum;
 }
 
-export const SessionUserRoleEnum = {
-    ADMIN: 100,
-    USER: 1,
-    GUEST: 0
-} as const;
+export enum SessionUserRoleEnum {
+    ADMIN = 100,
+    USER = 1,
+    GUEST = 0
+}
 
-export type SessionUserRoleEnum = typeof SessionUserRoleEnum[keyof typeof SessionUserRoleEnum];
 
 
 /**
@@ -1307,12 +1301,67 @@ export const AccountApiFactory = function (configuration?: Configuration, basePa
 };
 
 /**
+ * AccountApi - interface
+ * @export
+ * @interface AccountApi
+ */
+export interface AccountApiInterface {
+    /**
+     * 닉네임 중복 검사
+     * @summary 
+     * @param {string} nickname 닉네임
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApiInterface
+     */
+    accountControllerCheckNickname(nickname: string, options?: RawAxiosRequestConfig): AxiosPromise<AccountControllerCheckNickname200Response>;
+
+    /**
+     * 계정삭제
+     * @summary 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApiInterface
+     */
+    accountControllerDeleteAccount(options?: RawAxiosRequestConfig): AxiosPromise<AccountControllerLogout200Response>;
+
+    /**
+     * 계정 정보
+     * @summary 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApiInterface
+     */
+    accountControllerGetAccount(options?: RawAxiosRequestConfig): AxiosPromise<AccountControllerGetAccount200Response>;
+
+    /**
+     * 로그인
+     * @summary 
+     * @param {ReqGuestLogin} reqGuestLogin 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApiInterface
+     */
+    accountControllerLogin(reqGuestLogin: ReqGuestLogin, options?: RawAxiosRequestConfig): AxiosPromise<AccountControllerLogin200Response>;
+
+    /**
+     * 로그아웃
+     * @summary 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApiInterface
+     */
+    accountControllerLogout(options?: RawAxiosRequestConfig): AxiosPromise<AccountControllerLogout200Response>;
+
+}
+
+/**
  * AccountApi - object-oriented interface
  * @export
  * @class AccountApi
  * @extends {BaseAPI}
  */
-export class AccountApi extends BaseAPI {
+export class AccountApi extends BaseAPI implements AccountApiInterface {
     /**
      * 닉네임 중복 검사
      * @summary 
@@ -1538,12 +1587,42 @@ export const AdminApiFactory = function (configuration?: Configuration, basePath
 };
 
 /**
+ * AdminApi - interface
+ * @export
+ * @interface AdminApi
+ */
+export interface AdminApiInterface {
+    /**
+     * 유저 목록 조회
+     * @summary 
+     * @param {number} limit 1 페이지 내 사용자 수
+     * @param {number} page 현재 페이지
+     * @param {string} [filter] 필터링 조건 (JSON 문자열) 예: {\&quot;role\&quot;: 100}
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminApiInterface
+     */
+    adminControllerGetUsers(limit: number, page: number, filter?: string, options?: RawAxiosRequestConfig): AxiosPromise<AdminControllerGetUsers200Response>;
+
+    /**
+     * 유저 역할 업데이트
+     * @summary 
+     * @param {ReqAdminUpdateRole} reqAdminUpdateRole 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminApiInterface
+     */
+    adminControllerUpdateUserRole(reqAdminUpdateRole: ReqAdminUpdateRole, options?: RawAxiosRequestConfig): AxiosPromise<AdminControllerUpdateUserRole200Response>;
+
+}
+
+/**
  * AdminApi - object-oriented interface
  * @export
  * @class AdminApi
  * @extends {BaseAPI}
  */
-export class AdminApi extends BaseAPI {
+export class AdminApi extends BaseAPI implements AdminApiInterface {
     /**
      * 유저 목록 조회
      * @summary 
@@ -1705,12 +1784,38 @@ export const AppApiFactory = function (configuration?: Configuration, basePath?:
 };
 
 /**
+ * AppApi - interface
+ * @export
+ * @interface AppApi
+ */
+export interface AppApiInterface {
+    /**
+     * 서버 정보
+     * @summary 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AppApiInterface
+     */
+    appControllerGetPlatformInfo(options?: RawAxiosRequestConfig): AxiosPromise<ResPlatformInfo>;
+
+    /**
+     * 헬스체크
+     * @summary 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AppApiInterface
+     */
+    appControllerHealthCheck(options?: RawAxiosRequestConfig): AxiosPromise<ResHealthCheck>;
+
+}
+
+/**
  * AppApi - object-oriented interface
  * @export
  * @class AppApi
  * @extends {BaseAPI}
  */
-export class AppApi extends BaseAPI {
+export class AppApi extends BaseAPI implements AppApiInterface {
     /**
      * 서버 정보
      * @summary 
@@ -1817,12 +1922,29 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
 };
 
 /**
+ * AuthApi - interface
+ * @export
+ * @interface AuthApi
+ */
+export interface AuthApiInterface {
+    /**
+     * JWT 토큰 Refresh
+     * @summary 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApiInterface
+     */
+    authControllerTokenRefresh(options?: RawAxiosRequestConfig): AxiosPromise<AuthControllerTokenRefresh200Response>;
+
+}
+
+/**
  * AuthApi - object-oriented interface
  * @export
  * @class AuthApi
  * @extends {BaseAPI}
  */
-export class AuthApi extends BaseAPI {
+export class AuthApi extends BaseAPI implements AuthApiInterface {
     /**
      * JWT 토큰 Refresh
      * @summary 
@@ -2036,12 +2158,49 @@ export const CronApiFactory = function (configuration?: Configuration, basePath?
 };
 
 /**
+ * CronApi - interface
+ * @export
+ * @interface CronApi
+ */
+export interface CronApiInterface {
+    /**
+     * Cron 실행
+     * @summary 
+     * @param {ReqExecuteCronJob} reqExecuteCronJob 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CronApiInterface
+     */
+    cronControllerExecuteJob(reqExecuteCronJob: ReqExecuteCronJob, options?: RawAxiosRequestConfig): AxiosPromise<CronControllerExecuteJob200Response>;
+
+    /**
+     * Cron 작업 목록
+     * @summary 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CronApiInterface
+     */
+    cronControllerGetJobs(options?: RawAxiosRequestConfig): AxiosPromise<CronControllerGetJobs200Response>;
+
+    /**
+     * Cron 주기/상태 수정
+     * @summary 
+     * @param {ReqUpdateCronJob} reqUpdateCronJob 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CronApiInterface
+     */
+    cronControllerUpdateDataSyncCronJob(reqUpdateCronJob: ReqUpdateCronJob, options?: RawAxiosRequestConfig): AxiosPromise<CronControllerUpdateDataSyncCronJob200Response>;
+
+}
+
+/**
  * CronApi - object-oriented interface
  * @export
  * @class CronApi
  * @extends {BaseAPI}
  */
-export class CronApi extends BaseAPI {
+export class CronApi extends BaseAPI implements CronApiInterface {
     /**
      * Cron 실행
      * @summary 
@@ -2247,12 +2406,42 @@ export const GoogleApiFactory = function (configuration?: Configuration, basePat
 };
 
 /**
+ * GoogleApi - interface
+ * @export
+ * @interface GoogleApi
+ */
+export interface GoogleApiInterface {
+    /**
+     * 스프레드시트 조회
+     * @summary 
+     * @param {string} url 스프레드시트 URL
+     * @param {string} sheetName 내부 시트 이름
+     * @param {string} range 데이터 범위 (예: \&#39;A1:C10\&#39;)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GoogleApiInterface
+     */
+    googleControllerGetSheetData(url: string, sheetName: string, range: string, options?: RawAxiosRequestConfig): AxiosPromise<GoogleControllerGetSheetData200Response>;
+
+    /**
+     * 구글 로그인
+     * @summary 
+     * @param {ReqGoogleLogin} reqGoogleLogin 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GoogleApiInterface
+     */
+    googleControllerGoogleLogin(reqGoogleLogin: ReqGoogleLogin, options?: RawAxiosRequestConfig): AxiosPromise<AccountControllerLogin200Response>;
+
+}
+
+/**
  * GoogleApi - object-oriented interface
  * @export
  * @class GoogleApi
  * @extends {BaseAPI}
  */
-export class GoogleApi extends BaseAPI {
+export class GoogleApi extends BaseAPI implements GoogleApiInterface {
     /**
      * 스프레드시트 조회
      * @summary 
@@ -2277,107 +2466,6 @@ export class GoogleApi extends BaseAPI {
      */
     public googleControllerGoogleLogin(reqGoogleLogin: ReqGoogleLogin, options?: RawAxiosRequestConfig) {
         return GoogleApiFp(this.configuration).googleControllerGoogleLogin(reqGoogleLogin, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * SlackApi - axios parameter creator
- * @export
- */
-export const SlackApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        slackControllerPostHandleInteractiveMessage: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/slack/interactive`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * SlackApi - functional programming interface
- * @export
- */
-export const SlackApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = SlackApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async slackControllerPostHandleInteractiveMessage(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.slackControllerPostHandleInteractiveMessage(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SlackApi.slackControllerPostHandleInteractiveMessage']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * SlackApi - factory interface
- * @export
- */
-export const SlackApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = SlackApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        slackControllerPostHandleInteractiveMessage(options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.slackControllerPostHandleInteractiveMessage(options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * SlackApi - object-oriented interface
- * @export
- * @class SlackApi
- * @extends {BaseAPI}
- */
-export class SlackApi extends BaseAPI {
-    /**
-     * 
-     * @summary 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SlackApi
-     */
-    public slackControllerPostHandleInteractiveMessage(options?: RawAxiosRequestConfig) {
-        return SlackApiFp(this.configuration).slackControllerPostHandleInteractiveMessage(options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -2472,12 +2560,30 @@ export const UserApiFactory = function (configuration?: Configuration, basePath?
 };
 
 /**
+ * UserApi - interface
+ * @export
+ * @interface UserApi
+ */
+export interface UserApiInterface {
+    /**
+     * 권한 업데이트 요청
+     * @summary 
+     * @param {ReqUserUpdateRole} reqUserUpdateRole 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserApiInterface
+     */
+    userControllerRequestRoleUpdate(reqUserUpdateRole: ReqUserUpdateRole, options?: RawAxiosRequestConfig): AxiosPromise<AccountControllerLogout200Response>;
+
+}
+
+/**
  * UserApi - object-oriented interface
  * @export
  * @class UserApi
  * @extends {BaseAPI}
  */
-export class UserApi extends BaseAPI {
+export class UserApi extends BaseAPI implements UserApiInterface {
     /**
      * 권한 업데이트 요청
      * @summary 

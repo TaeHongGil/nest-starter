@@ -4,7 +4,7 @@ import path from 'path';
 import winston, { Logger as WinstonLoggerType } from 'winston';
 import winstonDaily from 'winston-daily-rotate-file';
 import ServerConfig from '../config/server.config';
-import { LOG_COLOR_MAP } from '../define/define';
+import { LOG_COLOR_MAP } from '../define/core.define';
 import StringUtil from '../utils/string.utils';
 
 class ServerLogger implements LoggerService {

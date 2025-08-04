@@ -16,18 +16,10 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@root/*": ["./src/*"],
+      "@root/*": ["./src/*"]
     },
     "types": ["vite/client"]
   },
-  "include": [
-    "src",
-    "vite.config.mts",
-    "eslint.config.js",
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "modules",
-  ]
+  "include": ["src", "vite.config.mts", "eslint.config.js"],
+  "exclude": ["node_modules", "dist", "modules"]
 }

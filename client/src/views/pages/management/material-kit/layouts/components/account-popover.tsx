@@ -16,7 +16,7 @@ import { usePathname, useRouter } from '@root/views/pages/management/material-ki
 
 import { GoogleLoginButton } from '@root/views/pages/management/material-kit/components/google-login/google-login';
 import managementStore, { ROLE } from '@root/views/pages/management/store/ManagementStore';
-import ServerApi from '@root/views/pages/management/store/server.api';
+import ServerApi from '@root/common/util/server.api';
 
 // ----------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ export const AccountPopover = observer(({ data = [], sx, ...other }: AccountPopo
   const handleLogout = async () => {
     setOpenPopover(null);
 
-    await ServerApi.account.accountControllerLogout();
+    await ServerApi.Account.accountControllerLogout();
     managementStore.clearUser();
     console.log('Logged out');
   };

@@ -3,7 +3,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { OperationObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import ServerConfig from '@root/core/config/server.config';
-import { NoAuthGuard, SkipResponseInterceptor } from '@root/core/decorator/common.decorator';
+import { NoAuthGuard, SkipResponseInterceptor } from '@root/core/decorator/core.decorator';
 import { DevGuard } from '@root/core/guard/dev.guard';
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';

@@ -26,4 +26,3 @@ docs/*
 openapitools.json
 README.md
 git_push.sh
-tsconfig.json

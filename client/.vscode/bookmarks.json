@@ -1,0 +1,34 @@
+{
+	"files": [
+		{
+			"path": "src/views/pages/management/material-kit/routes/sections.tsx",
+			"bookmarks": [
+				{
+					"line": 0,
+					"column": 0,
+					"label": "Route URL 추가"
+				}
+			]
+		},
+		{
+			"path": "src/views/pages/management/material-kit/layouts/nav-config-dashboard.tsx",
+			"bookmarks": [
+				{
+					"line": 0,
+					"column": 0,
+					"label": "Sidebar 메뉴 추가"
+				}
+			]
+		},
+		{
+			"path": "src/common/util/server.api.tsx",
+			"bookmarks": [
+				{
+					"line": 0,
+					"column": 0,
+					"label": "Server Api 추가"
+				}
+			]
+		}
+	]
+}

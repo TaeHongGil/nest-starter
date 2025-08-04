@@ -5,6 +5,7 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { ApiOkResponse, ApiOperation, getSchemaPath } from '@nestjs/swagger';
 import { OperationObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { CommonResponse } from '@root/core/common/response';
+import { IS_SKIP_KEY } from '@root/core/decorator/core.decorator';
 import { ParameterMetadataAccessor } from './utils/parameter-metadata-accessor';
 
 @Injectable()
@@ -98,11 +99,12 @@ export class SwaggerUtil {
             if (methodMetadata != undefined) {
               const { description, type } = controllerMetadata?.[controllerName]?.[methodName] ?? {};
               const info = Reflect.getMetadata('swagger/apiOperation', method);
+              const skipCommonResponse = Reflect.getMetadata(IS_SKIP_KEY, controller) ?? Reflect.getMetadata(IS_SKIP_KEY, method);
               const operation = {
                 ...info,
                 description,
               };
-              if (type && controllerName !== 'AppController') {
+              if (type && !skipCommonResponse) {
                 const properties =
                   type.name !== 'Object'
                     ? { timestamp: { type: 'string' }, data: { $ref: getSchemaPath(type) }, error: { type: 'object' } }
@@ -136,8 +138,6 @@ export class SwaggerUtil {
             if (prop.enum && typeof prop.enum === 'object' && !Array.isArray(prop.enum)) {
               const enumObj = prop.enum;
               const names = Object.keys(enumObj).filter((k) => isNaN(Number(k)));
-              const values = names.map((n) => enumObj[n]);
-              prop.enum = values;
               prop['x-enum-varnames'] = names;
             }
           });

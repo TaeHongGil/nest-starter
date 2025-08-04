@@ -1,5 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import qs from 'qs';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { METHOD_TYPE } from '../define/common.define';
 import MessageUtil from './message.util';
 
@@ -10,14 +9,7 @@ class HttpUtil {
    * @param params Query or body parameters.
    * @param headers Request headers.
    */
-  static async request<T>(
-    baseUrl: string,
-    method: METHOD_TYPE,
-    url: string,
-    params?: any,
-    headers?: any,
-    responseInterceptors?: (axiosInstance: AxiosInstance, response: AxiosResponse<T>) => Promise<any>,
-  ): Promise<AxiosResponse<T>> {
+  static async request<T>(baseUrl: string, method: METHOD_TYPE, url: string, params?: any, headers?: any): Promise<AxiosResponse<T>> {
     MessageUtil.loadingProgress(true);
     try {
       const axiosInstance = axios.create({
@@ -31,37 +23,10 @@ class HttpUtil {
         },
       });
 
-      if (responseInterceptors) {
-        axiosInstance.interceptors.request.use(
-          async (config) => {
-            return config;
-          },
-          async (error) => {
-            return Promise.reject(error);
-          },
-        );
-
-        axiosInstance.interceptors.response.use(
-          async (response) => {
-            return await responseInterceptors(axiosInstance, response);
-          },
-          async (error) => {
-            return Promise.reject(error);
-          },
-        );
-      }
-
       const config: AxiosRequestConfig = {
         url,
         method,
       };
-
-      if (method === 'GET') {
-        config.params = params;
-        config.paramsSerializer = (params): string => qs.stringify(params, { arrayFormat: 'repeat' });
-      } else {
-        config.data = params;
-      }
 
       const response = await axiosInstance.request<T>(config);
       console.log(response);
@@ -73,18 +38,6 @@ class HttpUtil {
     } finally {
       MessageUtil.loadingProgress(false);
     }
-  }
-
-  /**
-   * Previews the request URL.
-   * @param url The URL to preview.
-   * @param params Query parameters.
-   * @returns The complete URL string.
-   */
-  static previewUrl(baseurl: string, url: string, params?: Record<string, any>): string {
-    const queryString = qs.stringify(params || {}, { arrayFormat: 'repeat' });
-
-    return `${baseurl}${url}${queryString ? `?${queryString}` : ''}`;
   }
 }
 

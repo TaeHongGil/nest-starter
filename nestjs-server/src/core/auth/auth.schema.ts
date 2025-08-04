@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ROLE } from '../define/define';
+import { ROLE } from '../define/core.define';
 
 export class SessionUser {
   useridx: number;

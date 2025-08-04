@@ -3,7 +3,7 @@ import { All, Controller, Get, HttpCode, UseInterceptors } from '@nestjs/common'
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { ResHealthCheck, ResPlatformInfo } from '@root/app.response.dto';
 import ServerConfig from '@root/core/config/server.config';
-import { NoAuthGuard, SkipResponseInterceptor } from '@root/core/decorator/common.decorator';
+import { NoAuthGuard, SkipResponseInterceptor } from '@root/core/decorator/core.decorator';
 import { GoogleSheetService } from '@root/core/google/google.sheet.service';
 
 @Controller('')

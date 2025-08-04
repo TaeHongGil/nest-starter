@@ -8,9 +8,9 @@ import MessageUtil from '@root/common/util/message.util';
 import { DataTable } from '@root/views/pages/management/material-kit/components/datatable/components';
 import { Iconify } from '@root/views/pages/management/material-kit/components/iconify';
 import { ROLE } from '@root/views/pages/management/store/ManagementStore';
-import ServerApi from '@root/views/pages/management/store/server.api';
+import ServerApi from '@root/common/util/server.api';
 import JSON5 from 'json5';
-import { ReqAdminUpdateRoleRoleEnum, ResUser } from 'nestjs-api-axios';
+import { ResUser } from 'nestjs-api-axios';
 import { useEffect, useState } from 'react';
 
 // ----------------------------------------------------------------------
@@ -20,7 +20,7 @@ export function UserView() {
   const [filter, setFilter] = useState<Record<string, any>>({ limit: '100', page: '1', filter: '{}' });
 
   const fetchUsers = async () => {
-    const response = await ServerApi.admin.adminControllerGetUsers(filter.limit, filter.page, filter.filter);
+    const response = await ServerApi.Admin.adminControllerGetUsers(filter.limit, filter.page, filter.filter);
     setUsers(response.data.data?.users ?? []);
   };
 
@@ -68,7 +68,7 @@ export function UserView() {
             onClick: async (row, close) => {
               const result = await MessageUtil.formDialogAsync(`Update ${row.nickname}'s Role`, { role: row.role });
               if (result) {
-                await ServerApi.admin.adminControllerUpdateUserRole({ useridx: row.useridx, role: Number(result.role) as ReqAdminUpdateRoleRoleEnum });
+                await ServerApi.Admin.adminControllerUpdateUserRole({ useridx: row.useridx, role: Number(result.role) });
                 fetchUsers();
               }
               close();

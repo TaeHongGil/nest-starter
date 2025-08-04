@@ -44,7 +44,7 @@ const ResponseSection = observer(() => {
                 onClick={async () => {
                   await httpSotre.setApiData(item.data);
                   httpSotre.setRequestBody(item.data.request.body);
-                  httpSotre.setRequestQuery(item.data.request.query);
+                  httpSotre.setRequestParams(item.data.request.params);
                   handleMenuClose();
                 }}
               >
@@ -66,9 +66,33 @@ const ResponseSection = observer(() => {
       <div style={{ height: '95%', display: 'flex', flexDirection: 'column' }}>
         <TabContext value={responseActiveTab}>
           <TabList onChange={handleChange} textColor="inherit">
-            <Tab label="Schema" value="schema" />
-            <Tab label="Header" value="headers" />
-            <Tab label="Body" value="body" />
+            <Tab
+              label={
+                <span>
+                  <span>Schema</span>
+                  {responseSchema ? <span style={{ color: 'red' }}>*</span> : null}
+                </span>
+              }
+              value="schema"
+            />
+            <Tab
+              label={
+                <span>
+                  <span>Header</span>
+                  {response.headers ? <span style={{ color: 'red' }}>*</span> : null}
+                </span>
+              }
+              value="headers"
+            />
+            <Tab
+              label={
+                <span>
+                  <span>Body</span>
+                  {responseBody ? <span style={{ color: 'red' }}>*</span> : null}
+                </span>
+              }
+              value="body"
+            />
           </TabList>
           <div style={{ flex: 1, overflow: 'hidden' }}>
             <TabPanel value="schema" classes={{ root: 'swagger-panel' }}>

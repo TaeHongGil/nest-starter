@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { CommonResponse } from '@root/core/common/response';
-import { IS_SKIP_KEY } from '@root/core/decorator/common.decorator';
+import { IS_SKIP_KEY } from '@root/core/decorator/core.decorator';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 

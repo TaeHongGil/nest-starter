@@ -37,7 +37,7 @@ const Swagger = (): ReactElement => {
 
   const loadMetadataAsync = async (): Promise<any> => {
     try {
-      const result = await HttpUtil.request(ServerConfig.url, METHOD_TYPE.GET, `swagger`);
+      const result = await HttpUtil.request(ServerConfig.api_url, METHOD_TYPE.GET, `swagger`);
 
       return result.data;
     } catch (error: any) {

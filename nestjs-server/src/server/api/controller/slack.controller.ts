@@ -1,5 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { NoAuthGuard } from '@root/core/decorator/common.decorator';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { NoAuthGuard } from '@root/core/decorator/core.decorator';
 import { SlackGuard } from '@root/core/slack/slack.guard';
 import { SlackService } from '@root/core/slack/slack.service';
 import { SLACK_ACTION_KEY } from '@root/server/api/define/api.define';
@@ -15,6 +16,7 @@ export class SlackController {
   ) {}
 
   @Post('interactive')
+  @ApiExcludeEndpoint()
   async postHandleInteractiveMessage(@Body() req: any): Promise<void> {
     const payload = JSON.parse(req.payload);
     const action = payload.actions[0];

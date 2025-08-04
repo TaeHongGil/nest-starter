@@ -16,11 +16,14 @@
     "api": {
       "port": 20000
     },
-    "socket": {
+    "batch": {
       "port": 30000
     },
-    "mq": {
+    "socket": {
       "port": 40000
+    },
+    "mq": {
+      "port": 50000
     }
   },
   "dev": true,
@@ -29,19 +32,9 @@
     "servers": {
       "local": {
         "api": "http://localhost:20000",
-        "socket": "http://localhost:30000"
-      },
-      "dev": {
-        "api": "",
-        "socket": ""
-      },
-      "qa": {
-        "api": "",
-        "socket": ""
-      },
-      "live": {
-        "api": "",
-        "socket": ""
+        "batch": "http://localhost:30000",
+        "socket": "http://localhost:40000",
+        "mq": "http://localhost:50000"
       }
     }
   },

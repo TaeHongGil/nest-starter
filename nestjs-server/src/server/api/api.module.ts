@@ -3,7 +3,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import ServerConfig from '@root/core/config/server.config';
 import { CoreModule } from '@root/core/core.module';
 import ServerLogger from '@root/core/server-logger/server.logger';
-import { BatchModule } from '@root/server/batch/batch.module';
 import fs from 'fs';
 import path from 'path';
 import { ApiServiceModule } from './service/api.service.module';
@@ -15,7 +14,7 @@ const staticClients = ServerConfig.client
   }))
   .filter((client) => fs.existsSync(client.rootPath));
 
-const imports = [...(staticClients.length > 0 ? [ServeStaticModule.forRoot(...staticClients)] : []), ApiServiceModule, BatchModule];
+const imports = [...(staticClients.length > 0 ? [ServeStaticModule.forRoot(...staticClients)] : []), ApiServiceModule];
 
 @Module({
   imports: [...imports, CoreModule.registerDynamic(ApiModule, path.join(__dirname, 'controller'), '.controller', 'controllers')],

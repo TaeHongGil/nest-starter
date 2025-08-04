@@ -24,6 +24,8 @@ export interface EventInfo {
 export interface ServerUrl {
   api: string;
   socket: string;
+  batch: string;
+  mq: string;
 }
 
 export interface DefaultSchema {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SessionData, SessionUser } from '@root/core/auth/auth.schema';
 import ServerConfig from '@root/core/config/server.config';
-import { PLATFORM, ROLE } from '@root/core/define/define';
+import { PLATFORM, ROLE } from '@root/core/define/core.define';
 import CryptUtil from '@root/core/utils/crypt.utils';
 import StringUtil from '@root/core/utils/string.utils';
 import { AccountRepository } from './account.repository';
