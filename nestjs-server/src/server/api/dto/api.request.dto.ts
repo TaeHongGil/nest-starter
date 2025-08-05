@@ -86,3 +86,20 @@ export class ReqUserUpdateRole {
   @Transform(({ value }) => parseInt(value, 10))
   role: ROLE;
 }
+
+export class ReqGetDBData {
+  @IsString()
+  name: string;
+
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value, 10))
+  page: number;
+
+  @IsString()
+  @IsOptional()
+  filter?: string;
+
+  @IsString()
+  @IsOptional()
+  sort?: string;
+}

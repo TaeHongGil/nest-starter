@@ -31,10 +31,9 @@ export class SwaggerAppModule {}
 
 async function bootstrap(): Promise<void> {
   try {
-    generateSwaggerMetadata();
-
     const app = await NestFactory.create<NestExpressApplication>(SwaggerAppModule);
     const swagger = app.get(SwaggerService);
+    generateSwaggerMetadata();
     await swagger.init(app);
     process.exit(0);
   } catch (error) {

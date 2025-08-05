@@ -1,11 +1,9 @@
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Toolbar from '@mui/material/Toolbar';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { HeadLabel } from '@root/views/pages/management/material-kit/components/datatable/components';
 
@@ -26,14 +24,13 @@ export function TableToolbar({ numSelected, filterName, onFilterName, filterKey,
   return (
     <Toolbar
       sx={{
-        height: 96,
         display: 'flex',
         justifyContent: 'space-between',
-        p: (theme) => theme.spacing(0, 1, 0, 3),
         ...(numSelected > 0 && {
           color: 'primary.main',
           bgcolor: 'primary.lighter',
         }),
+        m: 1,
       }}
     >
       {numSelected > 0 ? (
@@ -50,7 +47,7 @@ export function TableToolbar({ numSelected, filterName, onFilterName, filterKey,
             startAdornment={<InputAdornment position="start">{/* <Iconify width={20} icon="eva:search-fill" sx={{ color: 'text.disabled' }} /> */}</InputAdornment>}
             sx={{ maxWidth: 320 }}
           />
-          <Select value={filterKey} onChange={onFilterKey} size="small" sx={{ minWidth: 200, background: 'white' }}>
+          <Select value={filterKey || ''} onChange={onFilterKey} size="small" sx={{ minWidth: 200, background: 'white' }}>
             {headLabel.map((header) => (
               <MenuItem key={header.id} value={header.id}>
                 {header.label}
@@ -58,16 +55,6 @@ export function TableToolbar({ numSelected, filterName, onFilterName, filterKey,
             ))}
           </Select>
         </Box>
-      )}
-
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>{/* <Iconify icon="solar:trash-bin-trash-bold" /> */}</IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>{/* <Iconify icon="ic:round-filter-list" /> */}</IconButton>
-        </Tooltip>
       )}
     </Toolbar>
   );

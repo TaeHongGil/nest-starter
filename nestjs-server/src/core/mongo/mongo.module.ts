@@ -12,8 +12,7 @@ import ServerLogger from '../server-logger/server.logger';
     ...(ServerConfig.db.mongo.active
       ? [
           MongooseModule.forRootAsync({
-            imports: [MongoService],
-            useFactory: async (mongoService: MongoService) => {
+            useFactory: async () => {
               const db = ServerConfig.db.mongo;
               const dbName = DBConnectKeys.getKey(db.db_name);
               const uri = `mongodb://${db.hosts.join(',')}/?replicaSet=${db.replica_set}`;
@@ -27,10 +26,21 @@ import ServerLogger from '../server-logger/server.logger';
                 maxPoolSize: db.max_pool_size,
                 minPoolSize: db.min_pool_size,
                 tls: db.use_tls,
-                onConnectionCreate: (connection: Connection): Connection => mongoService.onConnectionCreate(dbName, db, connection),
+                onConnectionCreate: (connection: Connection): Connection => {
+                  connection.on('connected', () => {
+                    ServerLogger.log(`[mongo.${dbName}] Connected to MongoDB.`);
+                  });
+                  connection.on('disconnected', () => {
+                    ServerLogger.warn(`[mongo.${dbName}] Disconnected from MongoDB. Waiting for auto-reconnect...`);
+                  });
+                  connection.on('error', (err) => {
+                    ServerLogger.error(`[mongo.${dbName}] MongoDB connection error: ${err.message}`);
+                  });
+
+                  return connection;
+                },
               };
             },
-            inject: [MongoService],
           }),
         ]
       : []),

@@ -35,6 +35,11 @@ export const navData = [
     icon: icon('ic-user'),
   },
   {
+    title: 'DB',
+    path: 'db',
+    icon: <Iconify icon="raphael:db" />,
+  },
+  {
     title: 'Product',
     path: 'example/products',
     icon: icon('ic-cart'),

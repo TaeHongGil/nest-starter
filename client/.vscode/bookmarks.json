@@ -29,6 +29,16 @@
 					"label": "Server Api 추가"
 				}
 			]
+		},
+		{
+			"path": "src/views/pages/management/material-kit/components/iconify/icon-sets.ts",
+			"bookmarks": [
+				{
+					"line": 0,
+					"column": 0,
+					"label": "icon 추가"
+				}
+			]
 		}
 	]
 }

@@ -20,6 +20,8 @@ export const BlogPage = lazy(async () => import('@root/views/pages/management/ma
 
 export const UserPage = lazy(async () => import('@root/views/pages/management/material-kit/pages/user'));
 
+export const DBPage = lazy(async () => import('@root/views/pages/management/material-kit/pages/db'));
+
 export const SignInPage = lazy(async () => import('@root/views/pages/management/material-kit/pages/sign-in'));
 
 export const BatchPage = lazy(async () => import('@root/views/pages/management/material-kit/pages/batch'));
@@ -87,6 +89,14 @@ export const routesSection: RouteObject[] = [
         element: (
           <AuthGuard requiredRole={ROLE.ADMIN}>
             <UserPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'db',
+        element: (
+          <AuthGuard requiredRole={ROLE.ADMIN}>
+            <DBPage />
           </AuthGuard>
         ),
       },

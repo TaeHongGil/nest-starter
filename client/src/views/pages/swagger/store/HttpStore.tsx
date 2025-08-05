@@ -9,7 +9,6 @@ import { protocolStore } from './ProtocolStore';
 import SwaggerMetadata, { DefaultSchema, PathInfo } from './SwaggerMetadata';
 import qs from 'qs';
 import ServerApi from '@root/common/util/server.api';
-import { camelCase } from 'es-toolkit';
 
 export type HttpHistoryMap = Record<string, HttpHistoryEntry[]>;
 
@@ -151,6 +150,14 @@ export class HttpStore {
     await StorageUtil.saveIndexDB('http', 'api', this.apiMap);
   }
 
+  private toApiMethodName(str: string) {
+    if (!str) return '';
+    const [controller, method] = str.split('_');
+    if (!controller || !method) return str;
+
+    return controller.charAt(0).toLowerCase() + controller.slice(1) + method.charAt(0).toUpperCase() + method.slice(1);
+  }
+
   async sendRequest(): Promise<void> {
     if (!this.pathInfo || !this.requestBody) {
       MessageUtil.error('Path and body are required to send a request.');
@@ -158,7 +165,7 @@ export class HttpStore {
       return;
     }
     const info = SwaggerMetadata.getPath(this.pathInfo.method, this.pathInfo.path);
-    const id = camelCase(info?.operationId);
+    const id = this.toApiMethodName(info?.operationId);
 
     const method = this.pathInfo.method;
     const path = this.pathInfo.path;

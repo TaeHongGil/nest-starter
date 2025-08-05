@@ -4,7 +4,6 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
 
 import { Scrollbar } from '@root/views/pages/management/material-kit/components/scrollbar';
 
@@ -14,6 +13,7 @@ import { TableNoData } from '../table-no-data';
 import { DataTableRow, PopoverListItem } from '../table-row';
 import { TableToolbar } from '../table-toolbar';
 import { applyFilter, emptyRows, getComparator } from '../utils';
+import { Box, SxProps, TablePagination } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -22,8 +22,6 @@ export interface HeadLabel {
   label: string;
   align?: string;
 }
-
-import { SxProps } from '@mui/material';
 
 export interface DataTableProps {
   inputData: any[];
@@ -59,6 +57,16 @@ export function DataTable(props: DataTableProps) {
     }
   }, [table.selected]);
 
+  useEffect(() => {
+    if (headLabel.length > 0) {
+      setFilterKey(headLabel[0]?.id || '');
+    }
+  }, [headLabel]);
+
+  useEffect(() => {
+    table.onResetPage();
+  }, [inputData]);
+
   return (
     <Card sx={sx}>
       {showToolbar && (
@@ -77,6 +85,20 @@ export function DataTable(props: DataTableProps) {
           headLabel={computedHeadLabel}
         />
       )}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+        <TablePagination
+          component="div"
+          page={table.page}
+          count={normalizedData.length}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          rowsPerPageOptions={[5, 10, 25, 50, 100]}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+          showFirstButton
+          showLastButton
+          sx={{ mx: 2, marginTop: 0, marginBottom: 1 }}
+        />
+      </Box>
       <Scrollbar>
         <TableContainer sx={{ overflow: 'unset' }}>
           <Table sx={{ minWidth: 800 }}>
@@ -116,15 +138,6 @@ export function DataTable(props: DataTableProps) {
           </Table>
         </TableContainer>
       </Scrollbar>
-      <TablePagination
-        component="div"
-        page={table.page}
-        count={normalizedData.length}
-        rowsPerPage={table.rowsPerPage}
-        onPageChange={table.onChangePage}
-        rowsPerPageOptions={[5, 10, 25]}
-        onRowsPerPageChange={table.onChangeRowsPerPage}
-      />
     </Card>
   );
 }

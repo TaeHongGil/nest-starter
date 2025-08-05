@@ -4,8 +4,9 @@ import { RoleGuard } from '@root/core/decorator/core.decorator';
 import { ROLE } from '@root/core/define/core.define';
 import CoreError from '@root/core/error/core.error';
 import { AccountService } from '@root/server/api/service/account/account.service';
-import { ReqAdminUpdateRole, ReqGetUsers } from '../dto/api.request.dto';
-import { ResGetUsers, ResUser } from '../dto/api.response.dto';
+import { ReqAdminUpdateRole, ReqGetDBData, ReqGetUsers } from '../dto/api.request.dto';
+import { ResDBData, ResDBList, ResGetUsers, ResUser } from '../dto/api.response.dto';
+import { MongoService } from '@root/core/mongo/mongo.service';
 
 /**
  * 계정 컨트롤러
@@ -13,7 +14,10 @@ import { ResGetUsers, ResUser } from '../dto/api.response.dto';
 @Controller('admin')
 @RoleGuard(ROLE.ADMIN)
 export class AdminController {
-  constructor(private readonly accountService: AccountService) {}
+  constructor(
+    private readonly accountService: AccountService,
+    private readonly mongoService: MongoService,
+  ) {}
 
   /**
    * 유저 목록 조회
@@ -60,5 +64,47 @@ export class AdminController {
       role: dbUsers.role,
       created_at: dbUsers.created_at.toISOString(),
     };
+  }
+
+  /**
+   * DB 컬렉션 목록 조회
+   */
+  @Get('/db/list')
+  async getDBList(@Session() session: SessionData): Promise<ResDBList> {
+    const list = await this.mongoService.getCollections();
+
+    return { result: list };
+  }
+
+  /**
+   * 컬렉션 데이터 페이지네이션 및 필터 조회
+   */
+  @Get('/db/page')
+  async getDBDataWithFilter(@Session() session: SessionData, @Query() req: ReqGetDBData): Promise<ResDBData> {
+    let parsedFilter: Record<string, any> = {};
+    let parsedSort: Record<string, any> = {};
+    if (req.filter) {
+      try {
+        parsedFilter = JSON.parse(req.filter);
+      } catch (error) {
+        throw CoreError.BAD_REQUEST;
+      }
+    }
+
+    if (req.sort) {
+      try {
+        parsedSort = JSON.parse(req.sort);
+      } catch (error) {
+        throw CoreError.BAD_REQUEST;
+      }
+    }
+
+    const data = await this.mongoService.getCollectionPage(req.name, req.page, parsedFilter, parsedSort);
+    const result: ResDBData = {
+      data: data.data,
+      total: data.total,
+    };
+
+    return result;
   }
 }

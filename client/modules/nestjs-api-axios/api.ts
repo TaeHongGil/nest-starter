@@ -126,6 +126,56 @@ export interface AccountControllerLogout200Response {
 /**
  * 
  * @export
+ * @interface AdminControllerGetDBDataWithFilter200Response
+ */
+export interface AdminControllerGetDBDataWithFilter200Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof AdminControllerGetDBDataWithFilter200Response
+     */
+    'timestamp': string;
+    /**
+     * 
+     * @type {ResDBData}
+     * @memberof AdminControllerGetDBDataWithFilter200Response
+     */
+    'data'?: ResDBData;
+    /**
+     * 
+     * @type {object}
+     * @memberof AdminControllerGetDBDataWithFilter200Response
+     */
+    'error'?: object;
+}
+/**
+ * 
+ * @export
+ * @interface AdminControllerGetDBList200Response
+ */
+export interface AdminControllerGetDBList200Response {
+    /**
+     * 
+     * @type {string}
+     * @memberof AdminControllerGetDBList200Response
+     */
+    'timestamp': string;
+    /**
+     * 
+     * @type {ResDBList}
+     * @memberof AdminControllerGetDBList200Response
+     */
+    'data'?: ResDBList;
+    /**
+     * 
+     * @type {object}
+     * @memberof AdminControllerGetDBList200Response
+     */
+    'error'?: object;
+}
+/**
+ * 
+ * @export
  * @interface AdminControllerGetUsers200Response
  */
 export interface AdminControllerGetUsers200Response {
@@ -502,6 +552,50 @@ export interface JwtInfo {
 /**
  * 
  * @export
+ * @interface MongoCollectionSchema
+ */
+export interface MongoCollectionSchema {
+    /**
+     * 
+     * @type {string}
+     * @memberof MongoCollectionSchema
+     */
+    'name': string;
+    /**
+     * 
+     * @type {Array<MongoFieldSchema>}
+     * @memberof MongoCollectionSchema
+     */
+    'properties': Array<MongoFieldSchema>;
+}
+/**
+ * 
+ * @export
+ * @interface MongoFieldSchema
+ */
+export interface MongoFieldSchema {
+    /**
+     * 
+     * @type {string}
+     * @memberof MongoFieldSchema
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof MongoFieldSchema
+     */
+    'type': string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof MongoFieldSchema
+     */
+    'required': boolean;
+}
+/**
+ * 
+ * @export
  * @interface ReqAdminUpdateRole
  */
 export interface ReqAdminUpdateRole {
@@ -551,6 +645,37 @@ export interface ReqExecuteCronJob {
      * @memberof ReqExecuteCronJob
      */
     'name': string;
+}
+/**
+ * 
+ * @export
+ * @interface ReqGetDBData
+ */
+export interface ReqGetDBData {
+    /**
+     * 
+     * @type {string}
+     * @memberof ReqGetDBData
+     */
+    'name': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ReqGetDBData
+     */
+    'page': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReqGetDBData
+     */
+    'filter'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReqGetDBData
+     */
+    'sort'?: string;
 }
 /**
  * 
@@ -705,6 +830,38 @@ export interface ResCreateGuest {
      * @memberof ResCreateGuest
      */
     'uuid': string;
+}
+/**
+ * 
+ * @export
+ * @interface ResDBData
+ */
+export interface ResDBData {
+    /**
+     * 컬렉션 데이터
+     * @type {Array<object>}
+     * @memberof ResDBData
+     */
+    'data': Array<object>;
+    /**
+     * 전체 데이터 수
+     * @type {number}
+     * @memberof ResDBData
+     */
+    'total': number;
+}
+/**
+ * 
+ * @export
+ * @interface ResDBList
+ */
+export interface ResDBList {
+    /**
+     * 
+     * @type {Array<MongoCollectionSchema>}
+     * @memberof ResDBList
+     */
+    'result': Array<MongoCollectionSchema>;
 }
 /**
  * 
@@ -1429,6 +1586,90 @@ export class AccountApi extends BaseAPI implements AccountApiInterface {
 export const AdminApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * 컬렉션 데이터 페이지네이션 및 필터 조회
+         * @summary 
+         * @param {string} name 
+         * @param {number} page 
+         * @param {string} [filter] 
+         * @param {string} [sort] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminControllerGetDBDataWithFilter: async (name: string, page: number, filter?: string, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'name' is not null or undefined
+            assertParamExists('adminControllerGetDBDataWithFilter', 'name', name)
+            // verify required parameter 'page' is not null or undefined
+            assertParamExists('adminControllerGetDBDataWithFilter', 'page', page)
+            const localVarPath = `/admin/db/page`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (name !== undefined) {
+                localVarQueryParameter['name'] = name;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (filter !== undefined) {
+                localVarQueryParameter['filter'] = filter;
+            }
+
+            if (sort !== undefined) {
+                localVarQueryParameter['sort'] = sort;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * DB 컬렉션 목록 조회
+         * @summary 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminControllerGetDBList: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/admin/db/list`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 유저 목록 조회
          * @summary 
          * @param {number} limit 1 페이지 내 사용자 수
@@ -1524,6 +1765,34 @@ export const AdminApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AdminApiAxiosParamCreator(configuration)
     return {
         /**
+         * 컬렉션 데이터 페이지네이션 및 필터 조회
+         * @summary 
+         * @param {string} name 
+         * @param {number} page 
+         * @param {string} [filter] 
+         * @param {string} [sort] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminControllerGetDBDataWithFilter(name: string, page: number, filter?: string, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminControllerGetDBDataWithFilter200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminControllerGetDBDataWithFilter(name, page, filter, sort, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminApi.adminControllerGetDBDataWithFilter']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * DB 컬렉션 목록 조회
+         * @summary 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminControllerGetDBList(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminControllerGetDBList200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminControllerGetDBList(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminApi.adminControllerGetDBList']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 유저 목록 조회
          * @summary 
          * @param {number} limit 1 페이지 내 사용자 수
@@ -1562,6 +1831,28 @@ export const AdminApiFactory = function (configuration?: Configuration, basePath
     const localVarFp = AdminApiFp(configuration)
     return {
         /**
+         * 컬렉션 데이터 페이지네이션 및 필터 조회
+         * @summary 
+         * @param {string} name 
+         * @param {number} page 
+         * @param {string} [filter] 
+         * @param {string} [sort] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminControllerGetDBDataWithFilter(name: string, page: number, filter?: string, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<AdminControllerGetDBDataWithFilter200Response> {
+            return localVarFp.adminControllerGetDBDataWithFilter(name, page, filter, sort, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * DB 컬렉션 목록 조회
+         * @summary 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminControllerGetDBList(options?: RawAxiosRequestConfig): AxiosPromise<AdminControllerGetDBList200Response> {
+            return localVarFp.adminControllerGetDBList(options).then((request) => request(axios, basePath));
+        },
+        /**
          * 유저 목록 조회
          * @summary 
          * @param {number} limit 1 페이지 내 사용자 수
@@ -1593,6 +1884,28 @@ export const AdminApiFactory = function (configuration?: Configuration, basePath
  */
 export interface AdminApiInterface {
     /**
+     * 컬렉션 데이터 페이지네이션 및 필터 조회
+     * @summary 
+     * @param {string} name 
+     * @param {number} page 
+     * @param {string} [filter] 
+     * @param {string} [sort] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminApiInterface
+     */
+    adminControllerGetDBDataWithFilter(name: string, page: number, filter?: string, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<AdminControllerGetDBDataWithFilter200Response>;
+
+    /**
+     * DB 컬렉션 목록 조회
+     * @summary 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminApiInterface
+     */
+    adminControllerGetDBList(options?: RawAxiosRequestConfig): AxiosPromise<AdminControllerGetDBList200Response>;
+
+    /**
      * 유저 목록 조회
      * @summary 
      * @param {number} limit 1 페이지 내 사용자 수
@@ -1623,6 +1936,32 @@ export interface AdminApiInterface {
  * @extends {BaseAPI}
  */
 export class AdminApi extends BaseAPI implements AdminApiInterface {
+    /**
+     * 컬렉션 데이터 페이지네이션 및 필터 조회
+     * @summary 
+     * @param {string} name 
+     * @param {number} page 
+     * @param {string} [filter] 
+     * @param {string} [sort] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminApi
+     */
+    public adminControllerGetDBDataWithFilter(name: string, page: number, filter?: string, sort?: string, options?: RawAxiosRequestConfig) {
+        return AdminApiFp(this.configuration).adminControllerGetDBDataWithFilter(name, page, filter, sort, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * DB 컬렉션 목록 조회
+     * @summary 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AdminApi
+     */
+    public adminControllerGetDBList(options?: RawAxiosRequestConfig) {
+        return AdminApiFp(this.configuration).adminControllerGetDBList(options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 유저 목록 조회
      * @summary 

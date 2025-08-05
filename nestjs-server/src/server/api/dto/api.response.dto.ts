@@ -1,5 +1,6 @@
 import { JwtInfo } from '@root/core/auth/auth.schema';
 import { ROLE } from '@root/core/define/core.define';
+import { MongoCollectionSchema } from '@root/core/mongo/mongo.schema';
 
 /**
  * 로그인
@@ -69,4 +70,19 @@ export class ResGetSheetData {
    * data 조회 결과
    */
   result: string[][];
+}
+
+export class ResDBList {
+  result: MongoCollectionSchema[];
+}
+
+export class ResDBData {
+  /**
+   * 컬렉션 데이터
+   */
+  data: any[];
+  /**
+   * 전체 데이터 수
+   */
+  total: number;
 }
